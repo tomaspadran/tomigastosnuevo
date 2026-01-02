@@ -65,7 +65,7 @@ const AddExpense = () => {
                 return;
             }
             finalCategory = newCategoryName.trim();
-            addCategory(finalCategory); // Add to context/storage
+            addCategory(finalCategory); 
         }
 
         addExpense({
@@ -128,58 +128,56 @@ const AddExpense = () => {
                             />
                         </div>
 
-             {/* Selector: Categoría (Jerárquico) */}
-<div className="space-y-2">
-    <Label>Tipo de Gasto</Label>
-    {!isAddingCategory ? (
-        <Select onValueChange={handleCategoryChange} value={type}>
-            <SelectTrigger className="w-full">
-                <SelectValue placeholder="Selecciona una categoría" />
-            </SelectTrigger>
-            <SelectContent className="max-h-[300px]">
-                {/* Grupos Dinámicos (Juana, Auto, Servicios) */}
-                {Object.entries(TOP_LEVEL_CATEGORIES || {}).map(([group, subgroups]) => {
-                    if (group === "Simple") return null;
-                    return (
-                        <SelectGroup key={group}>
-                            <SelectLabel className="bg-muted/50 text-primary font-bold">{group}</SelectLabel>
-                            {subgroups.map(sub => (
-                                <SelectItem key={`${group}: ${sub}`} value={`${group}: ${sub}`}>
-                                    {sub}
-                                </SelectItem>
-                            ))}
-                        </SelectGroup>
-                    );
-                })}
+                        {/* Selector: Categoría (Jerárquico) */}
+                        <div className="space-y-2">
+                            <Label>Tipo de Gasto</Label>
+                            {!isAddingCategory ? (
+                                <Select onValueChange={handleCategoryChange} value={type}>
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Selecciona una categoría" />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-[300px]">
+                                        {/* Grupos Dinámicos: Juana, Auto, Servicios */}
+                                        {Object.entries(TOP_LEVEL_CATEGORIES || {}).map(([group, subgroups]) => {
+                                            if (group === "Simple") return null;
+                                            return (
+                                                <SelectGroup key={group}>
+                                                    <SelectLabel className="bg-muted/50 text-primary font-bold">{group}</SelectLabel>
+                                                    {subgroups.map(sub => (
+                                                        <SelectItem key={`${group}: ${sub}`} value={`${group}: ${sub}`}>
+                                                            {sub}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectGroup>
+                                            );
+                                        })}
 
-                {/* Categorías Simples (Alquiler, Comida, etc) */}
-                {TOP_LEVEL_CATEGORIES?.["Simple"] && (
-                    <SelectGroup>
-                        <SelectLabel className="bg-muted/50 text-primary font-bold">General</SelectLabel>
-                        {TOP_LEVEL_CATEGORIES["Simple"].map(cat => (
-                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                        ))}
-                    </SelectGroup>
-                )}
+                                        {/* Categorías Simples: Alquiler, Supermercado, etc */}
+                                        {TOP_LEVEL_CATEGORIES?.["Simple"] && (
+                                            <SelectGroup>
+                                                <SelectLabel className="bg-muted/50 text-primary font-bold">General</SelectLabel>
+                                                {TOP_LEVEL_CATEGORIES["Simple"].map(cat => (
+                                                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                                                ))}
+                                            </SelectGroup>
+                                        )}
 
-                {/* Categorías Personalizadas creadas por usuario */}
-                {customCategories && customCategories.length > 0 && (
-                    <SelectGroup>
-                        <SelectLabel className="bg-muted/50 text-primary font-bold">Personalizadas</SelectLabel>
-                        {customCategories.map(cat => (
-                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                        ))}
-                    </SelectGroup>
-                )}
+                                        {/* Categorías Personalizadas */}
+                                        {customCategories && customCategories.length > 0 && (
+                                            <SelectGroup>
+                                                <SelectLabel className="bg-muted/50 text-primary font-bold">Personalizadas</SelectLabel>
+                                                {customCategories.map(cat => (
+                                                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                                                ))}
+                                            </SelectGroup>
+                                        )}
 
-                <div className="h-px bg-muted my-2" />
-                <SelectItem value="ADD_NEW" className="text-primary font-semibold focus:text-primary">
-                    + Agregar nueva categoría
-                </SelectItem>
-            </SelectContent>
-        </Select>
-    ) : (
-        // ... (el resto del código de motion.div se mantiene igual)
+                                        <div className="h-px bg-muted my-2" />
+                                        <SelectItem value="ADD_NEW" className="text-primary font-semibold focus:text-primary">
+                                            + Agregar nueva categoría
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
                             ) : (
                                 <motion.div
                                     initial={{ opacity: 0, height: 0 }}
@@ -195,7 +193,6 @@ const AddExpense = () => {
                                     <Button
                                         type="button"
                                         variant="ghost"
-                                        message="Cancelar"
                                         onClick={() => setIsAddingCategory(false)}
                                     >
                                         ✕
@@ -232,4 +229,5 @@ const AddExpense = () => {
 };
 
 export default AddExpense;
+
 
