@@ -1,233 +1,101 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useExpenses } from '@/context/ExpenseContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-    SelectGroup,
-    SelectLabel,
-} from '@/components/ui/select';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { toast } from 'sonner';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Plus, Save, Wallet, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 
 const AddExpense = () => {
     const { addExpense, customCategories, addCategory, TOP_LEVEL_CATEGORIES } = useExpenses();
+    const { user } = useAuth();
+    const navigate = useNavigate();
 
-    // Form States
-    const [type, setType] = useState('');
+    // Estados del formulario
     const [amount, setAmount] = useState('');
-    const [paidBy, setPaidBy] = useState('');
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-
-    // New Category State
-    const [isAddingCategory, setIsAddingCategory] = useState(false);
+    const [category, setCategory] = useState('');
     const [newCategoryName, setNewCategoryName] = useState('');
-
-    const handleCategoryChange = (value) => {
-        if (value === 'ADD_NEW') {
-            setIsAddingCategory(true);
-            setType('');
-        } else {
-            setIsAddingCategory(false);
-            setType(value);
-        }
-    };
+    const [isAddingCustom, setIsAddingCustom] = useState(false);
+    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [paidBy, setPaidBy] = useState(user?.username || 'Tomi');
+    const [paymentMethod, setPaymentMethod] = useState('Efectivo'); // NUEVO ESTADO
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Validation
-        if ((!type && !newCategoryName) || !amount || !paidBy || !date) {
-            toast.error('Por favor completa todos los campos');
+        if (!amount || !category || !paidBy) {
+            toast.error("Por favor completa todos los campos");
             return;
         }
 
-        const numAmount = parseFloat(amount);
-        if (isNaN(numAmount) || numAmount <= 0) {
-            toast.error('Ingrese un monto válido');
-            return;
+        const expenseData = {
+            type: category,
+            amount: parseFloat(amount),
+            date: date,
+            paidBy: paidBy,
+            paymentMethod: paymentMethod, // GUARDAMOS EL MÉTODO
+        };
+
+        addExpense(expenseData);
+        toast.success("Gasto registrado correctamente");
+        navigate('/dashboard');
+    };
+
+    const handleAddCustomCategory = () => {
+        if (newCategoryName.trim()) {
+            addCategory(newCategoryName.trim());
+            setCategory(newCategoryName.trim());
+            setNewCategoryName('');
+            setIsAddingCustom(false);
+            toast.success("Categoría agregada");
         }
-
-        let finalCategory = type;
-
-        // Handle new category
-        if (isAddingCategory) {
-            if (!newCategoryName.trim()) {
-                toast.error('Ingrese el nombre de la nueva categoría');
-                return;
-            }
-            finalCategory = newCategoryName.trim();
-            addCategory(finalCategory); 
-        }
-
-        addExpense({
-            type: finalCategory,
-            amount: numAmount,
-            paidBy,
-            date
-        });
-
-        toast.success('Gasto agregado correctamente');
-
-        // Reset form
-        setType('');
-        setAmount('');
-        setPaidBy('');
-        setDate(new Date().toISOString().split('T')[0]);
-        setIsAddingCategory(false);
-        setNewCategoryName('');
     };
 
     return (
-        <div className="container mx-auto p-6 max-w-md">
+        <div className="p-4 md:p-8 max-w-2xl mx-auto">
             <div className="mb-6">
-                <Link to="/dashboard">
-                    <Button variant="ghost" className="pl-0 hover:pl-2 transition-all">
-                        <ArrowLeft className="mr-2 h-4 w-4" /> Volver al Dashboard
-                    </Button>
-                </Link>
+                <Button variant="ghost" asChild className="gap-2">
+                    <Link to="/dashboard">
+                        <ArrowLeft className="h-4 w-4" /> Volver al Dashboard
+                    </Link>
+                </Button>
             </div>
 
-            <Card className="shadow-lg border-t-4 border-t-primary animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <Card className="shadow-lg border-t-4 border-t-primary">
                 <CardHeader>
-                    <CardTitle className="text-2xl text-primary">Registrar Nuevo Gasto</CardTitle>
+                    <CardTitle className="text-2xl">Registrar Gasto</CardTitle>
+                    <CardDescription>Ingresa los detalles del movimiento financiero</CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-6">
-
-                        {/* Selector: Realizado por */}
+                <form onSubmit={handleSubmit}>
+                    <CardContent className="space-y-5">
+                        {/* Monto */}
                         <div className="space-y-2">
-                            <Label>Realizado por</Label>
-                            <Select onValueChange={setPaidBy} value={paidBy}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="¿Quién pagó?" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Tomi">Tomi</SelectItem>
-                                    <SelectItem value="Gabi">Gabi</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        {/* Selector: Fecha */}
-                        <div className="space-y-2">
-                            <Label>Fecha</Label>
+                            <Label htmlFor="amount">Monto ($)</Label>
                             <Input
-                                type="date"
-                                value={date}
-                                onChange={(e) => setDate(e.target.value)}
+                                id="amount"
+                                type="number"
+                                placeholder="0.00"
+                                value={amount}
+                                onChange={(e) => setAmount(e.target.value)}
+                                className="text-lg font-bold"
                                 required
                             />
                         </div>
 
-                        {/* Selector: Categoría (Jerárquico) */}
+                        {/* Categoría */}
                         <div className="space-y-2">
-                            <Label>Tipo de Gasto</Label>
-                            {!isAddingCategory ? (
-                                <Select onValueChange={handleCategoryChange} value={type}>
-                                    <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Selecciona una categoría" />
-                                    </SelectTrigger>
-                                    <SelectContent className="max-h-[300px]">
-                                        {/* Grupos Dinámicos: Juana, Auto, Servicios */}
-                                        {Object.entries(TOP_LEVEL_CATEGORIES || {}).map(([group, subgroups]) => {
-                                            if (group === "Simple") return null;
-                                            return (
-                                                <SelectGroup key={group}>
-                                                    <SelectLabel className="bg-muted/50 text-primary font-bold">{group}</SelectLabel>
-                                                    {subgroups.map(sub => (
-                                                        <SelectItem key={`${group}: ${sub}`} value={`${group}: ${sub}`}>
-                                                            {sub}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectGroup>
-                                            );
-                                        })}
+                            <Label>Categoría</Label>
+                            {!isAddingCustom ? (
+                                <div className="flex gap-2">
+                                    <Select value={category} onValueChange={setCategory}>
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Selecciona una categoría" />
+                                        </SelectTrigger>
 
-                                        {/* Categorías Simples: Alquiler, Supermercado, etc */}
-                                        {TOP_LEVEL_CATEGORIES?.["Simple"] && (
-                                            <SelectGroup>
-                                                <SelectLabel className="bg-muted/50 text-primary font-bold">General</SelectLabel>
-                                                {TOP_LEVEL_CATEGORIES["Simple"].map(cat => (
-                                                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                                                ))}
-                                            </SelectGroup>
-                                        )}
-
-                                        {/* Categorías Personalizadas */}
-                                        {customCategories && customCategories.length > 0 && (
-                                            <SelectGroup>
-                                                <SelectLabel className="bg-muted/50 text-primary font-bold">Personalizadas</SelectLabel>
-                                                {customCategories.map(cat => (
-                                                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                                                ))}
-                                            </SelectGroup>
-                                        )}
-
-                                        <div className="h-px bg-muted my-2" />
-                                        <SelectItem value="ADD_NEW" className="text-primary font-semibold focus:text-primary">
-                                            + Agregar nueva categoría
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            ) : (
-                                <motion.div
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: 'auto' }}
-                                    className="flex gap-2"
-                                >
-                                    <Input
-                                        placeholder="Nombre de la nueva categoría"
-                                        value={newCategoryName}
-                                        onChange={(e) => setNewCategoryName(e.target.value)}
-                                        autoFocus
-                                    />
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        onClick={() => setIsAddingCategory(false)}
-                                    >
-                                        ✕
-                                    </Button>
-                                </motion.div>
-                            )}
-                        </div>
-
-                        {/* Input: Monto */}
-                        <div className="space-y-2">
-                            <Label>Monto Gastado ($)</Label>
-                            <div className="relative">
-                                <span className="absolute left-3 top-2.5 text-muted-foreground">$</span>
-                                <Input
-                                    type="number"
-                                    placeholder="0.00"
-                                    className="pl-7 text-lg font-medium"
-                                    value={amount}
-                                    onChange={(e) => setAmount(e.target.value)}
-                                    min="0"
-                                    step="0.01"
-                                />
-                            </div>
-                        </div>
-
-                        <Button type="submit" className="w-full text-lg shadow-md hover:shadow-lg transition-all">
-                            Guardar Gasto
-                        </Button>
-                    </form>
-                </CardContent>
-            </Card>
-        </div>
-    );
-};
-
-export default AddExpense;
 
 
