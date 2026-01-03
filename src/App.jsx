@@ -6,12 +6,9 @@ import AddExpense from './pages/AddExpense';
 import Login from './pages/Login';
 import { Toaster } from 'sonner';
 
-// Componente para proteger las rutas
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  
   if (loading) return <div className="flex h-screen items-center justify-center font-bold">Cargando...</div>;
-  
   return user ? children : <Navigate replace to="/login" />;
 };
 
@@ -22,23 +19,9 @@ function App() {
         <Router>
           <div className="min-h-screen bg-slate-50">
             <Routes>
-              {/* Ruta Pública */}
               <Route path="/login" element={<Login />} />
-              
-              {/* Rutas Privadas */}
-              <Route path="/dashboard" element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              } />
-              
-              <Route path="/add-expense" element={
-                <PrivateRoute>
-                  <AddExpense />
-                </PrivateRoute>
-              } />
-
-              {/* Redirección por defecto */}
+              <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+              <Route path="/add-expense" element={<PrivateRoute><AddExpense /></PrivateRoute>} />
               <Route path="/" element={<Navigate replace to="/dashboard" />} />
             </Routes>
           </div>
