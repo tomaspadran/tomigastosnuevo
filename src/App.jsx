@@ -1,72 +1,51 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ExpenseProvider } from './context/ExpenseContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Dashboard from './pages/Dashboard';
+import AddExpense from './pages/AddExpense';
+import Login from './pages/Login';
 import { Toaster } from 'sonner';
-import { AuthProvider } from '@/context/AuthContext';
-import { ExpenseProvider } from '@/context/ExpenseContext';
-import { ThemeProvider } from '@/context/ThemeContext'; // Importación importante
-import Login from '@/pages/Login';
-import Dashboard from '@/pages/Dashboard';
-import AddExpense from '@/pages/AddExpense';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import Navbar from '@/components/layout/Navbar';
-import CalendarPage from '@/pages/CalendarPage';
 
-const ProtectedLayout = ({ children }) => {
-  return (
-    <div className="min-h-screen bg-muted/20">
-      <Navbar />
-      <div className="container mx-auto">
-        {children}
-      </div>
-    </div>
-  );
+// Componente para proteger las rutas
+const PrivateRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) return <div className="flex h-screen items-center justify-center font-bold">Cargando...</div>;
+  
+  return user ? children : <Navigate replace to="/login" />;
 };
 
 function App() {
   return (
-    /* ESTA ES LA PIEZA CLAVE QUE FALTA EN TU PROYECTO */
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme"> 
-      <AuthProvider>
-        <ExpenseProvider>
-          <Router>
-            <div className="min-h-screen bg-background text-foreground antialiased font-sans">
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <ProtectedLayout>
-                        <Dashboard />
-                      </ProtectedLayout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/calendar"
-                  element={
-                    <ProtectedRoute>
-                      <ProtectedLayout>
-                        <CalendarPage />
-                      </ProtectedLayout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/add-expense"
-                  element={
-                    <ProtectedRoute>
-                      <AddExpense />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              </Routes>
-              <Toaster />
-            </div>
-          </Router>
-        </ExpenseProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <ExpenseProvider>
+        <Router>
+          <div className="min-h-screen bg-slate-50">
+            <Routes>
+              {/* Ruta Pública */}
+              <Route path="/login" element={<Login />} />
+              
+              {/* Rutas Privadas */}
+              <Route path="/dashboard" element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              } />
+              
+              <Route path="/add-expense" element={
+                <PrivateRoute>
+                  <AddExpense />
+                </PrivateRoute>
+              } />
+
+              {/* Redirección por defecto */}
+              <Route path="/" element={<Navigate replace to="/dashboard" />} />
+            </Routes>
+          </div>
+          <Toaster position="top-center" richColors />
+        </Router>
+      </ExpenseProvider>
+    </AuthProvider>
   );
 }
 
