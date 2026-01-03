@@ -61,7 +61,7 @@ const Dashboard = () => {
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-black tracking-tight">Mis Gastos</h1>
-                    <p className="text-sm text-muted-foreground">Periodo: {months.find(m => m.value === selectedMonth)?.label} {selectedYear}</p>
+                    <p className="text-sm text-muted-foreground italic">Hola, {user?.username || 'Tomi/Gabi'}</p>
                 </div>
                 <Button asChild size="icon" className="rounded-full h-12 w-12 shadow-lg bg-primary">
                     <Link to="/add-expense"><Plus className="h-6 w-6" /></Link>
@@ -147,35 +147,59 @@ const Dashboard = () => {
 
             <div className="space-y-4">
                 <div className="flex items-center justify-between px-1">
-                    <h2 className="font-black text-lg flex items-center gap-2"><History className="h-5 w-5 text-primary" /> Historial</h2>
-                    <span className="text-[10px] font-bold bg-muted px-2 py-1 rounded-full text-muted-foreground">{filteredExpenses.length} MOV.</span>
+                    <h2 className="font-black text-lg flex items-center gap-2">
+                        <History className="h-5 w-5 text-primary" /> Historial
+                    </h2>
+                    <span className="text-[10px] font-bold bg-muted px-2 py-1 rounded-full text-muted-foreground">
+                        {filteredExpenses.length} MOVIMIENTOS
+                    </span>
                 </div>
+                
                 <div className="grid gap-3">
                     {filteredExpenses.length > 0 ? (
                         [...filteredExpenses].reverse().map((expense) => (
                             <div key={expense.id} className="bg-card p-4 rounded-3xl border-none shadow-sm flex items-center justify-between active:scale-[0.97]">
                                 <div className="flex items-center gap-4">
-                                    <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center shadow-inner", expense.paymentMethod === 'Tarjeta' ? "bg-blue-50 text-blue-600" : "bg-green-50 text-green-600")}>
+                                    <div className={cn(
+                                        "h-12 w-12 rounded-2xl flex items-center justify-center shadow-inner",
+                                        expense.paymentMethod === 'Tarjeta' ? "bg-blue-50 text-blue-600" : "bg-green-50 text-green-600"
+                                    )}>
                                         {expense.paymentMethod === 'Tarjeta' ? <CreditCard className="h-6 w-6" /> : <Wallet className="h-6 w-6" />}
                                     </div>
                                     <div>
                                         <p className="font-bold text-sm leading-tight mb-1">{expense.type}</p>
                                         <div className="flex items-center gap-2">
-                                            <p className="text-[11px] text-muted-foreground font-medium flex items-center gap-1"><Calendar className="h-3 w-3" />{new Date(expense.date).toLocaleDateString('es-AR')}</p>
-                                            {expense.isInstallment && <span className="text-[9px] font-black uppercase bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-md">Cuota {expense.currentInstallment}/{expense.totalInstallments}</span>}
+                                            <p className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
+                                                <Calendar className="h-3 w-3" />
+                                                {new Date(expense.date).toLocaleDateString('es-AR')}
+                                            </p>
+                                            {expense.isInstallment && (
+                                                <span className="text-[9px] font-black uppercase bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-md">
+                                                    Cuota {expense.currentInstallment}/{expense.totalInstallments}
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <p className="font-black text-base">${expense.amount.toLocaleString('es-AR')}</p>
-                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive/20" onClick={() => { if(window.confirm(`¿Eliminar?`)) deleteExpense(expense.id) }}>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-9 w-9 text-destructive/20" 
+                                        onClick={() => {
+                                            if(window.confirm(`¿Eliminar?`)) deleteExpense(expense.id)
+                                        }}
+                                    >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <div className="text-center py-16 bg-muted/20 rounded-3xl border-2 border-dashed italic text-muted-foreground text-sm">No hay gastos</div>
+                        <div className="text-center py-16 bg-muted/20 rounded-3xl border-2 border-dashed italic text-muted-foreground text-sm font-medium">
+                            No se encontraron gastos
+                        </div>
                     )}
                 </div>
             </div>
@@ -184,7 +208,7 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-                               (
+
 
 
 
