@@ -14,6 +14,7 @@ const AddExpense = () => {
     const { addExpense, CATEGORIES_STRUCTURE } = useExpenses();
     const navigate = useNavigate();
 
+    // Estados del formulario
     const [amount, setAmount] = useState('');
     const [mainCategory, setMainCategory] = useState('');
     const [subCategory, setSubCategory] = useState('');
@@ -42,7 +43,9 @@ const AddExpense = () => {
             });
 
             toast.success("Gasto guardado correctamente");
-            setTimeout(() => navigate('/dashboard'), 150);
+            
+            // Navegación con delay para asegurar el guardado en Safari
+            setTimeout(() => navigate('/dashboard'), 200);
         } catch (error) {
             console.error(error);
             toast.error("Error al guardar el gasto");
@@ -62,10 +65,12 @@ const AddExpense = () => {
             <Card className="shadow-lg border-t-4 border-t-primary">
                 <CardHeader>
                     <CardTitle className="text-2xl font-bold">Registrar Gasto</CardTitle>
-                    <CardDescription>Organiza tus gastos por categorías y cuotas</CardDescription>
+                    <CardDescription>Optimizado para Safari y cuotas</CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSubmit}>
                     <CardContent className="space-y-5">
+                        
+                        {/* MONTO */}
                         <div className="space-y-2">
                             <Label htmlFor="amount">Monto Total ($)</Label>
                             <Input
@@ -76,17 +81,19 @@ const AddExpense = () => {
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
                                 className="text-xl font-bold h-12"
+                                style={{ fontSize: '16px' }} // Evita zoom en iOS
                                 required
                             />
                         </div>
 
+                        {/* CATEGORÍA PRINCIPAL */}
                         <div className="space-y-2">
                             <Label>Categoría</Label>
                             <Select onValueChange={(val) => {
                                 setMainCategory(val);
                                 setSubCategory('');
                             }}>
-                                <SelectTrigger className="h-12">
+                                <SelectTrigger className="h-12 text-base">
                                     <SelectValue placeholder="Selecciona categoría" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -97,94 +104,10 @@ const AddExpense = () => {
                             </Select>
                         </div>
 
+                        {/* SUBCATEGORÍA */}
                         {mainCategory && CATEGORIES_STRUCTURE[mainCategory].length > 0 && (
-                            <div className="space-y-2">
-                                <Label className="flex items-center gap-2">
-                                    <Layers className="h-3 w-3" /> Subcategoría de {mainCategory}
-                                </Label>
-                                <Select value={subCategory} onValueChange={setSubCategory}>
-                                    <SelectTrigger className="h-12">
-                                        <SelectValue placeholder="Selecciona subcategoría" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {CATEGORIES_STRUCTURE[mainCategory].map(sub => (
-                                            <SelectItem key={sub} value={sub}>{sub}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        )}
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Método de Pago</Label>
-                                <Select value={paymentMethod} onValueChange={(val) => {
-                                    setPaymentMethod(val);
-                                    if (val === 'Efectivo') setInstallments('1');
-                                }}>
-                                    <SelectTrigger className="h-12">
-                                        <div className="flex items-center gap-2">
-                                            {paymentMethod === 'Efectivo' ? <Wallet className="h-4 w-4 text-green-500" /> : <CreditCard className="h-4 w-4 text-blue-500" />}
-                                            <SelectValue />
-                                        </div>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Efectivo">Efectivo</SelectItem>
-                                        <SelectItem value="Tarjeta">Tarjeta</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            {paymentMethod === 'Tarjeta' && (
-                                <div className="space-y-2">
-                                    <Label>Cuotas</Label>
-                                    <Select value={installments} onValueChange={setInstallments}>
-                                        <SelectTrigger className="h-12">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {[1, 2, 3, 4, 5, 6].map(n => (
-                                                <SelectItem key={n} value={n.toString()}>{n} cuotas</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="date">Fecha del primer pago</Label>
-                            <Input
-                                id="date"
-                                type="date"
-                                value={date}
-                                onChange={(e) => { if(e.target.value) setDate(e.target.value) }}
-                                className="h-12"
-                                required
-                            />
-                        </div>
-                    </CardContent>
-                    <CardFooter className="pt-4">
-                        <Button type="submit" className="w-full h-14 text-lg font-bold shadow-xl">
-                            <Save className="mr-2 h-5 w-5" /> Guardar Movimiento
-                        </Button>
-                    </CardFooter>
-                </form>
-            </Card>
-
-            {paymentMethod === 'Tarjeta' && parseInt(installments) > 1 && amount > 0 && (
-                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 text-sm">
-                    <p>Se imputarán <strong>{installments} cuotas</strong> de <strong>${(amount / installments).toLocaleString('es-AR')}</strong> cada una.</p>
-                </div>
-            )}
-        </div>
-    );
-};
-
-export default AddExpense;
-
-
-
+                            <div className="space-y-2 animate-in fade-in slide-in-from-top-1">
+                                <Label className="flex items-center gap-2
 
 
 
