@@ -8,7 +8,7 @@ export const ExpenseProvider = ({ children }) => {
         return savedExpenses ? JSON.parse(savedExpenses) : [];
     });
 
-    // Nueva estructura de categorías con subcategorías
+    // Tu nueva estructura de categorías y subcategorías
     const CATEGORIES_STRUCTURE = {
         "Casa": ["Alquiler", "Expensas", "Servicio Limpieza", "Otros"],
         "Salud y Cuidado Personal": [],
@@ -27,19 +27,22 @@ export const ExpenseProvider = ({ children }) => {
     }, [expenses]);
 
     const addExpense = (expenseData) => {
+        // LÓGICA DE CUOTAS Y PRORRATEO
         if (expenseData.paymentMethod === 'Tarjeta' && expenseData.installments > 1) {
             const installmentAmount = expenseData.amount / expenseData.installments;
             const newExpenses = [];
-            const baseDate = new Date(expenseData.date);
+            
+            // Usamos la fecha elegida como base
+            const baseDate = new Date(expenseData.date + 'T00:00:00');
 
             for (let i = 0; i < expenseData.installments; i++) {
                 const installmentDate = new Date(baseDate);
-                // Sumamos meses para el prorrateo
-                installmentDate.setUTCMonth(baseDate.getUTCMonth() + i);
+                // Sumamos i meses a la fecha original
+                installmentDate.setMonth(baseDate.getMonth() + i);
                 
                 newExpenses.push({
                     ...expenseData,
-                    id: `${Date.now()}-${i}`,
+                    id: `${Date.now()}-${i}`, // ID único para cada cuota
                     amount: installmentAmount,
                     date: installmentDate.toISOString().split('T')[0],
                     isInstallment: true,
@@ -49,6 +52,7 @@ export const ExpenseProvider = ({ children }) => {
             }
             setExpenses(prev => [...prev, ...newExpenses]);
         } else {
+            // GASTO NORMAL (1 cuota o Efectivo)
             setExpenses(prev => [...prev, { ...expenseData, id: Date.now() }]);
         }
     };
@@ -70,5 +74,6 @@ export const ExpenseProvider = ({ children }) => {
 };
 
 export const useExpenses = () => useContext(ExpenseContext);
+
 
 
