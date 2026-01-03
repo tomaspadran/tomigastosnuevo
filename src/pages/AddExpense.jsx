@@ -1,74 +1,55 @@
 import React, { useState } from 'react';
 import { useExpenses } from '@/context/ExpenseContext';
-import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Plus, Save, Wallet, CreditCard } from 'lucide-react';
+import { ArrowLeft, Save, Wallet, CreditCard, Layers } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 
 const AddExpense = () => {
-    const { addExpense, customCategories, addCategory, TOP_LEVEL_CATEGORIES } = useExpenses();
-    const { user } = useAuth();
+    const { addExpense, CATEGORIES_STRUCTURE } = useExpenses();
     const navigate = useNavigate();
 
     // Estados del formulario
     const [amount, setAmount] = useState('');
-    const [category, setCategory] = useState('');
-    const [newCategoryName, setNewCategoryName] = useState('');
-    const [isAddingCustom, setIsAddingCustom] = useState(false);
-    
-    // Mejoramos la inicialización de la fecha para Safari
-    const [date, setDate] = useState(() => {
-        const now = new Date();
-        return now.toISOString().split('T')[0];
-    });
-    
-    const [paidBy, setPaidBy] = useState(user?.username || 'Tomi');
+    const [mainCategory, setMainCategory] = useState('');
+    const [subCategory, setSubCategory] = useState('');
+    const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
     const [paymentMethod, setPaymentMethod] = useState('Efectivo');
+    const [installments, setInstallments] = useState('1');
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Validación extra para evitar el error de pantalla en blanco
-        if (!amount || !category || !date) {
-            toast.error("Faltan datos obligatorios");
+        if (!amount || !mainCategory || !date) {
+            toast.error("Por favor completa los campos obligatorios");
             return;
         }
 
+        // Construimos el nombre de la categoría (Principal + Subcategoría si existe)
+        const categoryLabel = subCategory ? `${mainCategory}: ${subCategory}` : mainCategory;
+
         try {
-            const expenseData = {
-                type: category,
+            addExpense({
+                type: categoryLabel,
                 amount: parseFloat(amount),
                 date: date,
-                paidBy: paidBy,
+                paidBy: 'Tomi/Gabi', // Valor por defecto o podrías usar el del contexto
                 paymentMethod: paymentMethod,
-                id: Date.now() // Aseguramos un ID único aquí también
-            };
+                installments: parseInt(installments)
+            });
 
-            addExpense(expenseData);
-            toast.success("Gasto guardado");
+            toast.success("Gasto guardado correctamente");
             
-            // Usamos un pequeño delay para asegurar que el estado se guarde antes de navegar
-            setTimeout(() => {
-                navigate('/dashboard');
-            }, 100);
+            // Navegación con pequeño delay para asegurar persistencia en Safari
+            setTimeout(() => navigate('/dashboard'), 150);
         } catch (error) {
-            console.error("Error al guardar:", error);
-            toast.error("Hubo un error al procesar el gasto");
-        }
-    };
-
-    const handleAddCustomCategory = () => {
-        if (newCategoryName.trim()) {
-            addCategory(newCategoryName.trim());
-            setCategory(newCategoryName.trim());
-            setNewCategoryName('');
-            setIsAddingCustom(false);
+            console.error(error);
+            toast.error("Error al guardar el gasto");
         }
     };
 
@@ -84,117 +65,7 @@ const AddExpense = () => {
 
             <Card className="shadow-lg border-t-4 border-t-primary">
                 <CardHeader>
-                    <CardTitle className="text-2xl font-bold">Nuevo Gasto</CardTitle>
-                    <CardDescription>Completa los datos del movimiento</CardDescription>
-                </CardHeader>
-                <form onSubmit={handleSubmit}>
-                    <CardContent className="space-y-5">
-                        {/* Monto con teclado numérico optimizado para móvil */}
-                        <div className="space-y-2">
-                            <Label htmlFor="amount">Monto ($)</Label>
-                            <Input
-                                id="amount"
-                                type="number"
-                                inputMode="decimal"
-                                placeholder="0.00"
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                className="text-lg font-bold h-12"
-                                required
-                            />
-                        </div>
-
-                        {/* Categoría */}
-                        <div className="space-y-2">
-                            <Label>Categoría</Label>
-                            {!isAddingCustom ? (
-                                <div className="flex gap-2">
-                                    <Select value={category} onValueChange={setCategory}>
-                                        <SelectTrigger className="h-12">
-                                            <SelectValue placeholder="Selecciona una" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {TOP_LEVEL_CATEGORIES.map(cat => (
-                                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                                            ))}
-                                            {customCategories.map(cat => (
-                                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <Button type="button" variant="outline" className="h-12" onClick={() => setIsAddingCustom(true)}>
-                                        <Plus className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            ) : (
-                                <div className="flex gap-2">
-                                    <Input
-                                        placeholder="Nueva categoría"
-                                        value={newCategoryName}
-                                        onChange={(e) => setNewCategoryName(e.target.value)}
-                                        className="h-12"
-                                    />
-                                    <Button type="button" className="h-12" onClick={handleAddCustomCategory}>OK</Button>
-                                    <Button type="button" variant="ghost" className="h-12" onClick={() => setIsAddingCustom(false)}>X</Button>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>¿Quién pagó?</Label>
-                                <Select value={paidBy} onValueChange={setPaidBy}>
-                                    <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Tomi">Tomi</SelectItem>
-                                        <SelectItem value="Gabi">Gabi</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Medio</Label>
-                                <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                                    <SelectTrigger className="h-12">
-                                        <div className="flex items-center gap-2">
-                                            {paymentMethod === 'Efectivo' ? <Wallet className="h-4 w-4 text-green-500" /> : <CreditCard className="h-4 w-4 text-blue-500" />}
-                                            <SelectValue />
-                                        </div>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Efectivo">Efectivo</SelectItem>
-                                        <SelectItem value="Tarjeta">Tarjeta</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-
-                        {/* Fecha - Corregida para Safari */}
-                        <div className="space-y-2">
-                            <Label htmlFor="date">Fecha</Label>
-                            <Input
-                                id="date"
-                                type="date"
-                                value={date}
-                                onChange={(e) => {
-                                    if (e.target.value) setDate(e.target.value);
-                                }}
-                                className="h-12"
-                                required
-                            />
-                        </div>
-                    </CardContent>
-                    <CardFooter>
-                        <Button type="submit" className="w-full h-14 text-lg font-bold shadow-lg">
-                            <Save className="mr-2 h-5 w-5" /> Guardar Gasto
-                        </Button>
-                    </CardFooter>
-                </form>
-            </Card>
-        </div>
-    );
-};
-
-export default AddExpense;
+                    <CardTitle className="text-2xl font-bold">Registrar Gasto</CardTitle>
 
 
 
