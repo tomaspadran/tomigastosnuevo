@@ -56,7 +56,6 @@ const AddExpense = () => {
 
     try {
       // Unimos Categoría + Subcategoría para el campo "type"
-      // Si la subcategoría es "General", solo guardamos la categoría principal
       const finalType = formData.subCategory === 'General' 
         ? formData.category 
         : `${formData.category} - ${formData.subCategory}`;
@@ -177,9 +176,7 @@ const AddExpense = () => {
                     </SelectTrigger>
                     <SelectContent className="bg-[#1e293b] border-slate-700 text-white">
                       <SelectItem value="Efectivo">Efectivo</SelectItem>
-                      <SelectItem value="Débito">Débito</SelectItem>
-                      <SelectItem value="Tarjeta">Tarjeta</SelectItem>
-                      <SelectItem value="Transferencia">Transferencia</SelectItem>
+                      <SelectItem value="Credito">Credito</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -196,8 +193,8 @@ const AddExpense = () => {
                 />
               </div>
 
-              {/* Cuotas (Solo si es Tarjeta) */}
-              {formData.paymentMethod === 'Tarjeta' && (
+              {/* Cuotas (Habilitado si es Credito) */}
+              {formData.paymentMethod === 'Credito' && (
                 <div className="p-4 border border-blue-500/30 rounded-xl bg-blue-500/5 animate-in fade-in zoom-in duration-300">
                   <Label className="text-blue-400 font-bold">Cantidad de Cuotas</Label>
                   <Input 
@@ -223,4 +220,5 @@ const AddExpense = () => {
 };
 
 export default AddExpense;
+
 
