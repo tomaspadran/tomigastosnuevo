@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 
 const Login = () => {
     const [isRegistering, setIsRegistering] = useState(false);
-    const [identifier, setIdentifier] = useState(''); // Cambiado de email a identifier
+    const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const { login, signup } = useAuth();
@@ -20,21 +20,27 @@ const Login = () => {
         e.preventDefault();
         setLoading(true);
         
-        // Si el usuario no ingresó un @, le agregamos uno ficticio para que Supabase lo acepte
+        // Creamos un formato de email ficticio para Supabase basado en el usuario
         const emailFormat = identifier.includes('@') ? identifier : `${identifier}@familia.com`;
 
         try {
             if (isRegistering) {
+                // Proceso de Registro
                 await signup(emailFormat, password);
-                toast.success('Cuenta creada. ¡Ya puedes ingresar!');
+                toast.success('¡Usuario creado! Ya puedes iniciar sesión.');
                 setIsRegistering(false);
+                setIdentifier('');
+                setPassword('');
             } else {
+                // Proceso de Login
                 await login(emailFormat, password);
-                toast.success('¡Hola de nuevo!');
+                toast.success('¡Bienvenido!');
                 navigate('/dashboard');
             }
         } catch (error) {
-            toast.error('Error: Revisa tu usuario o contraseña');
+            // Muestra el error real de Supabase (ej: "Password should be at least 6 characters")
+            console.error("Detalle del error:", error);
+            toast.error(error.message || 'Ocurrió un error inesperado');
         } finally {
             setLoading(false);
         }
@@ -51,11 +57,11 @@ const Login = () => {
                 
                 <Card className="bg-[#1e293b] border-slate-700 shadow-2xl">
                     <CardHeader className="space-y-1 text-center">
-                        <CardTitle className="text-3xl font-black tracking-tighter text-white">
+                        <CardTitle className="text-3xl font-black tracking-tighter text-white uppercase">
                             GASTOS TOMI-GABI
                         </CardTitle>
                         <CardDescription className="text-slate-400">
-                            {isRegistering ? 'Crea tu cuenta de usuario' : 'Ingresa para gestionar tus finanzas'}
+                            {isRegistering ? 'Crea tu nuevo usuario' : 'Ingresa para gestionar tus finanzas'}
                         </CardDescription>
                     </CardHeader>
                     <form onSubmit={handleSubmit}>
@@ -64,8 +70,8 @@ const Login = () => {
                                 <Label htmlFor="username" className="text-slate-300">Usuario</Label>
                                 <Input 
                                     id="username" 
-                                    type="text" 
-                                    placeholder="Tu nombre de usuario" 
+                                    type="text"
+                                    placeholder="Ej: tomi" 
                                     value={identifier} 
                                     onChange={(e) => setIdentifier(e.target.value)} 
                                     required 
@@ -73,7 +79,7 @@ const Login = () => {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="password">Contraseña</Label>
+                                <Label htmlFor="password">Contraseña (mín. 6 caracteres)</Label>
                                 <Input 
                                     id="password" 
                                     type="password" 
@@ -88,29 +94,34 @@ const Login = () => {
                         <CardFooter className="flex flex-col gap-4">
                             <Button 
                                 type="submit" 
-                                className="w-full h-12 text-lg font-bold bg-blue-600 hover:bg-blue-700" 
+                                className="w-full h-12 text-lg font-bold bg-blue-600 hover:bg-blue-700 transition-all" 
                                 disabled={loading}
                             >
-                                {loading ? 'Procesando...' : isRegistering ? 'Registrarse' : 'Entrar'}
-                                {isRegistering ? <UserPlus className="ml-2 h-5 w-5" /> : <LogIn className="ml-2 h-5 w-5" />}
+                                {loading ? 'Procesando...' : isRegistering ? 'REGISTRARSE' : 'ENTRAR'}
+                                {!loading && (isRegistering ? <UserPlus className="ml-2 h-5 w-5" /> : <LogIn className="ml-2 h-5 w-5" />)}
                             </Button>
                             
                             <button 
                                 type="button"
-                                onClick={() => setIsRegistering(!isRegistering)}
+                                onClick={() => {
+                                    setIsRegistering(!isRegistering);
+                                    setPassword('');
+                                }}
                                 className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
                             >
-                                {isRegistering ? '¿Ya tienes usuario? Inicia sesión' : '¿No tienes cuenta? Regístrate aquí'}
+                                {isRegistering ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate aquí'}
                             </button>
                         </CardFooter>
                     </form>
                 </Card>
+                
+                <p className="text-center mt-8 text-slate-500 text-xs uppercase tracking-widest font-bold">
+                    Tomi & Gabi • 2026
+                </p>
             </div>
         </div>
     );
 };
 
 export default Login;
-
-
 
