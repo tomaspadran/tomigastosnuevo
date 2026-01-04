@@ -5,6 +5,7 @@ import { ExpenseProvider } from './context/ExpenseContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import AddExpense from './pages/AddExpense';
+import EditExpense from './pages/EditExpense'; // NUEVO IMPORT
 import { Toaster } from 'sonner';
 
 // Componente para proteger rutas (si no hay usuario, manda al login)
@@ -13,13 +14,13 @@ const PrivateRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-white">
+      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-white font-bold uppercase tracking-tighter italic">
         Cargando sesión...
       </div>
     );
   }
 
-  return user ? children : <Navigate transition to="/" />;
+  return user ? children : <Navigate to="/" />;
 };
 
 function App() {
@@ -41,11 +42,22 @@ function App() {
                   </PrivateRoute>
                 } 
               />
+              
               <Route 
                 path="/add-expense" 
                 element={
                   <PrivateRoute>
                     <AddExpense />
+                  </PrivateRoute>
+                } 
+              />
+
+              {/* NUEVA RUTA: Edición de gasto protegida */}
+              <Route 
+                path="/edit-expense/:id" 
+                element={
+                  <PrivateRoute>
+                    <EditExpense />
                   </PrivateRoute>
                 } 
               />
