@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useState, useMemo } from 'react';
 import { useExpenses } from '../context/ExpenseContext';
 import { useNavigate } from 'react-router-dom';
@@ -27,11 +23,11 @@ import {
   LayoutDashboard,
   Trash2,
   Edit3,
-  Info
+  Info,
+  Sparkles // Icono para la IA
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
-// Librerías de Calendario
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -43,7 +39,6 @@ const Dashboard = () => {
   const { expenses, loading, deleteExpense } = useExpenses();
   const navigate = useNavigate();
 
-  // Estados de Filtros y Modal
   const [viewType, setViewType] = useState('month');
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth().toString());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
@@ -51,19 +46,8 @@ const Dashboard = () => {
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Lógica de datos
   const stats = useMemo(() => {
-    // Eventos para el Calendario (Tomi: Celeste, Gabi: Rosa)
-    const events = expenses.map(exp => ({
-      id: exp.id,
-      title: `${exp.paid_by}: $${Number(exp.amount).toLocaleString('es-AR')}`,
-      date: exp.date,
-      backgroundColor: exp.paid_by === 'Tomi' ? '#0ea5e9' : '#ec4899',
-      borderColor: exp.paid_by === 'Tomi' ? '#0ea5e9' : '#ec4899',
-      extendedProps: { ...exp }, // Guardamos toda la info del gasto aquí
-      allDay: true
-    }));
-
+    // 1. Lógica de filtrado
     let filtered = [...expenses];
     if (viewType === 'month') {
       filtered = expenses.filter(exp => {
@@ -77,6 +61,7 @@ const Dashboard = () => {
       });
     }
 
+    // 2. Cálculos básicos
     const total = filtered.reduce((acc, curr) => acc + Number(curr.amount), 0);
     const pagóTomi = filtered.filter(e => e.paid_by === 'Tomi').reduce((acc, curr) => acc + Number(curr.amount), 0);
     const pagóGabi = filtered.filter(e => e.paid_by === 'Gabi').reduce((acc, curr) => acc + Number(curr.amount), 0);
@@ -92,10 +77,51 @@ const Dashboard = () => {
       value: categoryData[name]
     })).sort((a, b) => b.value - a.value);
 
-    return { total, pagóTomi, pagóGabi, chartData, filtered, events };
+    // 3. Eventos Calendario
+    const events = expenses.map(exp => ({
+      id: exp.id,
+      title: `${exp.paid_by}: $${Number(exp.amount).toLocaleString('es-AR')}`,
+      date: exp.date,
+      backgroundColor: exp.paid_by === 'Tomi' ? '#0ea5e9' : '#ec4899',
+      borderColor: exp.paid_by === 'Tomi' ? '#0ea5e9' : '#ec4899',
+      extendedProps: { ...exp },
+      allDay: true
+    }));
+
+    // 4. GENERACIÓN DE SUGERENCIAS IA (Lógica Simulada)
+    const aiSuggestions = [];
+    if (total > 0) {
+      const diff = Math.abs(pagóTomi - pagóGabi);
+      if (diff > (total * 0.15)) {
+        const quienDebe = pagóTomi > pagóGabi ? "Gabi" : "Tomi";
+        aiSuggestions.push({
+          title: "Balance de Gastos",
+          text: `Hay una diferencia de $${diff.toLocaleString('es-AR')}. Sería ideal que los próximos gastos los cubra ${quienDebe}.`,
+          icon: <TrendingUp className="h-4 w-4 text-amber-400" />
+        });
+      }
+
+      const comidaGasto = categoryData["Comida"] || 0;
+      if (comidaGasto > (total * 0.4)) {
+        aiSuggestions.push({
+          title: "Alerta de Categoría",
+          text: "El gasto en Comida representa más del 40% del total. Podrían ahorrar cocinando más en casa.",
+          icon: <ShoppingBag className="h-4 w-4 text-red-400" />
+        });
+      }
+    }
+
+    if (aiSuggestions.length === 0 && filtered.length > 0) {
+      aiSuggestions.push({
+        title: "Finanzas en Orden",
+        text: "¡Excelente equilibrio! Sigan manteniendo este ritmo de gastos compartidos.",
+        icon: <Sparkles className="h-4 w-4 text-emerald-400" />
+      });
+    }
+
+    return { total, pagóTomi, pagóGabi, chartData, filtered, events, aiSuggestions };
   }, [expenses, viewType, selectedMonth, selectedYear]);
 
-  // Manejadores de eventos
   const handleEventClick = (clickInfo) => {
     setSelectedExpense(clickInfo.event.extendedProps);
     setIsModalOpen(true);
@@ -108,7 +134,7 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) return <div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-white font-bold">CARGANDO DATOS...</div>;
+  if (loading) return <div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-white font-bold tracking-widest uppercase italic">Cargando datos...</div>;
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-slate-200 p-4 pb-20">
@@ -125,7 +151,7 @@ const Dashboard = () => {
               {viewType === 'all' && "Historial Completo"}
             </div>
           </div>
-          <Button onClick={() => navigate('/add-expense')} className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-900/20 w-full md:w-auto">
+          <Button onClick={() => navigate('/add-expense')} className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-900/20 w-full md:w-auto font-black italic uppercase tracking-tight">
             <PlusCircle className="mr-2 h-5 w-5" /> Nuevo Gasto
           </Button>
         </div>
@@ -187,6 +213,26 @@ const Dashboard = () => {
                 <CardContent><div className="text-2xl font-bold text-pink-400">${stats.pagóGabi.toLocaleString('es-AR')}</div></CardContent>
               </Card>
             </div>
+
+            {/* SECCIÓN DE SUGERENCIAS IA */}
+            <Card className="bg-gradient-to-br from-[#1e293b] to-[#1e1b4b] border-blue-500/30 shadow-xl overflow-hidden">
+              <CardHeader className="pb-2 border-b border-white/5">
+                <CardTitle className="text-xs font-black uppercase italic tracking-widest flex items-center gap-2 text-blue-400">
+                  <Sparkles className="h-4 w-4" /> Sugerencias IA
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-4 space-y-3">
+                {stats.aiSuggestions.map((sug, i) => (
+                  <div key={i} className="flex gap-4 p-3 rounded-xl bg-white/5 border border-white/5 items-start">
+                    <div className="mt-0.5">{sug.icon}</div>
+                    <div>
+                      <h4 className="text-[11px] font-bold text-white uppercase tracking-tight">{sug.title}</h4>
+                      <p className="text-[11px] text-slate-400 mt-1 leading-relaxed italic">{sug.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="bg-[#1e293b] border-slate-700">
@@ -295,13 +341,13 @@ const Dashboard = () => {
             <DialogFooter className="flex flex-row gap-3">
               <Button 
                 variant="destructive" 
-                className="flex-1 bg-red-500/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/20"
+                className="flex-1 bg-red-500/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/20 uppercase font-bold italic text-xs"
                 onClick={handleDelete}
               >
                 <Trash2 className="h-4 w-4 mr-2" /> Eliminar
               </Button>
               <Button 
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 uppercase font-bold italic text-xs"
                 onClick={() => {
                   setIsModalOpen(false);
                   navigate(`/edit-expense/${selectedExpense.id}`);
@@ -331,3 +377,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
