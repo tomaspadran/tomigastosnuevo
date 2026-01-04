@@ -1,69 +1,62 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext();
 
-export const useAuth = () => useContext(AuthContext);
-
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        // Check local storage for persistent login
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-    }, []);
-
-    const login = (username, password) => {
-        if (!username || !password) return false;
-
-        // Get registered users
-        const registeredUsers = JSON.parse(localStorage.getItem('registered_users') || '[]');
-
-        // Find user
-        const foundUser = registeredUsers.find(u => u.username === username && u.password === password);
-
-        if (foundUser) {
-            const userSession = { username: foundUser.username };
-            setUser(userSession);
-            localStorage.setItem('user', JSON.stringify(userSession));
-            return true;
-        }
-
-        return false;
+  useEffect(() => {
+    // Comprobar sesión actual al cargar
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setLoading(false);
     };
 
-    const register = (username, password) => {
-        if (!username || !password) return false;
+    getSession();
 
-        const registeredUsers = JSON.parse(localStorage.getItem('registered_users') || '[]');
+    // Escuchar cambios en el estado de autenticación
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
-        // Check if user exists
-        if (registeredUsers.some(u => u.username === username)) {
-            return false; // User already exists
-        }
+    return () => subscription.unsubscribe();
+  }, []);
 
-        const newUser = { username, password }; // In a real app, hash the password!
-        registeredUsers.push(newUser);
-        localStorage.setItem('registered_users', JSON.stringify(registeredUsers));
+  // Función para registrarse
+  const signup = async (email, password) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+    if (error) throw error;
+    return data;
+  };
 
-        // Auto login after register? Or require login? Let's auto login for UX.
-        const userSession = { username };
-        setUser(userSession);
-        localStorage.setItem('user', JSON.stringify(userSession));
+  // Función para iniciar sesión
+  const login = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+    return data;
+  };
 
-        return true;
-    };
+  // Función para cerrar sesión
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+  };
 
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem('user');
-    };
-
-    return (
-        <AuthContext.Provider value={{ user, login, register, logout }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  return (
+    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
+
+export const useAuth = () => useContext(AuthContext);
