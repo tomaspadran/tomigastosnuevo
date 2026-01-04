@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 
 const Login = () => {
     const [isRegistering, setIsRegistering] = useState(false);
-    const [email, setEmail] = useState('');
+    const [identifier, setIdentifier] = useState(''); // Cambiado de email a identifier
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const { login, signup } = useAuth();
@@ -19,18 +19,22 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+        
+        // Si el usuario no ingresó un @, le agregamos uno ficticio para que Supabase lo acepte
+        const emailFormat = identifier.includes('@') ? identifier : `${identifier}@familia.com`;
+
         try {
             if (isRegistering) {
-                await signup(email, password);
+                await signup(emailFormat, password);
                 toast.success('Cuenta creada. ¡Ya puedes ingresar!');
                 setIsRegistering(false);
             } else {
-                await login(email, password);
+                await login(emailFormat, password);
                 toast.success('¡Hola de nuevo!');
                 navigate('/dashboard');
             }
         } catch (error) {
-            toast.error(error.message || 'Error en la autenticación');
+            toast.error('Error: Revisa tu usuario o contraseña');
         } finally {
             setLoading(false);
         }
@@ -51,19 +55,19 @@ const Login = () => {
                             GASTOS TOMI-GABI
                         </CardTitle>
                         <CardDescription className="text-slate-400">
-                            {isRegistering ? 'Crea tu cuenta compartida' : 'Ingresa para gestionar tus finanzas'}
+                            {isRegistering ? 'Crea tu cuenta de usuario' : 'Ingresa para gestionar tus finanzas'}
                         </CardDescription>
                     </CardHeader>
                     <form onSubmit={handleSubmit}>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="email" className="text-slate-300">Email</Label>
+                                <Label htmlFor="username" className="text-slate-300">Usuario</Label>
                                 <Input 
-                                    id="email" 
-                                    type="email" 
-                                    placeholder="nombre@correo.com" 
-                                    value={email} 
-                                    onChange={(e) => setEmail(e.target.value)} 
+                                    id="username" 
+                                    type="text" 
+                                    placeholder="Tu nombre de usuario" 
+                                    value={identifier} 
+                                    onChange={(e) => setIdentifier(e.target.value)} 
                                     required 
                                     className="bg-[#0f172a] border-slate-700 text-white h-12"
                                 />
@@ -73,6 +77,7 @@ const Login = () => {
                                 <Input 
                                     id="password" 
                                     type="password" 
+                                    placeholder="••••••••"
                                     value={password} 
                                     onChange={(e) => setPassword(e.target.value)} 
                                     required 
@@ -95,7 +100,7 @@ const Login = () => {
                                 onClick={() => setIsRegistering(!isRegistering)}
                                 className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
                             >
-                                {isRegistering ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate aquí'}
+                                {isRegistering ? '¿Ya tienes usuario? Inicia sesión' : '¿No tienes cuenta? Regístrate aquí'}
                             </button>
                         </CardFooter>
                     </form>
@@ -106,5 +111,6 @@ const Login = () => {
 };
 
 export default Login;
+
 
 
