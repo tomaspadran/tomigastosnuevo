@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase'; // Importamos la conexión
+import { supabase } from '../lib/supabase';
 
 const ExpenseContext = createContext();
 
@@ -20,7 +20,6 @@ export const ExpenseProvider = ({ children }) => {
         "Salidas": []
     };
 
-    // 1. CARGAR GASTOS DE LA NUBE
     useEffect(() => {
         fetchExpenses();
     }, []);
@@ -42,7 +41,6 @@ export const ExpenseProvider = ({ children }) => {
         }
     };
 
-    // 2. GUARDAR GASTO EN LA NUBE
     const addExpense = async (expenseData) => {
         try {
             let itemsToInsert = [];
@@ -57,13 +55,12 @@ export const ExpenseProvider = ({ children }) => {
                     
                     itemsToInsert.push({
                         type: expenseData.type,
-                        description: expenseData.description,
                         amount: installmentAmount,
                         date: installmentDate.toISOString().split('T')[0],
                         paymentMethod: expenseData.paymentMethod,
                         paidBy: expenseData.paidBy,
                         installments: expenseData.installments,
-                        // Agregamos info de cuotas para el historial
+                        // Aquí estaba el error: ahora solo hay una propiedad 'description'
                         description: `${expenseData.description || ''} (Cuota ${i + 1}/${expenseData.installments})`.trim()
                     });
                 }
@@ -82,22 +79,16 @@ export const ExpenseProvider = ({ children }) => {
             const { error } = await supabase.from('expenses').insert(itemsToInsert);
             if (error) throw error;
 
-            // Refrescamos la lista local
             fetchExpenses();
         } catch (error) {
             console.error('Error al guardar:', error.message);
-            alert("No se pudo guardar en la nube: " + error.message);
+            alert("No se pudo guardar: " + error.message);
         }
     };
 
-    // 3. ELIMINAR GASTO DE LA NUBE
     const deleteExpense = async (id) => {
         try {
-            const { error } = await supabase
-                .from('expenses')
-                .delete()
-                .eq('id', id);
-
+            const { error } = await supabase.from('expenses').delete().eq('id', id);
             if (error) throw error;
             setExpenses(prev => prev.filter(ex => ex.id !== id));
         } catch (error) {
@@ -106,20 +97,11 @@ export const ExpenseProvider = ({ children }) => {
     };
 
     return (
-        <ExpenseContext.Provider value={{ 
-            expenses, 
-            addExpense, 
-            deleteExpense, 
-            CATEGORIES_STRUCTURE,
-            loading 
-        }}>
+        <ExpenseContext.Provider value={{ expenses, addExpense, deleteExpense, CATEGORIES_STRUCTURE, loading }}>
             {children}
         </ExpenseContext.Provider>
     );
 };
 
 export const useExpenses = () => useContext(ExpenseContext);
-
-
-
 
