@@ -33,15 +33,19 @@ const Login = () => {
         <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
             <div className="w-full max-w-md">
                 <div className="flex justify-center mb-8">
-                    <div className="bg-primary p-3 rounded-2xl shadow-lg">
+                    <div className="bg-primary p-4 rounded-2xl shadow-lg">
                         <Wallet className="h-10 w-10 text-white" />
                     </div>
                 </div>
                 
                 <Card className="shadow-xl border-none">
                     <CardHeader className="space-y-1 text-center">
-                        <CardTitle className="text-2xl font-black">Gastos Compartidos</CardTitle>
-                        <CardDescription>Ingresa para gestionar tus finanzas</CardDescription>
+                        <CardTitle className="text-2xl font-black italic text-primary">
+                            GASTOS COMPARTIDOS
+                        </CardTitle>
+                        <CardDescription>
+                            Sincronización en la nube activa
+                        </CardDescription>
                     </CardHeader>
                     <form onSubmit={handleSubmit}>
                         <CardContent className="space-y-4">
@@ -50,11 +54,12 @@ const Login = () => {
                                 <Input 
                                     id="email" 
                                     type="email" 
-                                    placeholder="tu@email.com" 
+                                    placeholder="ejemplo@correo.com" 
                                     value={email} 
                                     onChange={(e) => setEmail(e.target.value)} 
                                     required 
-                                    className="h-12"
+                                    className="h-12 border-slate-200"
+                                    style={{ fontSize: '16px' }}
                                 />
                             </div>
                             <div className="space-y-2">
@@ -65,29 +70,33 @@ const Login = () => {
                                     value={password} 
                                     onChange={(e) => setPassword(e.target.value)} 
                                     required 
-                                    className="h-12"
+                                    className="h-12 border-slate-200"
+                                    style={{ fontSize: '16px' }}
                                 />
                             </div>
                         </CardContent>
                         <CardFooter>
                             <Button 
                                 type="submit" 
-                                className="w-full h-12 text-lg font-bold" 
+                                className="w-full h-12 text-lg font-bold shadow-md hover:shadow-lg transition-all" 
                                 disabled={loading}
                             >
-                                {loading ? 'Ingresando...' : 'Iniciar Sesión'}
+                                {loading ? 'Cargando...' : 'Entrar'}
                                 <LogIn className="ml-2 h-5 w-5" />
                             </Button>
                         </CardFooter>
                     </form>
                 </Card>
-                <p className="text-center mt-8 text-slate-400 text-sm">
-                    Versión Cloud Sincronizada
-                </p>
+                <div className="text-center mt-8 space-y-2">
+                    <p className="text-slate-400 text-xs font-medium uppercase tracking-widest">
+                        Tomi & Gabi • 2026
+                    </p>
+                </div>
             </div>
         </div>
     );
 };
 
 export default Login;
+
 
