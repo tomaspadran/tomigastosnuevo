@@ -1,3 +1,7 @@
+
+
+
+
 import React, { useState, useMemo } from 'react';
 import { useExpenses } from '../context/ExpenseContext';
 import { useNavigate } from 'react-router-dom';
@@ -6,6 +10,13 @@ import { Button } from '../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter 
+} from '../components/ui/dialog';
+import { 
   PlusCircle, 
   Wallet, 
   TrendingUp, 
@@ -13,7 +24,10 @@ import {
   Calendar as CalendarIcon, 
   ShoppingBag,
   Filter,
-  LayoutDashboard
+  LayoutDashboard,
+  Trash2,
+  Edit3,
+  Info
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
@@ -26,26 +40,30 @@ import interactionPlugin from '@fullcalendar/interaction';
 const COLORS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#14b8a6', '#6366f1'];
 
 const Dashboard = () => {
-  const { expenses, loading } = useExpenses();
+  const { expenses, loading, deleteExpense } = useExpenses();
   const navigate = useNavigate();
 
-  // Estados de Filtros
-  const [viewType, setViewType] = useState('month'); // 'month', 'year', 'all'
+  // Estados de Filtros y Modal
+  const [viewType, setViewType] = useState('month');
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth().toString());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+  
+  const [selectedExpense, setSelectedExpense] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Lógica de datos (Filtros + Gráficos + Calendario)
+  // Lógica de datos
   const stats = useMemo(() => {
-    // 1. Eventos para el Calendario (Tomi: Celeste, Gabi: Rosa)
+    // Eventos para el Calendario (Tomi: Celeste, Gabi: Rosa)
     const events = expenses.map(exp => ({
+      id: exp.id,
       title: `${exp.paid_by}: $${Number(exp.amount).toLocaleString('es-AR')}`,
       date: exp.date,
       backgroundColor: exp.paid_by === 'Tomi' ? '#0ea5e9' : '#ec4899',
       borderColor: exp.paid_by === 'Tomi' ? '#0ea5e9' : '#ec4899',
+      extendedProps: { ...exp }, // Guardamos toda la info del gasto aquí
       allDay: true
     }));
 
-    // 2. Aplicar Filtros de Tiempo para el Dashboard
     let filtered = [...expenses];
     if (viewType === 'month') {
       filtered = expenses.filter(exp => {
@@ -59,12 +77,10 @@ const Dashboard = () => {
       });
     }
 
-    // 3. Totales
     const total = filtered.reduce((acc, curr) => acc + Number(curr.amount), 0);
     const pagóTomi = filtered.filter(e => e.paid_by === 'Tomi').reduce((acc, curr) => acc + Number(curr.amount), 0);
     const pagóGabi = filtered.filter(e => e.paid_by === 'Gabi').reduce((acc, curr) => acc + Number(curr.amount), 0);
 
-    // 4. Datos para el Gráfico
     const categoryData = filtered.reduce((acc, curr) => {
       const mainCat = curr.type.split(' - ')[0];
       acc[mainCat] = (acc[mainCat] || 0) + Number(curr.amount);
@@ -78,6 +94,19 @@ const Dashboard = () => {
 
     return { total, pagóTomi, pagóGabi, chartData, filtered, events };
   }, [expenses, viewType, selectedMonth, selectedYear]);
+
+  // Manejadores de eventos
+  const handleEventClick = (clickInfo) => {
+    setSelectedExpense(clickInfo.event.extendedProps);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar este gasto?')) {
+      await deleteExpense(selectedExpense.id);
+      setIsModalOpen(false);
+    }
+  };
 
   if (loading) return <div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-white font-bold">CARGANDO DATOS...</div>;
 
@@ -107,7 +136,6 @@ const Dashboard = () => {
             <TabsTrigger value="calendar" className="text-xs uppercase font-bold">Vista Calendario</TabsTrigger>
           </TabsList>
 
-          {/* CONTENIDO 1: RESUMEN Y FILTROS */}
           <TabsContent value="overview" className="space-y-6">
             <Card className="bg-[#1e293b] border-slate-700 p-3">
               <div className="flex flex-wrap items-center gap-3">
@@ -145,7 +173,6 @@ const Dashboard = () => {
               </div>
             </Card>
 
-            {/* Tarjetas de Resumen */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="bg-[#1e293b] border-slate-700 border-l-4 border-l-blue-500">
                 <CardHeader className="pb-2"><CardTitle className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Total Periodo</CardTitle></CardHeader>
@@ -162,7 +189,6 @@ const Dashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Gráfico Circular */}
               <Card className="bg-[#1e293b] border-slate-700">
                 <CardHeader><CardTitle className="text-sm font-bold uppercase">Distribución por Categoría</CardTitle></CardHeader>
                 <CardContent className="h-72">
@@ -178,7 +204,6 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
 
-              {/* Movimientos */}
               <Card className="bg-[#1e293b] border-slate-700">
                 <CardHeader><CardTitle className="text-sm font-bold uppercase">Movimientos del Periodo</CardTitle></CardHeader>
                 <CardContent className="space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
@@ -202,7 +227,6 @@ const Dashboard = () => {
             </div>
           </TabsContent>
 
-          {/* CONTENIDO 2: CALENDARIO WEB COMPATIBLE */}
           <TabsContent value="calendar">
             <Card className="bg-[#1e293b] border-slate-700 p-2 sm:p-4 overflow-hidden shadow-2xl">
               <div className="calendar-container text-white">
@@ -217,9 +241,10 @@ const Dashboard = () => {
                   locale="es"
                   events={stats.events}
                   height="auto"
+                  eventClick={handleEventClick}
                   buttonText={{ today: 'Hoy', month: 'Mes', week: 'Semana' }}
                   eventContent={(eventInfo) => (
-                    <div className="px-1 py-0.5 text-[9px] sm:text-[11px] font-bold truncate">
+                    <div className="px-1 py-0.5 text-[9px] sm:text-[11px] font-bold truncate cursor-pointer">
                       {eventInfo.event.title}
                     </div>
                   )}
@@ -228,9 +253,67 @@ const Dashboard = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* MODAL DE DETALLES DEL GASTO */}
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent className="bg-[#1e293b] border-slate-700 text-white max-w-[95vw] sm:max-w-md rounded-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 uppercase font-black italic tracking-tighter">
+                <Info className="h-5 w-5 text-blue-500" /> Detalle del Gasto
+              </DialogTitle>
+            </DialogHeader>
+            
+            {selectedExpense && (
+              <div className="py-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2 p-3 bg-[#0f172a] rounded-xl border border-slate-800">
+                    <p className="text-[10px] text-slate-500 uppercase font-bold mb-1">Descripción</p>
+                    <p className="text-lg font-bold">{selectedExpense.description}</p>
+                  </div>
+                  <div className="p-3 bg-[#0f172a] rounded-xl border border-slate-800">
+                    <p className="text-[10px] text-slate-500 uppercase font-bold mb-1">Monto</p>
+                    <p className="text-xl font-black text-emerald-400">${Number(selectedExpense.amount).toLocaleString('es-AR')}</p>
+                  </div>
+                  <div className="p-3 bg-[#0f172a] rounded-xl border border-slate-800">
+                    <p className="text-[10px] text-slate-500 uppercase font-bold mb-1">Fecha</p>
+                    <p className="text-sm font-bold">{new Date(selectedExpense.date).toLocaleDateString('es-AR')}</p>
+                  </div>
+                  <div className="p-3 bg-[#0f172a] rounded-xl border border-slate-800">
+                    <p className="text-[10px] text-slate-500 uppercase font-bold mb-1">Categoría</p>
+                    <p className="text-xs font-bold text-blue-400 uppercase">{selectedExpense.type}</p>
+                  </div>
+                  <div className={`p-3 rounded-xl border ${selectedExpense.paid_by === 'Tomi' ? 'bg-sky-500/10 border-sky-500/30' : 'bg-pink-500/10 border-pink-500/30'}`}>
+                    <p className="text-[10px] text-slate-500 uppercase font-bold mb-1">Pagado por</p>
+                    <p className={`text-sm font-black uppercase ${selectedExpense.paid_by === 'Tomi' ? 'text-sky-400' : 'text-pink-400'}`}>
+                      {selectedExpense.paid_by}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <DialogFooter className="flex flex-row gap-3">
+              <Button 
+                variant="destructive" 
+                className="flex-1 bg-red-500/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/20"
+                onClick={handleDelete}
+              >
+                <Trash2 className="h-4 w-4 mr-2" /> Eliminar
+              </Button>
+              <Button 
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                onClick={() => {
+                  setIsModalOpen(false);
+                  navigate(`/edit-expense/${selectedExpense.id}`);
+                }}
+              >
+                <Edit3 className="h-4 w-4 mr-2" /> Editar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      {/* Estilos CSS para el Calendario (Safari/Chrome Friendly) */}
       <style>{`
         .fc { background: transparent; color: white; border: none; font-family: inherit; }
         .fc-toolbar-title { font-size: 1rem !important; font-weight: 900; text-transform: uppercase; }
@@ -248,6 +331,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
-
-
