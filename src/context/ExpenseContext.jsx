@@ -53,6 +53,7 @@ export const ExpenseProvider = ({ children }) => {
                     const installmentDate = new Date(baseDate);
                     installmentDate.setMonth(baseDate.getMonth() + i);
                     
+                    // CORRECCIÓN AQUÍ: Se eliminó la línea duplicada de description
                     itemsToInsert.push({
                         type: expenseData.type,
                         amount: installmentAmount,
@@ -60,14 +61,13 @@ export const ExpenseProvider = ({ children }) => {
                         paymentMethod: expenseData.paymentMethod,
                         paidBy: expenseData.paidBy,
                         installments: expenseData.installments,
-                        // Aquí estaba el error: ahora solo hay una propiedad 'description'
                         description: `${expenseData.description || ''} (Cuota ${i + 1}/${expenseData.installments})`.trim()
                     });
                 }
             } else {
                 itemsToInsert.push({
                     type: expenseData.type,
-                    description: expenseData.description,
+                    description: expenseData.description || '',
                     amount: expenseData.amount,
                     date: expenseData.date,
                     paymentMethod: expenseData.paymentMethod,
@@ -82,7 +82,7 @@ export const ExpenseProvider = ({ children }) => {
             fetchExpenses();
         } catch (error) {
             console.error('Error al guardar:', error.message);
-            alert("No se pudo guardar: " + error.message);
+            alert("No se pudo guardar en la nube: " + error.message);
         }
     };
 
@@ -104,4 +104,5 @@ export const ExpenseProvider = ({ children }) => {
 };
 
 export const useExpenses = () => useContext(ExpenseContext);
+
 
