@@ -31,7 +31,6 @@ import {
 
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
 const COLORS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#14b8a6', '#6366f1'];
@@ -48,7 +47,7 @@ const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const stats = useMemo(() => {
-    // 1. Filtrado para el resumen actual
+    // 1. Filtrado
     let filtered = [...expenses];
     if (viewType === 'month') {
       filtered = expenses.filter(exp => {
@@ -66,7 +65,7 @@ const Dashboard = () => {
     const pagóTomi = filtered.filter(e => e.paid_by === 'Tomi').reduce((acc, curr) => acc + Number(curr.amount), 0);
     const pagóGabi = filtered.filter(e => e.paid_by === 'Gabi').reduce((acc, curr) => acc + Number(curr.amount), 0);
 
-    // 2. Datos para el gráfico de torta
+    // 2. Gráfico de torta
     const categoryData = filtered.reduce((acc, curr) => {
       const mainCat = curr.type.split(' - ')[0];
       acc[mainCat] = (acc[mainCat] || 0) + Number(curr.amount);
@@ -78,7 +77,7 @@ const Dashboard = () => {
       value: categoryData[name]
     })).sort((a, b) => b.value - a.value);
 
-    // 3. Lógica para el Gráfico de Evolución Mensual (Todo el año actual)
+    // 3. Evolución Mensual
     const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
     const evolutionData = monthNames.map((name, index) => {
       const monthlyTotal = expenses
@@ -87,11 +86,10 @@ const Dashboard = () => {
           return d.getMonth() === index && d.getFullYear() === parseInt(selectedYear);
         })
         .reduce((acc, curr) => acc + Number(curr.amount), 0);
-      
       return { name, total: monthlyTotal };
     });
 
-    // 4. Eventos Calendario
+    // 4. Calendario
     const events = expenses.map(exp => ({
       id: exp.id,
       title: `${exp.paid_by}: $${Number(exp.amount).toLocaleString('es-AR')}`,
@@ -102,15 +100,22 @@ const Dashboard = () => {
       allDay: true
     }));
 
+    // 5. Sugerencias IA
     const aiSuggestions = [];
     if (total > 0) {
       const diff = Math.abs(pagóTomi - pagóGabi);
-      if (diff > (total * 0.15)) {
+      if (diff > (total * 0.10)) {
         const quienDebe = pagóTomi > pagóGabi ? "Gabi" : "Tomi";
         aiSuggestions.push({
           title: "Balance de Gastos",
           text: `Hay una diferencia de $${diff.toLocaleString('es-AR')}. Sería ideal que los próximos gastos los cubra ${quienDebe}.`,
           icon: <TrendingUp className="h-4 w-4 text-amber-400" />
+        });
+      } else {
+        aiSuggestions.push({
+          title: "Finanzas Equilibradas",
+          text: "¡Vienen muy parejos este mes! Sigan así para mantener las cuentas claras.",
+          icon: <Sparkles className="h-4 w-4 text-emerald-400" />
         });
       }
     }
@@ -137,6 +142,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-[#0f172a] text-slate-200 p-4 pb-20">
       <div className="max-w-5xl mx-auto space-y-6">
         
+        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-2xl font-black tracking-tighter text-white uppercase italic">Gastos Tomi-Gabi</h1>
@@ -158,19 +164,23 @@ const Dashboard = () => {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            {/* Filtros */}
+            {/* Filtros con texto Blanco */}
             <Card className="bg-[#1e293b] border-slate-700 p-3">
               <div className="flex flex-wrap items-center gap-3">
                 <Filter className="h-4 w-4 text-white" />
                 <Select value={viewType} onValueChange={setViewType}>
-                  <SelectTrigger className="w-[150px] bg-[#0f172a] border-slate-700 text-xs font-bold text-white uppercase"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-[150px] bg-[#0f172a] border-slate-700 text-xs font-bold text-white uppercase">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent className="bg-[#1e293b] border-slate-700 text-white">
                     <SelectItem value="month">Mensual</SelectItem>
                     <SelectItem value="year">Anual</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={selectedYear} onValueChange={setSelectedYear}>
-                  <SelectTrigger className="w-[100px] bg-[#0f172a] border-slate-700 text-xs font-bold text-white uppercase"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-[100px] bg-[#0f172a] border-slate-700 text-xs font-bold text-white uppercase">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent className="bg-[#1e293b] border-slate-700 text-white">
                     <SelectItem value="2024">2024</SelectItem>
                     <SelectItem value="2025">2025</SelectItem>
@@ -179,7 +189,9 @@ const Dashboard = () => {
                 </Select>
                 {viewType === 'month' && (
                   <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                    <SelectTrigger className="w-[130px] bg-[#0f172a] border-slate-700 text-xs font-bold text-white uppercase"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-[130px] bg-[#0f172a] border-slate-700 text-xs font-bold text-white uppercase">
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent className="bg-[#1e293b] border-slate-700 text-white max-h-[300px]">
                       {["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"].map((m, i) => (
                         <SelectItem key={m} value={i.toString()}>{m}</SelectItem>
@@ -196,7 +208,29 @@ const Dashboard = () => {
               <CardContent><div className="text-3xl font-black text-white">${stats.total.toLocaleString('es-AR')}</div></CardContent>
             </Card>
 
-            {/* GRÁFICO DE EVOLUCIÓN (NUEVO) */}
+            {/* CARTEL DE SUGERENCIAS IA */}
+            {stats.aiSuggestions.length > 0 && (
+              <Card className="bg-gradient-to-br from-[#1e293b] to-[#1e1b4b] border-blue-500/30 shadow-xl overflow-hidden">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-black uppercase italic tracking-widest flex items-center gap-2 text-blue-400">
+                    <Sparkles className="h-4 w-4" /> Sugerencias IA
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {stats.aiSuggestions.map((sug, i) => (
+                    <div key={i} className="flex gap-4 p-3 rounded-xl bg-white/5 border border-white/5 items-start">
+                      <div className="mt-0.5">{sug.icon}</div>
+                      <div>
+                        <h4 className="text-[11px] font-bold text-white uppercase tracking-tight">{sug.title}</h4>
+                        <p className="text-[11px] text-white mt-1 leading-relaxed italic">{sug.text}</p>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* GRÁFICO DE EVOLUCIÓN MENSUAL */}
             <Card className="bg-[#1e293b] border-slate-700">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-bold uppercase text-white flex items-center gap-2">
@@ -226,7 +260,6 @@ const Dashboard = () => {
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Categorías */}
               <Card className="bg-[#1e293b] border-slate-700">
                 <CardHeader><CardTitle className="text-sm font-bold uppercase text-white">Categorías</CardTitle></CardHeader>
                 <CardContent className="h-64">
@@ -242,7 +275,6 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
 
-              {/* Movimientos */}
               <Card className="bg-[#1e293b] border-slate-700">
                 <CardHeader><CardTitle className="text-sm font-bold uppercase text-white">Movimientos</CardTitle></CardHeader>
                 <CardContent className="space-y-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
@@ -318,11 +350,17 @@ const Dashboard = () => {
       </div>
 
       <style>{`
-        .fc { background: transparent; color: white; border: none; }
-        .fc-toolbar-title { font-size: 0.9rem !important; font-weight: 900; text-transform: uppercase; }
+        /* Estilos para el calendario */
+        .fc { background: transparent; color: white !important; border: none; }
+        .fc-toolbar-title { font-size: 0.9rem !important; font-weight: 900; text-transform: uppercase; color: white !important; }
         .fc-button { background: #3b82f6 !important; border: none !important; font-size: 0.6rem !important; font-weight: bold; }
         .fc-daygrid-day { border-color: #334155 !important; }
-        .fc-col-header-cell { background: #0f172a; color: #fff; font-size: 0.65rem; }
+        .fc-col-header-cell { background: #0f172a; color: #fff !important; font-size: 0.65rem; }
+        .fc-daygrid-day-number { color: white !important; }
+        
+        /* Asegurar texto blanco en los selects */
+        [data-radix-popper-content-wrapper] { color: white !important; }
+        
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
       `}</style>
@@ -331,5 +369,6 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
 
 
