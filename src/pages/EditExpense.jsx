@@ -12,8 +12,7 @@ const EditExpense = () => {
   const [expense, setExpense] = useState(null);
 
   useEffect(() => {
-    // Buscamos el gasto por ID
-    const found = expenses.find(e => e.id === id);
+    const found = expenses.find(e => e.id === id || e.originalId === id);
     if (found) {
       setExpense(found);
     }
@@ -24,7 +23,7 @@ const EditExpense = () => {
       await updateExpense(id, updatedData);
       navigate('/dashboard');
     } catch (error) {
-      console.error("Error al actualizar:", error);
+      console.error("Error al actualizar el gasto:", error);
     }
   };
 
