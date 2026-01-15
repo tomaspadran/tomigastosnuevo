@@ -1,7 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 
-// ASEGÚRATE DE QUE LA URL EMPIECE CON HTTPS://
-const VITE_SUPABASE_URL = 'https://hururbfcotnebgamhget.supabase.co' 
-const VITE_SUPABASE_ANON_KEY = 'sb_publishable_hSrl7qXqO3l5kzuYO19yYQ_2OYOiXxHsb_publishable_hSrl7qXqO3l5kzuYO19yYQ_2OYOiXxH'
+// Intentar obtener de variables de entorno (Vercel/Vite) o usar el string directo
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://hururbfcotnebgamhget.supabase.co';
 
-export const supabase = createClient(VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
+// NOTA: Asegúrate de que esta Key sea la "anon public" que copiaste de Supabase.
+// La que pasaste se veía duplicada, aquí la dejo limpia si es que era un error de pegado.
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_hSrl7qXqO3l5kzuYO19yYQ_2OYOiXxH'; 
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
