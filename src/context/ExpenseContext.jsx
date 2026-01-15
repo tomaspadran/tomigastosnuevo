@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../supabase/client';
+import { supabase } from '../lib/supabase'; // RUTA CORREGIDA PARA VERCEL
 import { toast } from 'sonner';
 
 const ExpenseContext = createContext();
@@ -96,6 +96,7 @@ export const ExpenseProvider = ({ children }) => {
   // 3. EDITAR GASTO
   const updateExpense = async (id, updatedData) => {
     try {
+      // Importante: Al editar usamos el ID real de la DB, no el virtual
       const { error } = await supabase
         .from('expenses')
         .update(updatedData)
@@ -154,6 +155,7 @@ export const useExpenses = () => {
   }
   return context;
 };
+
 
 
 
