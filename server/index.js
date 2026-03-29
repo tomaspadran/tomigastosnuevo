@@ -14,7 +14,7 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 // Configuration for Supabase (using project fallbacks for simplicity)
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://hururbfcotnebgamhget.supabase.co';
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://tomi-tomigastosnuevo.4ilna4.easypanel.host';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1cnVyYmZjb3RuZWJnYW1oZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTEzNDcsImV4cCI6MjA4MzAyNzM0N30.OTzen7ePLhG036uK4grHNsZoYfo2oq7RPUrTCSVr33k';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 

@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
 // Intentar obtener de variables de entorno (Vercel/Vite) o usar el string directo
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://hururbfcotnebgamhget.supabase.co';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://tomi-tomigastosnuevo.4ilna4.easypanel.host';
 
 // NOTA: Asegúrate de que esta Key sea la "anon public" que copiaste de Supabase.
 // La que pasaste se veía duplicada, aquí la dejo limpia si es que era un error de pegado.
