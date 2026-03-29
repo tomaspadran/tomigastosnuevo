@@ -6,14 +6,19 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import AddExpense from './pages/AddExpense';
 import EditExpense from './pages/EditExpense';
+import Profiles from './pages/Profiles';
+import History from './pages/History';
+import Reports from './pages/Reports';
+import Stats from './pages/Stats';
 import { Toaster } from 'sonner';
+import { ThemeProvider } from './components/theme-provider';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-white font-bold uppercase tracking-tighter italic">
+      <div className="min-h-screen bg-background flex items-center justify-center text-foreground font-bold uppercase tracking-tighter italic">
         Cargando sesión...
       </div>
     );
@@ -24,47 +29,85 @@ const PrivateRoute = ({ children }) => {
 
 function App() {
   return (
-    <AuthProvider>
-      <ExpenseProvider>
-        <Router>
-          <div className="min-h-screen bg-[#0f172a]">
-            <Routes>
-              <Route path="/" element={<Login />} />
-              
-              <Route 
-                path="/dashboard" 
-                element={
-                  <PrivateRoute>
-                    <Dashboard />
-                  </PrivateRoute>
-                } 
-              />
-              
-              <Route 
-                path="/add-expense" 
-                element={
-                  <PrivateRoute>
-                    <AddExpense />
-                  </PrivateRoute>
-                } 
-              />
+    <ThemeProvider defaultTheme="light" storageKey="tomigastos-theme">
+      <AuthProvider>
+        <ExpenseProvider>
+          <Router>
+            <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+              <Routes>
+                <Route path="/" element={<Login />} />
+                
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <PrivateRoute>
+                      <Dashboard />
+                    </PrivateRoute>
+                  } 
+                />
+                
+                <Route 
+                  path="/add-expense" 
+                  element={
+                    <PrivateRoute>
+                      <AddExpense />
+                    </PrivateRoute>
+                  } 
+                />
 
-              <Route 
-                path="/edit-expense/:id" 
-                element={
-                  <PrivateRoute>
-                    <EditExpense />
-                  </PrivateRoute>
-                } 
-              />
+                <Route 
+                  path="/edit-expense/:id" 
+                  element={
+                    <PrivateRoute>
+                      <EditExpense />
+                    </PrivateRoute>
+                  } 
+                />
 
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-            <Toaster position="top-center" richColors />
-          </div>
-        </Router>
-      </ExpenseProvider>
-    </AuthProvider>
+                <Route 
+                  path="/profiles" 
+                  element={
+                    <PrivateRoute>
+                      <Profiles />
+                    </PrivateRoute>
+                  } 
+                />
+
+                <Route 
+                  path="/history" 
+                  element={
+                    <PrivateRoute>
+                      <History />
+                    </PrivateRoute>
+                  } 
+                />
+
+                <Route 
+                  path="/reports" 
+                  element={
+                    <PrivateRoute>
+                      <Reports />
+                    </PrivateRoute>
+                  } 
+                />
+
+                <Route 
+                  path="/stats" 
+                  element={
+                    <PrivateRoute>
+                      <Stats />
+                    </PrivateRoute>
+                  } 
+                />
+
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+              <Toaster position="top-center" richColors />
+            </div>
+          </Router>
+        </ExpenseProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

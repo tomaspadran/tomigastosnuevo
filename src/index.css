@@ -4,7 +4,8 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    /* Fondo Claro de la referencia: #f3f5f9 */
+    --background: 220 33% 96%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -13,14 +14,15 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 221.2 83.2% 53.3%;
+    /* Primary Blue de referencia: #2c4bda */
+    --primary: 229 69% 51%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 228 100% 96%; /* ecf0ff */
+    --secondary-foreground: 229 69% 51%;
 
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted-foreground: 215.4 16.3% 46.9%; /* Text muted: #64748b */
 
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
@@ -30,41 +32,54 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --ring: 229 69% 51%;
 
-    --radius: 0.5rem;
+    --radius: 0.8rem;
+    
+    /* Variables de categorías basadas en la referencia HTML */
+    --cat-food: 38 92% 50%; /* #f59e0b */
+    --cat-transport: 217 91% 60%; /* #3b82f6 */
+    --cat-health: 0 84% 60%; /* #ef4444 */
+    --cat-home: 258 90% 66%; /* #8b5cf6 */
+    --cat-shopping: 330 81% 60%; /* #ec4899 */
+    --cat-services: 175 84% 40%; /* #14b8a6 */
+    --cat-income: 160 84% 39%; /* #10b981 */
+    --cat-kids: 199 89% 48%; /* #0ea5e9 */
+    --cat-pets: 271 91% 65%; /* #a855f7 */
+    --cat-car: 215 16% 47%; /* #64748b */
   }
 
   .dark {
-    /* Fondo: Azul Oscuro Profundo (Slate 950) */
-    --background: 222.2 47.4% 11.2%;
+    /* Fondo oscuro Premium elegante compatible con modo oscuro */
+    --background: 222 47% 7%;
     --foreground: 210 40% 98%;
 
-    /* Cards: Ligeramente más claros (Slate 900) */
-    --card: 217.2 32.6% 17.5%;
+    /* Tarjetas oscuras sutiles */
+    --card: 217 33% 12%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 217.2 32.6% 17.5%;
+    --popover: 217 33% 12%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Primary en oscuro se mantiene vibrante */
+    --primary: 229 80% 65%;
+    --primary-foreground: 222 47% 11%;
 
-    --secondary: 215 27.9% 16.9%;
+    --secondary: 215 28% 17%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
+    --muted: 215 28% 17%;
+    --muted-foreground: 218 11% 65%;
 
-    --accent: 215 27.9% 16.9%;
+    --accent: 215 28% 17%;
     --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 224.3 76.3% 48%;
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 229 80% 65%;
   }
 }
 

@@ -2,20 +2,85 @@ import 'dotenv/config';
 import express from 'express';
 import sgMail from '@sendgrid/mail';
 import cors from 'cors';
+import { createClient } from '@supabase/supabase-js';
 
 const app = express();
 const port = 3001;
 
+// Configuration for Supabase (using project fallbacks for simplicity)
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://hururbfcotnebgamhget.supabase.co';
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1cnVyYmZjb3RuZWJnYW1oZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTEzNDcsImV4cCI6MjA4MzAyNzM0N30.OTzen7ePLhG036uK4grHNsZoYfo2oq7RPUrTCSVr33k';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 app.use(cors());
 app.use(express.json());
 
-// Configure SendGrid
+// Configure SendGrid (Keep existing logic)
 if (process.env.SENDGRID_API_KEY) {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-} else {
-    console.warn("WARNING: SENDGRID_API_KEY is missing in .env file. Email sending will fail.");
 }
 
+// --------------------------------------------------------------------------
+// API ENDPOINT: BALANCE (FOR AUTOMATIONS)
+// --------------------------------------------------------------------------
+app.get('/api/balance', async (req, res) => {
+    try {
+        const { data: expenses, error } = await supabase
+            .from('expenses')
+            .select('*');
+
+        if (error) throw error;
+
+        // Same calculation logic as Dashboard.jsx
+        const totalIngresos = expenses
+            .filter(e => e.transaction_type === 'ingreso')
+            .reduce((acc, curr) => acc + Number(curr.amount), 0);
+            
+        const totalGastos = expenses
+            .filter(e => e.transaction_type === 'gasto' || !e.transaction_type)
+            .reduce((acc, curr) => acc + Number(curr.amount), 0);
+            
+        const totalAhorros = expenses
+            .filter(e => e.transaction_type === 'ahorro')
+            .reduce((acc, curr) => acc + Number(curr.amount), 0);
+            
+        const balance = totalIngresos - totalGastos - totalAhorros;
+
+        res.status(200).json({
+            balance: balance,
+            symbol: "$",
+            formatted: `$ ${balance.toLocaleString('es-AR')}`,
+            last_update: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error("Error al obtener balance:", error);
+        res.status(500).json({ error: 'Failed to calculate balance' });
+    }
+});
+
+// Endpoint summary for N8N (With breakdown)
+app.get('/api/summary', async (req, res) => {
+    try {
+        const { data: expenses, error } = await supabase.from('expenses').select('*');
+        if (error) throw error;
+
+        const ingresos = expenses.filter(e => e.transaction_type === 'ingreso').reduce((a, c) => a + Number(c.amount), 0);
+        const gastos = expenses.filter(e => e.transaction_type === 'gasto' || !e.transaction_type).reduce((a, c) => a + Number(c.amount), 0);
+        const ahorros = expenses.filter(e => e.transaction_type === 'ahorro').reduce((a, c) => a + Number(c.amount), 0);
+
+        res.status(200).json({
+            balance: ingresos - gastos - ahorros,
+            total_ingresos: ingresos,
+            total_gastos: gastos,
+            total_ahorros: ahorros,
+            last_movimiento: expenses[0]?.description || 'Sin movimientos'
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Error general' });
+    }
+});
+
+// Recover Password logic (Existing)
 app.post('/api/recover', async (req, res) => {
     const { email } = req.body;
 

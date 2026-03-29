@@ -2,142 +2,207 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useExpenses } from '../context/ExpenseContext';
 import { ArrowLeft, Save } from 'lucide-react';
+import ThemeToggle from '../components/ThemeToggle';
 import { Button } from '../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Label } from '../components/ui/label';
+import { Input } from '../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { toast } from 'sonner';
+
+// Estructura de categorías y subcategorías (Debe ser igual a la de AddExpense)
+const CATEGORIES_STRUCTURE = {
+  "Casa": ["Alquiler", "Expensas", "Servicio Limpieza", "Otros"],
+  "Salud y Cuidado Personal": ["General"],
+  "Supermercado": ["General"],
+  "Servicios Profesionales": ["General"],
+  "Juana": ["Colegio", "Pañales", "Leche", "Otros"],
+  "Servicios": ["Cable", "Internet", "Servicio Entretenimiento", "Luz", "Gas"],
+  "Autos": ["Seguro", "Patente", "Mantenimiento"],
+  "Perra": ["General"],
+  "Shopping/Compras": ["General"],
+  "Salidas": ["General"]
+};
 
 const EditExpense = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { expenses, updateExpense } = useExpenses();
   
-  // Estado para controlar los datos del formulario
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
-    category: '',
-    paid_by: '',
-    date: ''
+    category: 'Casa',
+    subcategory: 'Alquiler',
+    paid_by: 'Tomi',
+    date: '',
+    payment_method: 'Efectivo',
+    installments: 1,
+    transaction_type: 'gasto'
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Buscamos el gasto por ID
-    const expenseToEdit = expenses.find(e => e.id === id || e.originalId === id);
-    if (expenseToEdit) {
+    const expense = expenses.find(e => e.id === id || e.originalId === id);
+    if (expense) {
+      // Si el gasto no tiene category/subcategory pero sí type, intentamos parsear
+      let cat = expense.category || 'Casa';
+      let sub = expense.subcategory || 'Alquiler';
+      
+      if (!expense.category && expense.type) {
+        const parts = expense.type.split(' - ');
+        cat = parts[0];
+        sub = parts.length > 1 ? parts[1] : 'General';
+      }
+
       setFormData({
-        description: expenseToEdit.description || '',
-        amount: expenseToEdit.amount || '',
-        category: expenseToEdit.category || '',
-        paid_by: expenseToEdit.paid_by || '',
-        date: expenseToEdit.date || ''
+        description: expense.description || '',
+        amount: expense.amount || '',
+        category: cat,
+        subcategory: sub,
+        paid_by: expense.paid_by || 'Tomi',
+        date: expense.date || '',
+        payment_method: expense.payment_method || 'Efectivo',
+        installments: expense.installments || 1,
+        transaction_type: expense.transaction_type || 'gasto'
       });
       setLoading(false);
     }
   }, [id, expenses]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await updateExpense(id, formData);
-      toast.success('Gasto actualizado correctamente');
+      // Reconstruimos el campo "type" para compatibilidad visual
+      const finalType = formData.subcategory === 'General' 
+        ? formData.category 
+        : `${formData.category} - ${formData.subcategory}`;
+
+      const updateData = {
+        ...formData,
+        amount: parseFloat(formData.amount),
+        type: finalType,
+        transaction_type: formData.transaction_type
+      };
+
+      await updateExpense(id, updateData);
+      toast.success('Gasto actualizado');
       navigate('/dashboard');
     } catch (error) {
-      toast.error('Error al actualizar el gasto');
-      console.error("Error:", error);
+      toast.error('Error al actualizar');
+      console.error(error);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-white font-black uppercase italic">
-        Cargando gasto...
-      </div>
-    );
-  }
+  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-foreground font-black italic uppercase">Cargando...</div>;
 
   return (
-    <div className="min-h-screen bg-[#0f172a] p-4 pb-20">
-      <div className="max-w-md mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-background text-foreground p-4 transition-colors duration-300">
+      <div className="max-w-md mx-auto">
+        <div className="flex items-center justify-between mb-6">
           <Button 
             variant="ghost" 
-            onClick={() => navigate('/dashboard')}
-            className="text-slate-400 hover:text-white p-0"
+            onClick={() => navigate('/dashboard')} 
+            className="text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-slate-800"
           >
-            <ArrowLeft className="h-6 w-6" />
+            <ArrowLeft className="mr-2 h-4 w-4" /> Volver al Dashboard
           </Button>
-          <h2 className="text-xl font-black text-white uppercase italic tracking-tighter">
-            Editar Gasto
-          </h2>
+          <ThemeToggle />
         </div>
 
-        {/* Formulario Integrado para evitar errores de importación */}
-        <form onSubmit={handleSubmit} className="space-y-4 bg-[#1e293b] p-6 rounded-2xl border border-slate-700 shadow-xl">
-          <div>
-            <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Descripción</label>
-            <input
-              type="text"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Ej: Supermercado"
-              className="w-full bg-[#0f172a] border border-slate-700 rounded-xl p-3 text-white font-bold focus:border-blue-500 outline-none transition-all"
-              required
-            />
-          </div>
+        <Card className="bg-card/90 backdrop-blur border-border shadow-2xl">
+          <CardHeader>
+            <CardTitle className="text-2xl font-black text-center text-foreground uppercase tracking-tighter">
+              Editar Gasto
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-foreground/80">Descripción</Label>
+                <Input 
+                  id="description"
+                  required
+                  className="bg-background border-input text-foreground h-12"
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                />
+              </div>
 
-          <div>
-            <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Monto ($)</label>
-            <input
-              type="number"
-              name="amount"
-              value={formData.amount}
-              onChange={handleChange}
-              placeholder="0.00"
-              className="w-full bg-[#0f172a] border border-slate-700 rounded-xl p-3 text-white font-black text-2xl focus:border-blue-500 outline-none transition-all"
-              required
-            />
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="amount" className="text-foreground/80">Monto ($)</Label>
+                <Input 
+                  id="amount"
+                  type="number" 
+                  step="0.01"
+                  required
+                  className="bg-background border-input text-foreground h-12 text-xl font-black"
+                  value={formData.amount}
+                  onChange={(e) => setFormData({...formData, amount: e.target.value})}
+                />
+              </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Pagador</label>
-              <select
-                name="paid_by"
-                value={formData.paid_by}
-                onChange={handleChange}
-                className="w-full bg-[#0f172a] border border-slate-700 rounded-xl p-3 text-white font-bold uppercase text-xs outline-none focus:border-blue-500"
-              >
-                <option value="Tomi">Tomi</option>
-                <option value="Gabi">Gabi</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Fecha</label>
-              <input
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                className="w-full bg-[#0f172a] border border-slate-700 rounded-xl p-3 text-white font-bold text-xs outline-none focus:border-blue-500"
-                required
-              />
-            </div>
-          </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-foreground/80">Categoría</Label>
+                  <Select value={formData.category} onValueChange={(val) => setFormData({...formData, category: val})}>
+                    <SelectTrigger className="bg-background border-input text-foreground h-12">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.keys(CATEGORIES_STRUCTURE).map(cat => (
+                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-          <Button 
-            type="submit" 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 rounded-xl font-black uppercase italic tracking-widest mt-4 shadow-lg shadow-blue-900/20 transition-all active:scale-95"
-          >
-            <Save className="mr-2 h-5 w-5" /> Guardar Cambios
-          </Button>
-        </form>
+                <div className="space-y-2">
+                  <Label className="text-foreground/80">Sub-categoría</Label>
+                  <Select value={formData.subcategory} onValueChange={(val) => setFormData({...formData, subcategory: val})}>
+                    <SelectTrigger className="bg-background border-input text-foreground h-12">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CATEGORIES_STRUCTURE[formData.category]?.map(sub => (
+                        <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                      )) || <SelectItem value="General">General</SelectItem>}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-foreground/80">Pagador</Label>
+                  <Select value={formData.paid_by} onValueChange={(val) => setFormData({...formData, paid_by: val})}>
+                    <SelectTrigger className="bg-background border-input text-foreground h-12">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Tomi">Tomi</SelectItem>
+                      <SelectItem value="Gabi">Gabi</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-foreground/80">Fecha</Label>
+                  <Input 
+                    type="date"
+                    className="bg-background border-input text-foreground h-12 dark:[color-scheme:dark]"
+                    value={formData.date}
+                    onChange={(e) => setFormData({...formData, date: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-14 text-lg font-black uppercase shadow-lg shadow-primary/20">
+                <Save className="mr-2 h-6 w-6" /> Guardar Cambios
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

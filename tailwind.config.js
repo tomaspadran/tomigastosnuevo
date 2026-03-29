@@ -41,6 +41,18 @@ export default {
                     DEFAULT: "hsl(var(--card))",
                     foreground: "hsl(var(--card-foreground))",
                 },
+                cat: {
+                    food: "hsl(var(--cat-food))",
+                    transport: "hsl(var(--cat-transport))",
+                    health: "hsl(var(--cat-health))",
+                    home: "hsl(var(--cat-home))",
+                    shopping: "hsl(var(--cat-shopping))",
+                    services: "hsl(var(--cat-services))",
+                    income: "hsl(var(--cat-income))",
+                    kids: "hsl(var(--cat-kids))",
+                    pets: "hsl(var(--cat-pets))",
+                    car: "hsl(var(--cat-car))",
+                }
             },
             borderRadius: {
                 lg: "var(--radius)",
