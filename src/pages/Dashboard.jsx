@@ -46,6 +46,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid 
 } from 'recharts';
 import { toast } from 'sonner';
+import AISuggestions from '../components/dashboard/AISuggestions';
 
 const Dashboard = () => {
   const { expenses, loading, deleteExpense } = useExpenses();
@@ -531,8 +532,11 @@ const Dashboard = () => {
                 </div>
 
                 {/* Right Column (Cards & Budgets) */}
-                <div className="hidden xl:flex flex-col gap-6 lg:gap-8">
+                <div className="flex flex-col gap-6 lg:gap-8">
                     
+                    {/* AI Suggestions Box */}
+                    <AISuggestions expenses={expenses} />
+
                     {/* My Cards & Add Expense Area */}
                     <div className="bg-card rounded-2xl p-6 border border-border shadow-sm">
                         <div className="flex justify-between items-center mb-6">
