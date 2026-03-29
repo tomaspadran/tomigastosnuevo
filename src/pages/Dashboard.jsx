@@ -480,15 +480,12 @@ const Dashboard = () => {
                                 return (
                                     <div key={expense.id} className="grid grid-cols-[48px_1fr_auto_auto_48px] items-center gap-4 py-4 border-b border-border last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors px-2 -mx-2 rounded-xl group relative">
                                         
-                                        {/* Icon & User Photo */}
-                                        <div className="relative">
-                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white shadow-inner ${iconClass}`}>
-                                                {getCategoryIcon(categoryName)}
-                                            </div>
+                                        {/* User Photo only */}
+                                        <div className="flex-shrink-0">
                                             <img 
                                                 src={getMemberAvatar(expense.paid_by || 'Tomi')} 
                                                 alt={expense.paid_by}
-                                                className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-card object-cover shadow-sm bg-card"
+                                                className="w-12 h-12 rounded-full border-2 border-border object-cover shadow-sm bg-card transition-transform group-hover:scale-110" 
                                                 title={expense.paid_by}
                                             />
                                         </div>
@@ -537,60 +534,6 @@ const Dashboard = () => {
                     {/* AI Suggestions Box */}
                     <AISuggestions expenses={expenses} />
 
-                    {/* My Cards & Add Expense Area */}
-                    <div className="bg-card rounded-2xl p-6 border border-border shadow-sm">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-lg font-semibold text-foreground">Cuentas Compartidas</h3>
-                            <MoreVertical className="w-5 h-5 text-muted-foreground cursor-pointer" />
-                        </div>
-                        
-                        {/* Virtual Card Illustration */}
-                        <div className="bg-gradient-to-br from-indigo-900 to-primary rounded-[20px] p-6 text-white mb-6 relative overflow-hidden shadow-xl shadow-primary/20">
-                            {/* Decorative circles */}
-                            <div className="absolute -top-12 -right-6 w-36 h-36 bg-white/10 rounded-full blur-xl"></div>
-                            <div className="absolute -bottom-8 -left-6 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
-                            
-                            <div className="flex justify-between items-center mb-8 relative z-10">
-                                <Zap className="w-8 h-8 opacity-80" />
-                                <span className="font-bold tracking-widest text-sm opacity-90 italic">TRACKEXP</span>
-                            </div>
-                            
-                            <div className="font-mono text-xl tracking-[0.2em] mb-4 opacity-90 relative z-10">
-                                **** **** **** 2026
-                            </div>
-                            
-                            <div className="flex justify-between items-end relative z-10">
-                                <div>
-                                    <p className="text-[10px] uppercase tracking-widest opacity-70 mb-1">Total Gastos</p>
-                                    <p className="font-bold whitespace-nowrap">$ {stats.total.toLocaleString('es-AR')}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-[10px] uppercase tracking-widest opacity-70 mb-1">Cierra</p>
-                                    <p className="font-bold font-mono">31/12</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="border-t border-border pt-6 mb-6">
-                            <p className="text-sm text-muted-foreground mb-1">Estado de la cuenta compartida</p>
-                            <div className="flex items-center gap-4 mb-4">
-                                <h2 className="text-2xl font-bold text-foreground">Activa</h2>
-                                <div className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1">
-                                    <Check className="w-3 h-3" /> OK
-                                </div>
-                            </div>
-                            <div className="flex gap-10">
-                                <div>
-                                    <p className="text-xs text-muted-foreground mb-0.5">Moneda</p>
-                                    <p className="text-sm font-semibold">ARS Pesos</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-muted-foreground mb-0.5">Socios</p>
-                                    <p className="text-sm font-semibold">Tomi & Gabi</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     {/* Proporción Categorías (Simil Budgets) */}
                     <div className="bg-card rounded-2xl p-6 border border-border shadow-sm flex-grow">
