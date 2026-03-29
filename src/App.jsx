@@ -29,7 +29,7 @@ const PrivateRoute = ({ children }) => {
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="tomigastos-theme">
+    <ThemeProvider defaultTheme="dark" storageKey="tomigastos-theme">
       <AuthProvider>
         <ExpenseProvider>
           <Router>

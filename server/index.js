@@ -4,8 +4,14 @@ import sgMail from '@sendgrid/mail';
 import cors from 'cors';
 import { createClient } from '@supabase/supabase-js';
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 // Configuration for Supabase (using project fallbacks for simplicity)
 const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://hururbfcotnebgamhget.supabase.co';
@@ -131,6 +137,21 @@ app.post('/api/recover', async (req, res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
+// --------------------------------------------------------------------------
+// SERVE FRONTEND (STATIC FILES)
+// --------------------------------------------------------------------------
+const distPath = path.join(__dirname, '../dist');
+app.use(express.static(distPath));
+
+// Handle SPA routing: All non-API requests serve index.html
+app.get('*', (req, res) => {
+    // If it starts with /api/, it's a 404 for the API
+    if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ error: 'Not Found' });
+    }
+    res.sendFile(path.join(distPath, 'index.html'));
+});
+
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Server listening on port ${port}`);
 });

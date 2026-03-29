@@ -259,7 +259,7 @@ const Dashboard = () => {
                 <div>
                    <h1 className="text-3xl font-black tracking-tight uppercase italic flex items-center gap-3">
                       <LayoutDashboard className="w-8 h-8 text-primary" />
-                      Dashboard General
+                      Gastos Tomi-Gabi
                    </h1>
                    <p className="text-muted-foreground text-sm font-medium mt-1">Gestión de finanzas Tomi & Gabi</p>
                 </div>
