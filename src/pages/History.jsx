@@ -131,6 +131,7 @@ const History = () => {
                                     <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">Descripción</th>
                                     <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">Categoría</th>
                                     <th className="px-6 py-4 text-right text-xs font-black uppercase tracking-wider text-muted-foreground">Monto</th>
+                                    <th className="px-6 py-4 text-center text-xs font-black uppercase tracking-wider text-muted-foreground">Status</th>
                                     <th className="px-6 py-4 text-center text-xs font-black uppercase tracking-wider text-muted-foreground">Acciones</th>
                                 </tr>
                             </thead>
@@ -162,8 +163,8 @@ const History = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-semibold text-foreground">{exp.description}</span>
-                                                <span className="text-[10px] text-muted-foreground uppercase italic">{exp.payment_method}</span>
+                                                <span className="text-sm font-bold text-foreground">{exp.description || exp.type || 'Sin detalle'}</span>
+                                                <span className="text-[10px] text-muted-foreground uppercase italic opacity-70">{exp.payment_method} • {exp.type}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -182,6 +183,12 @@ const History = () => {
                                                 {exp.installments > 1 && (
                                                     <span className="text-[10px] text-muted-foreground">En cuotas</span>
                                                 )}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-center whitespace-nowrap">
+                                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black uppercase">
+                                                <Check className="w-3 h-3" />
+                                                Completado
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-center whitespace-nowrap">
