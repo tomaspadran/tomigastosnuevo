@@ -467,60 +467,126 @@ const Dashboard = () => {
 
                     {/* Transactions Section */}
                     <div className="bg-card rounded-2xl p-6 border border-border shadow-sm">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-lg font-semibold text-foreground">Movimientos Recientes</h3>
-                            <button className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">Ver todos</button>
+                        <div className="flex justify-between items-center mb-8">
+                            <h3 className="text-lg font-black uppercase italic tracking-tighter text-foreground flex items-center gap-2">
+                                <ArrowRightLeft className="w-5 h-5 text-primary" />
+                                Movimientos Recientes
+                            </h3>
+                            <div className="flex items-center gap-4">
+                                <div className="hidden sm:flex items-center gap-2 text-xs font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800/50 px-3 py-1.5 rounded-full border border-border">
+                                    <span>Recientes</span>
+                                    <ChevronDown className="w-3 h-3" />
+                                </div>
+                                <button onClick={() => navigate('/history')} className="text-xs font-black uppercase text-primary hover:underline transition-all">Ver todos</button>
+                            </div>
                         </div>
                         
                         <div className="flex flex-col">
+                            {/* Desktop Headers */}
+                            <div className="hidden lg:grid grid-cols-[200px_1fr_120px_120px_130px_120px_60px] gap-4 mb-4 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-b border-border pb-3">
+                                <span>Pagador / Usuario</span>
+                                <span>Descripción / Detalle</span>
+                                <span className="text-center">Fecha</span>
+                                <span className="text-center">Horario</span>
+                                <span className="text-right">Monto</span>
+                                <span className="text-right">Estado</span>
+                                <span className="text-right"></span>
+                            </div>
+
                             {stats.filtered.slice(0, 10).map((expense) => {
                                 const categoryName = expense.category || expense.type?.split(" - ")[0] || "Otros";
-                                const iconClass = getCategoryColor(categoryName);
+                                const dateObj = new Date(expense.date);
+                                // Usamos created_at para el horario si está disponible, sino la fecha base
+                                const timeStr = expense.created_at 
+                                    ? new Date(expense.created_at).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: true })
+                                    : "10:00 AM"; // Fallback placeholder similar a la imagen
                                 
                                 return (
-                                    <div key={expense.id} className="grid grid-cols-[48px_1fr_auto_auto_48px] items-center gap-4 py-4 border-b border-border last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors px-2 -mx-2 rounded-xl group relative">
+                                    <div key={expense.id} className="grid grid-cols-[auto_1fr_auto] lg:grid-cols-[200px_1fr_120px_120px_130px_120px_60px] items-center gap-4 py-5 border-b border-border last:border-0 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-all px-4 -mx-4 rounded-xl group relative">
                                         
-                                        {/* User Photo only */}
-                                        <div className="flex-shrink-0">
-                                            <img 
-                                                src={getMemberAvatar(expense.paid_by || 'Tomi')} 
-                                                alt={expense.paid_by}
-                                                className="w-12 h-12 rounded-full border-2 border-border object-cover shadow-sm bg-card transition-transform group-hover:scale-110" 
-                                                title={expense.paid_by}
-                                            />
+                                        {/* 1. Photo and Name (User) */}
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <div className="relative shrink-0">
+                                                <img 
+                                                    src={getMemberAvatar(expense.paid_by || 'Tomi')} 
+                                                    alt={expense.paid_by}
+                                                    className="w-10 h-10 rounded-full border-2 border-background object-cover shadow-md bg-card transition-transform group-hover:scale-110 z-10 relative" 
+                                                />
+                                                <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-background flex items-center justify-center text-[8px] text-white z-20 ${getCategoryColor(categoryName)}`}>
+                                                    {getCategoryIcon(categoryName)}
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="font-bold text-foreground text-sm truncate">{expense.paid_by || 'Usuario'}</span>
+                                                <span className="text-[10px] text-muted-foreground lg:hidden uppercase font-black tracking-tighter truncate">{categoryName}</span>
+                                            </div>
                                         </div>
-                                        
-                                        {/* Info */}
-                                        <div className="flex flex-col justify-center min-w-0 pr-4">
-                                            <span className="font-semibold text-foreground truncate">{expense.description}</span>
-                                            <span className="text-xs text-muted-foreground mt-0.5">{expense.type} • {expense.paid_by}</span>
+
+                                        {/* 2. Description */}
+                                        <div className="flex flex-col min-w-0">
+                                            <span className="font-semibold text-foreground text-sm truncate">{expense.description}</span>
+                                            <span className="text-[10px] text-muted-foreground hidden lg:block uppercase font-black tracking-tighter truncate">{expense.type}</span>
+                                            <div className="flex items-center gap-2 lg:hidden mt-1 opacity-70">
+                                                <span className="text-[9px] font-bold text-muted-foreground">{dateObj.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit'})}</span>
+                                                <span className="w-1 h-1 rounded-full bg-border"></span>
+                                                <span className="text-[9px] font-bold text-muted-foreground">{timeStr}</span>
+                                            </div>
                                         </div>
-                                        
-                                        {/* Date */}
-                                        <div className="hidden sm:flex flex-col text-right pr-6">
-                                            <span className="text-sm text-foreground font-medium">{new Date(expense.date).toLocaleDateString('es-AR', { day: '2-digit', month: 'short'})}</span>
-                                            <span className="text-xs text-muted-foreground">{new Date(expense.date).getFullYear()}</span>
-                                        </div>
-                                        
-                                        {/* Amount */}
-                                        <div className="text-right pr-4">
-                                            <span className={`text-base font-bold ${expense.transaction_type === 'ingreso' ? 'text-emerald-500' : 'text-foreground'}`}>
-                                                {expense.transaction_type === 'ingreso' ? '+' : '-'}$ {Number(expense.amount).toLocaleString('es-AR')}
+
+                                        {/* 3. Date (Desktop only) */}
+                                        <div className="hidden lg:flex justify-center">
+                                            <span className="text-xs font-bold text-foreground bg-slate-100 dark:bg-slate-800/50 px-2.5 py-1 rounded-lg border border-border/50">
+                                                {dateObj.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                                             </span>
                                         </div>
 
-                                        {/* Actions */}
-                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                           <button onClick={() => navigate(`/edit-expense/${expense.id}`)} className="p-2 text-muted-foreground hover:text-primary transition-colors"><Edit3 className="w-4 h-4" /></button>
-                                           <button onClick={() => handleDelete(expense.id)} className="p-2 text-muted-foreground hover:text-destructive transition-colors"><Trash2 className="w-4 h-4" /></button>
+                                        {/* 4. Time (Desktop only) */}
+                                        <div className="hidden lg:flex justify-center">
+                                            <span className="text-xs font-medium text-muted-foreground">
+                                                {timeStr}
+                                            </span>
+                                        </div>
+
+                                        {/* 5. Amount */}
+                                        <div className="text-right flex flex-col items-end">
+                                            <span className={`text-base lg:text-lg font-black tracking-tighter ${expense.transaction_type === 'ingreso' ? 'text-emerald-500' : 'text-foreground'}`}>
+                                                {expense.transaction_type === 'ingreso' ? '+' : '-'}${Number(expense.amount).toLocaleString('es-AR')}
+                                            </span>
+                                            <span className={`text-[9px] font-black uppercase lg:hidden ${expense.transaction_type === 'ingreso' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                {expense.transaction_type === 'ingreso' ? 'Completado' : 'Completado'}
+                                            </span>
+                                        </div>
+
+                                        {/* 6. Status (Desktop) */}
+                                        <div className="hidden lg:flex justify-end">
+                                            <span className={`text-[10px] font-black uppercase px-3 py-1.5 rounded-full flex items-center gap-1.5 border ${
+                                                expense.transaction_type === 'ingreso' 
+                                                    ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' 
+                                                    : 'bg-emerald-500/5 text-emerald-500 border-emerald-500/10'
+                                            }`}>
+                                                <Check className="w-3 h-3" />
+                                                Completado
+                                            </span>
+                                        </div>
+
+                                        {/* 7. Actions & Chevron */}
+                                        <div className="flex items-center gap-1 justify-end">
+                                            <div className="hidden group-hover:flex items-center gap-1 absolute right-12 lg:right-16 bg-background/90 backdrop-blur-sm border border-border p-1 rounded-lg shadow-xl animate-in fade-in slide-in-from-right-2 duration-200 z-30">
+                                                <button onClick={(e) => { e.stopPropagation(); navigate(`/edit-expense/${expense.id}`); }} className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors"><Edit3 className="w-3.5 h-3.5" /></button>
+                                                <button onClick={(e) => { e.stopPropagation(); handleDelete(expense.id); }} className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                                            </div>
+                                            <ChevronDown className="w-4 h-4 text-muted-foreground opacity-40 group-hover:opacity-100 transition-all rotate-[-90deg] group-hover:rotate-0" />
                                         </div>
                                     </div>
                                 );
                             })}
                             
                             {stats.filtered.length === 0 && (
-                                <div className="text-center py-10 text-muted-foreground text-sm italic">
-                                    No hay movimientos recientes.
+                                <div className="text-center py-16 text-muted-foreground flex flex-col items-center gap-3">
+                                    <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-300">
+                                        <ArrowRightLeft className="w-8 h-8" />
+                                    </div>
+                                    <p className="text-sm font-medium italic">No se encontraron movimientos registrados.</p>
                                 </div>
                             )}
                         </div>

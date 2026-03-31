@@ -126,7 +126,8 @@ const History = () => {
                             <thead>
                                 <tr className="bg-slate-100/50 dark:bg-slate-800/50 border-b border-border">
                                     <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">Fecha</th>
-                                    <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">Socio</th>
+                                    <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">Horario</th>
+                                    <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">Pagador</th>
                                     <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">Descripción</th>
                                     <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">Categoría</th>
                                     <th className="px-6 py-4 text-right text-xs font-black uppercase tracking-wider text-muted-foreground">Monto</th>
@@ -145,10 +146,15 @@ const History = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center gap-2">
+                                            <span className="text-xs font-medium text-muted-foreground">
+                                                {exp.created_at ? new Date(exp.created_at).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: true }) : "10:00 AM"}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center gap-3">
                                                 <img 
                                                     src={getMemberAvatar(exp.paid_by)} 
-                                                    className="w-8 h-8 rounded-full border border-border object-cover" 
+                                                    className="w-9 h-9 rounded-full border border-border object-cover shadow-sm bg-card" 
                                                     alt={exp.paid_by} 
                                                 />
                                                 <span className="text-xs font-bold text-foreground">{exp.paid_by}</span>
@@ -167,7 +173,7 @@ const History = () => {
                                         </td>
                                         <td className="px-6 py-4 text-right whitespace-nowrap">
                                             <div className="flex flex-col items-end">
-                                                <span className={`text-sm font-black ${
+                                                <span className={`text-base font-black ${
                                                     exp.transaction_type === 'ingreso' ? 'text-emerald-500' : 
                                                     exp.transaction_type === 'ahorro' ? 'text-blue-500' : 'text-rose-500'
                                                 }`}>
