@@ -165,7 +165,13 @@ const Dashboard = () => {
 
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-foreground font-heading font-black italic uppercase text-2xl animate-pulse">Cargando UX Premium...</div>;
+  // Helper for loading states in cards
+  const RenderLoading = () => (
+    <div className="flex flex-col items-center justify-center h-full w-full py-10 animate-pulse bg-slate-100/50 dark:bg-slate-800/20 rounded-2xl border border-dashed border-border/50">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+        <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Sincronizando...</span>
+    </div>
+  );
 
   return (
     <div className="flex w-full min-h-screen bg-background text-foreground transition-colors duration-500 font-sans selection:bg-primary/30">
@@ -268,21 +274,30 @@ const Dashboard = () => {
                                 </div>
                             </div>
 
-                            {/* Ingresos & Gastos Mini Cards */}
-                            <div className="bg-card rounded-[2rem] p-6 border border-border shadow-4k flex flex-col justify-center gap-1 group overflow-hidden">
-                                <div className="w-10 h-10 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-500 mb-2 transition-transform group-hover:scale-110">
-                                    <TrendingUp className="w-5 h-5" />
-                                </div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Ingresos</p>
-                                <h3 className="text-xl font-bold text-emerald-500 font-heading">$ {stats.totalIngresos.toLocaleString('es-AR')}</h3>
+                            {/* Ingresos Card */}
+                            <div className="bg-card rounded-[2rem] p-6 border border-border shadow-4k flex flex-col justify-center gap-1 group overflow-hidden min-h-[140px]">
+                                {loading ? <RenderLoading /> : (
+                                    <>
+                                        <div className="w-10 h-10 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-500 mb-2 transition-transform group-hover:scale-110">
+                                            <TrendingUp className="w-5 h-5" />
+                                        </div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Ingresos</p>
+                                        <h3 className="text-xl font-bold text-emerald-500 font-heading">$ {stats.totalIngresos.toLocaleString('es-AR')}</h3>
+                                    </>
+                                )}
                             </div>
 
-                            <div className="bg-card rounded-[2rem] p-6 border border-border shadow-4k flex flex-col justify-center gap-1 group overflow-hidden">
-                                <div className="w-10 h-10 bg-rose-500/10 rounded-full flex items-center justify-center text-rose-500 mb-2 transition-transform group-hover:scale-110">
-                                    <Receipt className="w-5 h-5" />
-                                </div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Gastos</p>
-                                <h3 className="text-xl font-bold text-rose-500 font-heading">$ {stats.totalGastos.toLocaleString('es-AR')}</h3>
+                            {/* Ahorros Card */}
+                            <div className="bg-card rounded-[2rem] p-6 border border-border shadow-4k flex flex-col justify-center gap-1 group overflow-hidden min-h-[140px]">
+                                {loading ? <RenderLoading /> : (
+                                    <>
+                                        <div className="w-10 h-10 bg-indigo-500/10 rounded-full flex items-center justify-center text-indigo-500 mb-2 transition-transform group-hover:scale-110">
+                                            <PiggyBank className="w-5 h-5" />
+                                        </div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Ahorros</p>
+                                        <h3 className="text-xl font-bold text-indigo-500 font-heading">$ {stats.totalAhorros.toLocaleString('es-AR')}</h3>
+                                    </>
+                                )}
                             </div>
                         </div>
 
@@ -301,24 +316,26 @@ const Dashboard = () => {
                                     </div>
                                 </div>
                                 <div className="h-72 w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <AreaChart data={stats.evolutionData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                                            <defs>
-                                                <linearGradient id="uhdGradient" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.4}/>
-                                                    <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
-                                                </linearGradient>
-                                            </defs>
-                                            <CartesianGrid strokeDasharray="5 5" vertical={false} stroke="rgba(0,0,0,0.03)" />
-                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} dy={15} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
-                                            <Tooltip 
-                                                cursor={{ stroke: 'var(--primary)', strokeWidth: 2, strokeDasharray: '5 5' }}
-                                                contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', padding: '15px 20px', fontWeight: '900', fontSize: '14px' }} 
-                                            />
-                                            <Area type="monotone" dataKey="monto" stroke="var(--primary)" strokeWidth={5} fillOpacity={1} fill="url(#uhdGradient)" animationDuration={2000} />
-                                        </AreaChart>
-                                    </ResponsiveContainer>
+                                    {loading ? <RenderLoading /> : (
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <AreaChart data={stats.evolutionData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                                                <defs>
+                                                    <linearGradient id="uhdGradient" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.4}/>
+                                                        <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
+                                                    </linearGradient>
+                                                </defs>
+                                                <CartesianGrid strokeDasharray="5 5" vertical={false} stroke="rgba(0,0,0,0.03)" />
+                                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} dy={15} />
+                                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
+                                                <Tooltip 
+                                                    cursor={{ stroke: 'var(--primary)', strokeWidth: 2, strokeDasharray: '5 5' }}
+                                                    contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', padding: '15px 20px', fontWeight: '900', fontSize: '14px' }} 
+                                                />
+                                                <Area type="monotone" dataKey="monto" stroke="var(--primary)" strokeWidth={5} fillOpacity={1} fill="url(#uhdGradient)" animationDuration={2000} />
+                                            </AreaChart>
+                                        </ResponsiveContainer>
+                                    )}
                                 </div>
                             </div>
 
@@ -329,21 +346,23 @@ const Dashboard = () => {
                                     Top Categorías
                                 </h3>
                                 <div className="h-72 w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={stats.categoryData.slice(0, 5)} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} dy={15} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
-                                            <Tooltip 
-                                                cursor={{ fill: 'rgba(0,0,0,0.02)' }}
-                                                contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', padding: '15px 20px' }} 
-                                            />
-                                            <Bar dataKey="monto" radius={[12, 12, 0, 0]} barSize={35} animationDuration={2000}>
-                                                {stats.categoryData.map((entry, index) => (
-                                                    <Cell key={index} fill={index === 0 ? 'var(--primary)' : 'rgba(129, 140, 248, 0.4)'} />
-                                                ))}
-                                            </Bar>
-                                        </BarChart>
-                                    </ResponsiveContainer>
+                                    {loading ? <RenderLoading /> : (
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={stats.categoryData.slice(0, 5)} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} dy={15} />
+                                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
+                                                <Tooltip 
+                                                    cursor={{ fill: 'rgba(0,0,0,0.02)' }}
+                                                    contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', padding: '15px 20px' }} 
+                                                />
+                                                <Bar dataKey="monto" radius={[12, 12, 0, 0]} barSize={35} animationDuration={2000}>
+                                                    {stats.categoryData.map((entry, index) => (
+                                                        <Cell key={index} fill={index === 0 ? 'var(--primary)' : 'rgba(129, 140, 248, 0.4)'} />
+                                                    ))}
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    )}
                                 </div>
                             </div>
                         </div>
