@@ -368,9 +368,9 @@ const Dashboard = () => {
                             </div>
                         </div>
 
-                        {/* Transactions Section UHD */}
-                        <div className="bg-card rounded-[2rem] p-8 border border-border shadow-4k mb-8">
-                            <div className="flex justify-between items-center mb-10">
+                        {/* Transactions Section */}
+                        <div className="bg-card rounded-[2rem] p-8 border border-border shadow-4k mb-8 mt-2">
+                            <div className="flex justify-between items-center mb-8">
                                 <h3 className="text-2xl font-black uppercase italic tracking-tighter flex items-center gap-3">
                                     <ArrowRightLeft className="w-8 h-8 text-primary" />
                                     Movimientos
@@ -378,76 +378,84 @@ const Dashboard = () => {
                                 <button onClick={() => navigate('/history')} className="text-xs font-black uppercase text-primary hover:tracking-widest transition-all">Ver todos los registros</button>
                             </div>
                             
-                            <div className="flex flex-col gap-2">
-                                {/* Header con alineación mejorada */}
-                                <div className="hidden lg:grid grid-cols-[200px_1fr_100px_120px_140px_100px_40px] gap-4 px-6 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mb-4">
-                                    <span>Pagador</span>
-                                    <span>Descripción</span>
-                                    <span className="text-center">Fecha</span>
-                                    <span className="text-center">Horario</span>
-                                    <span className="text-right pr-4">Monto</span>
-                                    <span className="text-right pr-2">Status</span>
-                                    <span></span>
-                                </div>
+                            {/* Tabla HTML para alineación perfecta */}
+                            <div className="overflow-x-auto">
+                                <table className="w-full border-collapse">
+                                    <thead>
+                                        <tr className="hidden lg:table-row">
+                                            <th className="text-left text-[11px] font-black uppercase tracking-[0.15em] text-muted-foreground/40 pb-4 pl-4" style={{width:'180px'}}>Pagador</th>
+                                            <th className="text-left text-[11px] font-black uppercase tracking-[0.15em] text-muted-foreground/40 pb-4">Descripción</th>
+                                            <th className="text-center text-[11px] font-black uppercase tracking-[0.15em] text-muted-foreground/40 pb-4" style={{width:'100px'}}>Fecha</th>
+                                            <th className="text-center text-[11px] font-black uppercase tracking-[0.15em] text-muted-foreground/40 pb-4" style={{width:'120px'}}>Horario</th>
+                                            <th className="text-center text-[11px] font-black uppercase tracking-[0.15em] text-muted-foreground/40 pb-4" style={{width:'130px'}}>Monto</th>
+                                            <th className="text-center text-[11px] font-black uppercase tracking-[0.15em] text-muted-foreground/40 pb-4" style={{width:'90px'}}>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {stats.filtered && stats.filtered
+                                            .filter(exp => 
+                                                (exp.description?.toLowerCase() || "").includes(searchTerm.toLowerCase()) || 
+                                                (exp.paid_by?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+                                                (exp.category?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+                                                (exp.type?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+                                            )
+                                            .slice(0, 8).map((expense) => {
+                                                const categoryName = expense.category || expense.type?.split(" - ")[0] || "Otros";
+                                                const dateObj = new Date(expense.date);
+                                                const timeStr = expense.created_at 
+                                                    ? new Date(expense.created_at).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: true })
+                                                    : "10:30 AM";
+                                                
+                                                return (
+                                                    <tr key={expense.id} className="group hover:bg-slate-50 dark:hover:bg-white/5 transition-all border-b border-border/10 last:border-b-0">
+                                                        {/* Pagador */}
+                                                        <td className="py-4 pl-4">
+                                                            <div className="flex items-center gap-3 min-w-0">
+                                                                <div className="relative shrink-0 transition-transform group-hover:scale-105">
+                                                                    <img src={getMemberAvatar(expense.paid_by)} className="w-11 h-11 rounded-full border-2 border-background object-cover shadow-lg" alt={expense.paid_by} />
+                                                                    <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-background flex items-center justify-center text-[8px] text-white shadow-md ${getCategoryColor(categoryName)}`}>
+                                                                        {getCategoryIcon(categoryName)}
+                                                                    </div>
+                                                                </div>
+                                                                <span className="font-bold text-sm truncate">{expense.paid_by}</span>
+                                                            </div>
+                                                        </td>
 
-                                {stats.filtered && stats.filtered
-                                    .filter(exp => 
-                                        (exp.description?.toLowerCase() || "").includes(searchTerm.toLowerCase()) || 
-                                        (exp.paid_by?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-                                        (exp.category?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-                                        (exp.type?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-                                    )
-                                    .slice(0, 8).map((expense) => {
-                                        const categoryName = expense.category || expense.type?.split(" - ")[0] || "Otros";
-                                        const dateObj = new Date(expense.date);
-                                        const timeStr = expense.created_at 
-                                            ? new Date(expense.created_at).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: true })
-                                            : "10:30 AM";
-                                        
-                                        return (
-                                            <div key={expense.id} className="grid grid-cols-[auto_1fr_auto] lg:grid-cols-[200px_1fr_100px_120px_140px_100px_40px] items-center gap-4 py-4 px-6 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/5 transition-all group relative border border-transparent hover:border-border/50">
-                                                <div className="flex items-center gap-4 min-w-0">
-                                                    <div className="relative shrink-0 transition-transform group-hover:scale-105">
-                                                        <img src={getMemberAvatar(expense.paid_by)} className="w-12 h-12 rounded-full border-2 border-background object-cover shadow-lg" alt={expense.paid_by} />
-                                                        <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-background flex items-center justify-center text-[10px] text-white shadow-md ${getCategoryColor(categoryName)}`}>
-                                                            {getCategoryIcon(categoryName)}
-                                                        </div>
-                                                    </div>
-                                                    <span className="font-bold text-sm truncate">{expense.paid_by}</span>
-                                                </div>
+                                                        {/* Descripción */}
+                                                        <td className="py-4">
+                                                            <p className="font-bold text-sm truncate text-foreground/90">{expense.description || expense.type || 'Sin detalle'}</p>
+                                                            <p className="text-[10px] font-black uppercase text-muted-foreground opacity-50 tracking-tighter truncate">{expense.type}</p>
+                                                        </td>
 
-                                                <div className="min-w-0">
-                                                    <p className="font-bold text-sm truncate text-foreground/90">{expense.description || expense.type || 'Sin detalle'}</p>
-                                                    <p className="text-[10px] font-black uppercase text-muted-foreground opacity-50 tracking-tighter truncate">{expense.type}</p>
-                                                </div>
+                                                        {/* Fecha */}
+                                                        <td className="hidden lg:table-cell py-4 text-center">
+                                                            <span className="text-[10px] font-black px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-border/50 whitespace-nowrap">{dateObj.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}</span>
+                                                        </td>
 
-                                                <div className="hidden lg:flex justify-center">
-                                                    <span className="text-[10px] font-black px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-border/50 whitespace-nowrap">{dateObj.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}</span>
-                                                </div>
+                                                        {/* Horario */}
+                                                        <td className="hidden lg:table-cell py-4 text-center">
+                                                            <span className="text-[10px] font-bold text-muted-foreground opacity-60 tracking-widest whitespace-nowrap">{timeStr}</span>
+                                                        </td>
 
-                                                <div className="hidden lg:flex justify-center">
-                                                    <span className="text-[10px] font-bold text-muted-foreground opacity-60 tracking-widest whitespace-nowrap">{timeStr}</span>
-                                                </div>
+                                                        {/* Monto */}
+                                                        <td className="py-4 text-center">
+                                                            <span className={`text-lg font-black tracking-tighter whitespace-nowrap ${expense.transaction_type === 'ingreso' ? 'text-emerald-500' : 'text-foreground'}`}>
+                                                                {expense.transaction_type === 'ingreso' ? '+' : '-'}${Number(expense.amount).toLocaleString('es-AR')}
+                                                            </span>
+                                                        </td>
 
-                                                <div className="text-right pr-4">
-                                                    <h4 className={`text-lg font-black tracking-tighter whitespace-nowrap ${expense.transaction_type === 'ingreso' ? 'text-emerald-500' : 'text-foreground'}`}>
-                                                        {expense.transaction_type === 'ingreso' ? '+' : '-'}${Number(expense.amount).toLocaleString('es-AR')}
-                                                    </h4>
-                                                </div>
-
-                                                <div className="hidden lg:flex justify-end">
-                                                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 shadow-sm transition-all group-hover:bg-emerald-500 group-hover:text-white">
-                                                        <Check className="w-3.5 h-3.5 stroke-[3]" />
-                                                        <span className="text-[9px] font-black uppercase tracking-wider">OK</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex justify-end">
-                                                    <ChevronDown className="w-6 h-6 opacity-10 group-hover:opacity-50 transition-all rotate-[-90deg] group-hover:rotate-0" />
-                                                </div>
-                                            </div>
-                                        );
-                                })}
+                                                        {/* Status */}
+                                                        <td className="hidden lg:table-cell py-4 text-center">
+                                                            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 shadow-sm transition-all group-hover:bg-emerald-500 group-hover:text-white">
+                                                                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                                                <span className="text-[9px] font-black uppercase tracking-wider">OK</span>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                        })}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
