@@ -152,7 +152,8 @@ const Dashboard = () => {
       balance, 
       categoryData, 
       evolutionData,
-      total: totalGastos
+      total: totalGastos,
+      filtered: expenses // Agregamos la referencia a expenses para el filtrado
     };
   }, [expenses]);
 
@@ -342,7 +343,7 @@ const Dashboard = () => {
                             {/* Bar Chart: Categorías UHD */}
                             <div className="bg-card rounded-[2rem] p-8 border border-border shadow-4k overflow-hidden relative">
                                 <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2 mb-10 italic">
-                                    <PieChartIcon className="w-5 h-5 text-primary" />
+                                    <BarChart3 className="w-5 h-5 text-primary" />
                                     Top Categorías
                                 </h3>
                                 <div className="h-72 w-full">
@@ -388,12 +389,12 @@ const Dashboard = () => {
                                     <span></span>
                                 </div>
 
-                                {stats.filtered
+                                {stats.filtered && stats.filtered
                                     .filter(exp => 
-                                        exp.description?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                        exp.paid_by?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                        exp.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                        exp.type?.toLowerCase().includes(searchTerm.toLowerCase())
+                                        (exp.description?.toLowerCase() || "").includes(searchTerm.toLowerCase()) || 
+                                        (exp.paid_by?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+                                        (exp.category?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+                                        (exp.type?.toLowerCase() || "").includes(searchTerm.toLowerCase())
                                     )
                                     .slice(0, 8).map((expense) => {
                                         const categoryName = expense.category || expense.type?.split(" - ")[0] || "Otros";
@@ -490,5 +491,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-const PieChartIcon = PieChart;
-const TrendingDownIcon = TrendingDown;
