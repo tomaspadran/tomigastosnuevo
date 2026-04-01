@@ -371,21 +371,22 @@ const Dashboard = () => {
                         {/* Transactions Section UHD */}
                         <div className="bg-card rounded-[2rem] p-8 border border-border shadow-4k mb-8">
                             <div className="flex justify-between items-center mb-10">
-                                <h3 className="text-lg font-black uppercase italic tracking-tighter flex items-center gap-3">
-                                    <ArrowRightLeft className="w-7 h-7 text-primary" />
-                                    Movimientos UHD
+                                <h3 className="text-2xl font-black uppercase italic tracking-tighter flex items-center gap-3">
+                                    <ArrowRightLeft className="w-8 h-8 text-primary" />
+                                    Movimientos
                                 </h3>
                                 <button onClick={() => navigate('/history')} className="text-xs font-black uppercase text-primary hover:tracking-widest transition-all">Ver todos los registros</button>
                             </div>
                             
                             <div className="flex flex-col gap-2">
-                                <div className="hidden lg:grid grid-cols-[220px_1fr_120px_120px_140px_120px_50px] gap-4 px-6 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mb-4">
+                                {/* Header con alineación mejorada */}
+                                <div className="hidden lg:grid grid-cols-[200px_1fr_100px_120px_140px_100px_40px] gap-4 px-6 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mb-4">
                                     <span>Pagador</span>
                                     <span>Descripción</span>
                                     <span className="text-center">Fecha</span>
                                     <span className="text-center">Horario</span>
-                                    <span className="text-right">Monto</span>
-                                    <span className="text-right">Status</span>
+                                    <span className="text-right pr-4">Monto</span>
+                                    <span className="text-right pr-2">Status</span>
                                     <span></span>
                                 </div>
 
@@ -404,7 +405,7 @@ const Dashboard = () => {
                                             : "10:30 AM";
                                         
                                         return (
-                                            <div key={expense.id} className="grid grid-cols-[auto_1fr_auto] lg:grid-cols-[220px_1fr_120px_120px_140px_120px_50px] items-center gap-4 py-4 px-6 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/5 transition-all group relative border border-transparent hover:border-border/50">
+                                            <div key={expense.id} className="grid grid-cols-[auto_1fr_auto] lg:grid-cols-[200px_1fr_100px_120px_140px_100px_40px] items-center gap-4 py-4 px-6 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/5 transition-all group relative border border-transparent hover:border-border/50">
                                                 <div className="flex items-center gap-4 min-w-0">
                                                     <div className="relative shrink-0 transition-transform group-hover:scale-105">
                                                         <img src={getMemberAvatar(expense.paid_by)} className="w-12 h-12 rounded-full border-2 border-background object-cover shadow-lg" alt={expense.paid_by} />
@@ -421,15 +422,15 @@ const Dashboard = () => {
                                                 </div>
 
                                                 <div className="hidden lg:flex justify-center">
-                                                    <span className="text-[10px] font-black px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-border/50">{dateObj.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}</span>
+                                                    <span className="text-[10px] font-black px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-border/50 whitespace-nowrap">{dateObj.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}</span>
                                                 </div>
 
                                                 <div className="hidden lg:flex justify-center">
-                                                    <span className="text-[10px] font-bold text-muted-foreground opacity-60 tracking-widest">{timeStr}</span>
+                                                    <span className="text-[10px] font-bold text-muted-foreground opacity-60 tracking-widest whitespace-nowrap">{timeStr}</span>
                                                 </div>
 
-                                                <div className="text-right">
-                                                    <h4 className={`text-lg font-black tracking-tighter ${expense.transaction_type === 'ingreso' ? 'text-emerald-500' : 'text-foreground'}`}>
+                                                <div className="text-right pr-4">
+                                                    <h4 className={`text-lg font-black tracking-tighter whitespace-nowrap ${expense.transaction_type === 'ingreso' ? 'text-emerald-500' : 'text-foreground'}`}>
                                                         {expense.transaction_type === 'ingreso' ? '+' : '-'}${Number(expense.amount).toLocaleString('es-AR')}
                                                     </h4>
                                                 </div>
