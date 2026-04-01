@@ -174,6 +174,33 @@ const Dashboard = () => {
     </div>
   );
 
+  // Custom Tooltip — Evolución Mensual
+  const EvolutionTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-slate-900/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl border border-slate-700/50">
+          <p className="text-indigo-300 text-[11px] font-medium mb-1">{label}</p>
+          <p className="text-indigo-400 text-xl font-black tracking-tight">${Number(payload[0].value).toLocaleString('es-AR')}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Custom Tooltip — Categorías (donut)
+  const CategoryTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const perc = stats.total > 0 ? ((payload[0].value / stats.total) * 100).toFixed(1) : 0;
+      return (
+        <div className="bg-slate-900/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl border border-slate-700/50">
+          <p className="text-white text-[12px] font-bold mb-1">{payload[0].name}</p>
+          <p className="text-indigo-400 text-lg font-black tracking-tight">{perc}%</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="flex w-full min-h-screen bg-background text-foreground transition-colors duration-500 font-sans selection:bg-primary/30">
         
@@ -360,7 +387,7 @@ const Dashboard = () => {
                                                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} />
                                                 <Tooltip 
                                                     cursor={{ stroke: 'var(--primary)', strokeWidth: 2, strokeDasharray: '5 5' }}
-                                                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', padding: '12px 16px', fontWeight: '800', fontSize: '13px' }} 
+                                                    content={<EvolutionTooltip />}
                                                 />
                                                 <Area type="monotone" dataKey="monto" stroke="var(--primary)" strokeWidth={4} fillOpacity={1} fill="url(#uhdGradient)" animationDuration={1500} />
                                             </AreaChart>
@@ -398,8 +425,7 @@ const Dashboard = () => {
                                                             })}
                                                         </Pie>
                                                         <Tooltip 
-                                                            formatter={(value) => [`$${Number(value).toLocaleString('es-AR')}`, 'Monto']}
-                                                            contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.2)', padding: '10px 14px', fontWeight: '700', fontSize: '12px' }}
+                                                            content={<CategoryTooltip />}
                                                         />
                                                     </PieChart>
                                                 </ResponsiveContainer>
