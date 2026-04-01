@@ -261,13 +261,23 @@ const Dashboard = () => {
 
                     <div className="flex-grow max-w-2xl w-full">
                         <div className="relative group">
-                            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/60 group-focus-within:text-primary transition-colors" />
+                            <button 
+                                onClick={() => { if (searchTerm.trim()) navigate(`/history?search=${encodeURIComponent(searchTerm.trim())}`); }}
+                                className="absolute left-5 top-1/2 -translate-y-1/2 z-10 cursor-pointer hover:scale-110 transition-transform"
+                            >
+                                <Search className="w-5 h-5 text-muted-foreground/60 group-focus-within:text-primary transition-colors" />
+                            </button>
                             <input 
                                 type="text"
-                                placeholder="Busca transacciones, artículos, etc."
+                                placeholder="Busca transacciones, categorías, pagadores..."
                                 className="w-full bg-slate-100 dark:bg-slate-800/40 border border-transparent focus:border-primary/20 rounded-2xl py-4 pl-14 pr-6 text-sm font-semibold placeholder:text-muted-foreground/50 focus:ring-4 focus:ring-primary/5 outline-none transition-all shadow-4k"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && searchTerm.trim()) {
+                                        navigate(`/history?search=${encodeURIComponent(searchTerm.trim())}`);
+                                    }
+                                }}
                             />
                         </div>
                     </div>

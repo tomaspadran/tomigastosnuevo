@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useExpenses } from '../context/ExpenseContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { 
   ArrowLeft, Search, Filter, Trash2, Edit3, 
@@ -18,8 +18,10 @@ const History = () => {
     const { expenses, deleteExpense, loading: contextLoading } = useExpenses();
     const navigate = useNavigate();
     
-    // Filtros
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchParams] = useSearchParams();
+    
+    // Filtros — inicializar con búsqueda de URL si viene del Dashboard
+    const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
     const [typeFilter, setTypeFilter] = useState('todos');
     const [personFilter, setPersonFilter] = useState('todos');
     const [members, setMembers] = useState([]);
@@ -37,7 +39,9 @@ const History = () => {
     const filteredExpenses = useMemo(() => {
         return expenses.filter(exp => {
             const matchesSearch = exp.description?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                               exp.category?.toLowerCase().includes(searchTerm.toLowerCase());
+                               exp.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                               exp.paid_by?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                               exp.type?.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesType = typeFilter === 'todos' || exp.transaction_type === typeFilter;
             const matchesPerson = personFilter === 'todos' || exp.paid_by === personFilter;
             
