@@ -260,66 +260,95 @@ const Dashboard = () => {
                     {/* Left & Middle Column */}
                     <div className="xl:col-span-2 flex flex-col gap-8">
                         
-                        {/* Summary Stats Row */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {/* Balance Card UHD */}
-                            <div className={`col-span-1 sm:col-span-2 bg-gradient-to-br ${stats.balance >= 0 ? 'from-emerald-500 to-emerald-600 shadow-emerald-500/20' : 'from-rose-500 to-rose-600 shadow-rose-500/20'} rounded-[2rem] p-8 text-primary-foreground shadow-2xl relative overflow-hidden transition-all duration-500 hover:scale-[1.02] active:scale-100 group`}>
-                                <div className="absolute -top-12 -right-12 opacity-10 group-hover:rotate-12 transition-transform duration-700">
-                                    <Wallet className="w-48 h-48" />
+                        {/* Summary Stats Row — 4 tarjetas cuadradas */}
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            {/* 1) Balance */}
+                            <div className={`relative bg-gradient-to-br ${stats.balance >= 0 ? 'from-indigo-500 to-indigo-600' : 'from-rose-500 to-rose-600'} rounded-2xl p-5 text-white shadow-lg overflow-hidden group hover:scale-[1.03] transition-transform cursor-pointer aspect-square flex flex-col justify-between`}>
+                                <div className="flex justify-between items-start">
+                                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                        <Wallet className="w-5 h-5" />
+                                    </div>
+                                    <MoreVertical className="w-4 h-4 opacity-40 hover:opacity-100 transition-opacity" />
                                 </div>
-                                <p className="text-xs font-black uppercase tracking-[0.3em] mb-2 opacity-80">Balance Disponible</p>
-                                <h2 className="text-5xl font-black tracking-tighter mb-6">$ {stats.balance.toLocaleString('es-AR')}</h2>
-                                <div className="flex gap-4">
-                                    <button onClick={() => navigate('/add-expense')} className="bg-white/20 hover:bg-white/30 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-black uppercase transition-all">Nuevo Gasto</button>
-                                    <button onClick={() => navigate('/history')} className="bg-black/10 hover:bg-black/20 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-black uppercase transition-all">Ver Historial</button>
+                                <div>
+                                    <p className="text-xs font-semibold opacity-80 mb-1">Balance</p>
+                                    <h3 className="text-2xl font-black tracking-tight">${stats.balance.toLocaleString('es-AR')}</h3>
                                 </div>
                             </div>
 
-                            {/* Ingresos Card */}
-                            <div className="bg-card rounded-[2rem] p-6 border border-border shadow-4k flex flex-col justify-center gap-1 group overflow-hidden min-h-[140px]">
+                            {/* 2) Ingresos */}
+                            <div className="relative bg-card rounded-2xl p-5 border border-border shadow-4k overflow-hidden group hover:scale-[1.03] transition-transform cursor-pointer aspect-square flex flex-col justify-between">
                                 {loading ? <RenderLoading /> : (
                                     <>
-                                        <div className="w-10 h-10 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-500 mb-2 transition-transform group-hover:scale-110">
-                                            <TrendingUp className="w-5 h-5" />
+                                        <div className="flex justify-between items-start">
+                                            <div className="w-10 h-10 bg-muted rounded-xl flex items-center justify-center text-muted-foreground">
+                                                <TrendingUp className="w-5 h-5" />
+                                            </div>
+                                            <MoreVertical className="w-4 h-4 text-muted-foreground opacity-40 hover:opacity-100 transition-opacity" />
                                         </div>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Ingresos</p>
-                                        <h3 className="text-xl font-bold text-emerald-500 font-heading">$ {stats.totalIngresos.toLocaleString('es-AR')}</h3>
+                                        <div>
+                                            <p className="text-xs font-semibold text-muted-foreground mb-1">Ingresos</p>
+                                            <h3 className="text-2xl font-black tracking-tight text-foreground">${stats.totalIngresos.toLocaleString('es-AR')}</h3>
+                                        </div>
                                     </>
                                 )}
                             </div>
 
-                            {/* Ahorros Card */}
-                            <div className="bg-card rounded-[2rem] p-6 border border-border shadow-4k flex flex-col justify-center gap-1 group overflow-hidden min-h-[140px]">
+                            {/* 3) Ahorros */}
+                            <div className="relative bg-card rounded-2xl p-5 border border-border shadow-4k overflow-hidden group hover:scale-[1.03] transition-transform cursor-pointer aspect-square flex flex-col justify-between">
                                 {loading ? <RenderLoading /> : (
                                     <>
-                                        <div className="w-10 h-10 bg-indigo-500/10 rounded-full flex items-center justify-center text-indigo-500 mb-2 transition-transform group-hover:scale-110">
-                                            <PiggyBank className="w-5 h-5" />
+                                        <div className="flex justify-between items-start">
+                                            <div className="w-10 h-10 bg-muted rounded-xl flex items-center justify-center text-muted-foreground">
+                                                <PiggyBank className="w-5 h-5" />
+                                            </div>
+                                            <MoreVertical className="w-4 h-4 text-muted-foreground opacity-40 hover:opacity-100 transition-opacity" />
                                         </div>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Ahorros</p>
-                                        <h3 className="text-xl font-bold text-indigo-500 font-heading">$ {stats.totalAhorros.toLocaleString('es-AR')}</h3>
+                                        <div>
+                                            <p className="text-xs font-semibold text-muted-foreground mb-1">Ahorros</p>
+                                            <h3 className="text-2xl font-black tracking-tight text-foreground">${stats.totalAhorros.toLocaleString('es-AR')}</h3>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* 4) Gastos */}
+                            <div className="relative bg-card rounded-2xl p-5 border border-border shadow-4k overflow-hidden group hover:scale-[1.03] transition-transform cursor-pointer aspect-square flex flex-col justify-between">
+                                {loading ? <RenderLoading /> : (
+                                    <>
+                                        <div className="flex justify-between items-start">
+                                            <div className="w-10 h-10 bg-muted rounded-xl flex items-center justify-center text-muted-foreground">
+                                                <Receipt className="w-5 h-5" />
+                                            </div>
+                                            <MoreVertical className="w-4 h-4 text-muted-foreground opacity-40 hover:opacity-100 transition-opacity" />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-semibold text-muted-foreground mb-1">Gastos</p>
+                                            <h3 className="text-2xl font-black tracking-tight text-foreground">${stats.totalGastos.toLocaleString('es-AR')}</h3>
+                                        </div>
                                     </>
                                 )}
                             </div>
                         </div>
 
-                        {/* High Fidelity Charts Row */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {/* Area Chart: Evolución UHD */}
-                            <div className="bg-card rounded-[2rem] p-8 border border-border shadow-4k overflow-hidden relative group">
-                                <div className="flex justify-between items-center mb-10">
-                                    <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2 italic">
+                        {/* Charts Row: Rectangular + Cuadrado */}
+                        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
+                            {/* Area Chart: Evolución Mensual — Rectangular */}
+                            <div className="bg-card rounded-2xl p-6 border border-border shadow-4k overflow-hidden relative group">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
                                         <TrendingUp className="w-5 h-5 text-primary" />
                                         Evolución Mensual
                                     </h3>
-                                    <div className="flex gap-2">
+                                    <div className="flex gap-2 items-center">
                                         <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
                                         <span className="text-[10px] font-bold text-muted-foreground tracking-tighter">LIVE DATA</span>
                                     </div>
                                 </div>
-                                <div className="h-72 w-full">
+                                <div className="h-64 w-full">
                                     {loading ? <RenderLoading /> : (
                                         <ResponsiveContainer width="100%" height="100%">
-                                            <AreaChart data={stats.evolutionData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                                            <AreaChart data={stats.evolutionData} margin={{ top: 5, right: 10, left: -15, bottom: 0 }}>
                                                 <defs>
                                                     <linearGradient id="uhdGradient" x1="0" y1="0" x2="0" y2="1">
                                                         <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.4}/>
@@ -327,42 +356,71 @@ const Dashboard = () => {
                                                     </linearGradient>
                                                 </defs>
                                                 <CartesianGrid strokeDasharray="5 5" vertical={false} stroke="rgba(0,0,0,0.03)" />
-                                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} dy={15} />
-                                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
+                                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
+                                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} />
                                                 <Tooltip 
                                                     cursor={{ stroke: 'var(--primary)', strokeWidth: 2, strokeDasharray: '5 5' }}
-                                                    contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', padding: '15px 20px', fontWeight: '900', fontSize: '14px' }} 
+                                                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', padding: '12px 16px', fontWeight: '800', fontSize: '13px' }} 
                                                 />
-                                                <Area type="monotone" dataKey="monto" stroke="var(--primary)" strokeWidth={5} fillOpacity={1} fill="url(#uhdGradient)" animationDuration={2000} />
+                                                <Area type="monotone" dataKey="monto" stroke="var(--primary)" strokeWidth={4} fillOpacity={1} fill="url(#uhdGradient)" animationDuration={1500} />
                                             </AreaChart>
                                         </ResponsiveContainer>
                                     )}
                                 </div>
                             </div>
 
-                            {/* Bar Chart: Categorías UHD */}
-                            <div className="bg-card rounded-[2rem] p-8 border border-border shadow-4k overflow-hidden relative">
-                                <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2 mb-10 italic">
-                                    <BarChart3 className="w-5 h-5 text-primary" />
-                                    Top Categorías
+                            {/* Donut Chart: Categorías — Cuadrado */}
+                            <div className="bg-card rounded-2xl p-6 border border-border shadow-4k overflow-hidden relative flex flex-col">
+                                <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2 mb-4">
+                                    <PieChart className="w-5 h-5 text-primary" />
+                                    Categorías
                                 </h3>
-                                <div className="h-72 w-full">
+                                <div className="flex-grow flex flex-col items-center justify-center">
                                     {loading ? <RenderLoading /> : (
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <BarChart data={stats.categoryData.slice(0, 5)} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} dy={15} />
-                                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} />
-                                                <Tooltip 
-                                                    cursor={{ fill: 'rgba(0,0,0,0.02)' }}
-                                                    contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', padding: '15px 20px' }} 
-                                                />
-                                                <Bar dataKey="monto" radius={[12, 12, 0, 0]} barSize={35} animationDuration={2000}>
-                                                    {stats.categoryData.map((entry, index) => (
-                                                        <Cell key={index} fill={index === 0 ? 'var(--primary)' : 'rgba(129, 140, 248, 0.4)'} />
-                                                    ))}
-                                                </Bar>
-                                            </BarChart>
-                                        </ResponsiveContainer>
+                                        <>
+                                            <div className="w-full h-48">
+                                                <ResponsiveContainer width="100%" height="100%">
+                                                    <PieChart>
+                                                        <Pie
+                                                            data={stats.categoryData.slice(0, 5)}
+                                                            cx="50%"
+                                                            cy="50%"
+                                                            innerRadius={50}
+                                                            outerRadius={80}
+                                                            paddingAngle={3}
+                                                            dataKey="monto"
+                                                            animationDuration={1500}
+                                                            stroke="none"
+                                                        >
+                                                            {stats.categoryData.slice(0, 5).map((entry, index) => {
+                                                                const colors = ['#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe', '#94a3b8'];
+                                                                return <Cell key={index} fill={colors[index % colors.length]} />;
+                                                            })}
+                                                        </Pie>
+                                                        <Tooltip 
+                                                            formatter={(value) => [`$${Number(value).toLocaleString('es-AR')}`, 'Monto']}
+                                                            contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.2)', padding: '10px 14px', fontWeight: '700', fontSize: '12px' }}
+                                                        />
+                                                    </PieChart>
+                                                </ResponsiveContainer>
+                                            </div>
+                                            {/* Leyenda con porcentajes */}
+                                            <div className="flex flex-col gap-2 w-full mt-2 px-2">
+                                                {stats.categoryData.slice(0, 5).map((cat, i) => {
+                                                    const colors = ['#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe', '#94a3b8'];
+                                                    const perc = stats.total > 0 ? ((cat.monto / stats.total) * 100).toFixed(1) : 0;
+                                                    return (
+                                                        <div key={i} className="flex items-center justify-between text-xs">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: colors[i % colors.length] }}></div>
+                                                                <span className="font-semibold text-muted-foreground truncate">{cat.name}</span>
+                                                            </div>
+                                                            <span className="font-black text-foreground">{perc}%</span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </>
                                     )}
                                 </div>
                             </div>
