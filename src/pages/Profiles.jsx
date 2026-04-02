@@ -92,8 +92,7 @@ const Profiles = () => {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8">
-            <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto w-full">
                 <Button 
                     variant="ghost" 
                     onClick={() => navigate('/dashboard')}
@@ -165,8 +164,7 @@ const Profiles = () => {
                     </div>
                 </div>
             </div>
-        </div>
-    );
+        );
 };
 
 export default Profiles;

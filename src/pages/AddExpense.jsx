@@ -129,8 +129,7 @@ const AddExpense = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 transition-colors duration-300">
-      <div className="max-w-md mx-auto">
+    <div className="max-w-md mx-auto w-full">
         <div className="flex items-center justify-between mb-6">
           <Button 
             variant="ghost" 
@@ -327,7 +326,6 @@ const AddExpense = () => {
             </form>
           </CardContent>
         </Card>
-      </div>
     </div>
   );
 };

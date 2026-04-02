@@ -48,8 +48,7 @@ const Stats = () => {
     const COLORS = ['#6366f1', '#10981b', '#f43f5e', '#facc15', '#8b5cf6'];
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8">
-            <div className="max-w-7xl mx-auto space-y-8">
+        <>
                 
                 {/* Header */}
                 <div className="flex items-center gap-4">
@@ -156,8 +155,7 @@ const Stats = () => {
                     </Card>
 
                 </div>
-            </div>
-        </div>
+        </>
     );
 };
 

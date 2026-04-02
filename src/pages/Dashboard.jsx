@@ -57,6 +57,17 @@ const Dashboard = () => {
   const [members, setMembers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
+  const handleDelete = async (id) => {
+    if (window.confirm('¿Seguro que quieres eliminar este movimiento?')) {
+        try {
+            await deleteExpense(id);
+            toast.success('Movimiento eliminado');
+        } catch (e) {
+            toast.error('Error al eliminar');
+        }
+    }
+  };
+
   useEffect(() => {
     const fetchMembers = async () => {
         const { data } = await supabase.from('members').select('*');
@@ -157,12 +168,6 @@ const Dashboard = () => {
     };
   }, [expenses]);
 
-  const handleDelete = async (id) => {
-    if (window.confirm('¿Eliminar registro?')) {
-      await deleteExpense(id);
-      toast.success('Eliminado correctamente');
-    }
-  };
 
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
@@ -202,55 +207,9 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex w-full min-h-screen bg-background text-foreground transition-colors duration-500 font-sans selection:bg-primary/30">
-        
-        {/* Sidebar */}
-        <aside className="hidden md:flex flex-col w-20 bg-card border-r border-border/50 shrink-0 sticky top-0 h-screen z-20 py-8 items-center shadow-2xl shadow-black/5">
-            <div className="mb-12 w-12 h-12 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30 rotate-3 transition-transform hover:rotate-0">
-                <Zap className="w-6 h-6 fill-current" />
-            </div>
-            <nav className="flex flex-col gap-6 flex-grow w-full items-center">
-                {[
-                  { icon: LayoutDashboard, path: '/dashboard', active: true },
-                  { icon: Wallet, path: '/add-expense' },
-                  { icon: ArrowRightLeft, path: '/history' },
-                  { icon: FileText, path: '/reports' },
-                  { icon: BarChart3, path: '/stats' }
-                ].map((item, idx) => (
-                  <button 
-                    key={idx}
-                    onClick={() => navigate(item.path)}
-                    className={`w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 ${item.active ? 'bg-primary shadow-lg shadow-primary/30 text-primary-foreground scale-110' : 'text-muted-foreground hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-foreground'}`}
-                  >
-                      <item.icon className="w-5 h-5" />
-                  </button>
-                ))}
-            </nav>
-            <div className="flex flex-col gap-4">
-                <button 
-                  onClick={() => navigate('/profiles')}
-                  className="w-12 h-12 flex items-center justify-center rounded-xl text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
-                >
-                    <Settings className="w-5 h-5" />
-                </button>
-                <button 
-                  onClick={async () => {
-                    await logout();
-                    navigate('/');
-                  }}
-                  className="w-12 h-12 flex items-center justify-center rounded-xl text-muted-foreground hover:text-destructive hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-all"
-                >
-                    <LogOut className="w-5 h-5" />
-                </button>
-            </div>
-        </aside>
-
-        {/* Main Area */}
-        <main className="flex-grow flex flex-col p-6 items-center overflow-y-auto">
-            <div className="w-full max-w-7xl flex flex-col gap-8">
-                
-                {/* Header UHD */}
-                <header className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-8">
+    <>
+        {/* Header UHD */}
+        <header className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-8">
                     <div className="flex flex-col">
                        <h1 className="text-4xl font-extrabold tracking-tighter uppercase italic flex items-center gap-3 text-foreground font-heading">
                           <LayoutDashboard className="w-10 h-10 text-primary drop-shadow-[0_0_15px_rgba(44,75,218,0.4)]" />
@@ -306,7 +265,13 @@ const Dashboard = () => {
                                     <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
                                         <Wallet className="w-5 h-5" />
                                     </div>
-                                    <MoreVertical className="w-4 h-4 opacity-40 hover:opacity-100 transition-opacity" />
+                                    <button 
+                                        onClick={() => navigate('/history')}
+                                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-all"
+                                        title="Ver Historial de Balance"
+                                    >
+                                        <MoreVertical className="w-4 h-4" />
+                                    </button>
                                 </div>
                                 <div>
                                     <p className="text-xs font-semibold opacity-80 mb-1">Balance</p>
@@ -333,7 +298,16 @@ const Dashboard = () => {
                                                     >
                                                         <PlusCircle className="w-5 h-5" />
                                                     </button>
-                                                    <MoreVertical className="w-4 h-4 text-muted-foreground opacity-40 hover:opacity-100 transition-opacity mt-2" />
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            navigate('/history?type=ingreso');
+                                                        }}
+                                                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-muted-foreground/50 hover:text-foreground transition-all"
+                                                        title="Ver Historial de Ingresos"
+                                                    >
+                                                        <MoreVertical className="w-4 h-4" />
+                                                    </button>
                                                 </div>
                                             </div>
                                             <div>
@@ -363,7 +337,16 @@ const Dashboard = () => {
                                                     >
                                                         <PlusCircle className="w-5 h-5" />
                                                     </button>
-                                                    <MoreVertical className="w-4 h-4 text-muted-foreground opacity-40 hover:opacity-100 transition-opacity mt-2" />
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            navigate('/history?type=ahorro');
+                                                        }}
+                                                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-muted-foreground/50 hover:text-foreground transition-all"
+                                                        title="Ver Historial de Ahorros"
+                                                    >
+                                                        <MoreVertical className="w-4 h-4" />
+                                                    </button>
                                                 </div>
                                             </div>
                                             <div>
@@ -393,7 +376,16 @@ const Dashboard = () => {
                                                     >
                                                         <PlusCircle className="w-5 h-5" />
                                                     </button>
-                                                    <MoreVertical className="w-4 h-4 text-muted-foreground opacity-40 hover:opacity-100 transition-opacity mt-2" />
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            navigate('/history?type=gasto');
+                                                        }}
+                                                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-muted-foreground/50 hover:text-foreground transition-all"
+                                                        title="Ver Historial de Gastos"
+                                                    >
+                                                        <MoreVertical className="w-4 h-4" />
+                                                    </button>
                                                 </div>
                                             </div>
                                             <div>
@@ -519,7 +511,7 @@ const Dashboard = () => {
                                             <th className="text-center text-[11px] font-black uppercase tracking-[0.15em] text-muted-foreground/40 pb-4" style={{width:'100px'}}>Fecha</th>
                                             <th className="text-center text-[11px] font-black uppercase tracking-[0.15em] text-muted-foreground/40 pb-4" style={{width:'120px'}}>Horario</th>
                                             <th className="text-center text-[11px] font-black uppercase tracking-[0.15em] text-muted-foreground/40 pb-4" style={{width:'130px'}}>Monto</th>
-                                            <th className="text-center text-[11px] font-black uppercase tracking-[0.15em] text-muted-foreground/40 pb-4" style={{width:'90px'}}>Status</th>
+                                            <th className="text-center text-[11px] font-black uppercase tracking-[0.15em] text-muted-foreground/40 pb-4" style={{width:'150px'}}>Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -575,11 +567,20 @@ const Dashboard = () => {
                                                             </span>
                                                         </td>
 
-                                                        {/* Status */}
-                                                        <td className="hidden lg:table-cell py-4 text-center">
-                                                            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 shadow-sm transition-all group-hover:bg-emerald-500 group-hover:text-white">
-                                                                <Check className="w-3.5 h-3.5 stroke-[3]" />
-                                                                <span className="text-[9px] font-black uppercase tracking-wider">OK</span>
+                                                        {/* Acciones (Status + Trash) */}
+                                                        <td className="py-4 text-center">
+                                                            <div className="flex items-center justify-center gap-2">
+                                                                <div className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 shadow-sm transition-all group-hover:bg-emerald-500 group-hover:text-white">
+                                                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                                                    <span className="text-[9px] font-black uppercase tracking-wider">OK</span>
+                                                                </div>
+                                                                <button 
+                                                                    onClick={() => handleDelete(expense.originalId || expense.id)}
+                                                                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+                                                                    title="Eliminar Movimiento"
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                </button>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -624,9 +625,7 @@ const Dashboard = () => {
                     </div>
 
                 </div>
-            </div>
-        </main>
-    </div>
+    </>
   );
 };
 

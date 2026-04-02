@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 import { 
   ArrowLeft, Search, Filter, Trash2, Edit3, 
   ArrowUpCircle, ArrowDownCircle, PiggyBank,
-  ChevronLeft, ChevronRight, FileDown, Calendar
+  ChevronLeft, ChevronRight, FileDown, Calendar, Check
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -22,7 +22,7 @@ const History = () => {
     
     // Filtros — inicializar con búsqueda de URL si viene del Dashboard
     const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
-    const [typeFilter, setTypeFilter] = useState('todos');
+    const [typeFilter, setTypeFilter] = useState(searchParams.get('type') || 'todos');
     const [personFilter, setPersonFilter] = useState('todos');
     const [members, setMembers] = useState([]);
     const [loadingMembers, setLoadingMembers] = useState(true);
@@ -66,8 +66,7 @@ const History = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 transition-colors duration-300">
-            <div className="max-w-7xl mx-auto space-y-6">
+        <>
                 
                 {/* Header Superior */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -196,12 +195,13 @@ const History = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-center whitespace-nowrap">
-                                            <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex items-center justify-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
                                                 <Button 
                                                     variant="ghost" 
                                                     size="icon" 
                                                     className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                                                     onClick={() => navigate(`/edit-expense/${exp.originalId || exp.id}`)}
+                                                    title="Editar Movimiento"
                                                 >
                                                     <Edit3 className="w-4 h-4" />
                                                 </Button>
@@ -210,6 +210,7 @@ const History = () => {
                                                     size="icon" 
                                                     className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20"
                                                     onClick={() => handleDelete(exp.originalId || exp.id)}
+                                                    title="Eliminar Movimiento"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
                                                 </Button>
@@ -245,8 +246,7 @@ const History = () => {
                     </div>
                 </div>
 
-            </div>
-        </div>
+        </>
     );
 };
 

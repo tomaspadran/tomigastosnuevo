@@ -12,6 +12,7 @@ import Reports from './pages/Reports';
 import Stats from './pages/Stats';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from './components/theme-provider';
+import Layout from './components/Layout';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -24,7 +25,7 @@ const PrivateRoute = ({ children }) => {
     );
   }
 
-  return user ? children : <Navigate to="/" />;
+  return user ? <Layout>{children}</Layout> : <Navigate to="/" />;
 };
 
 function App() {
