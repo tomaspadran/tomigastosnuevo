@@ -89,8 +89,8 @@ const AddExpense = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Para Ingresos y Ahorros, usamos la categoría como descripción si no hay una explícita
-    const finalDescription = formData.transactionType === 'Gasto' 
+    // Para Gastos e Ingresos, usamos el detalle (o motivo). Para Ahorros, usamos la categoría.
+    const finalDescription = (formData.transactionType === 'Gasto' || formData.transactionType === 'Ingreso')
       ? formData.description 
       : `${formData.transactionType}: ${formData.category}`;
 
@@ -180,14 +180,16 @@ const AddExpense = () => {
                 </div>
               </div>
 
-              {/* Condicional: Detalle solo para Gastos */}
-              {formData.transactionType === 'Gasto' && (
+              {/* Condicional: Detalle para Gastos e Ingresos */}
+              {(formData.transactionType === 'Gasto' || formData.transactionType === 'Ingreso') && (
                 <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <Label htmlFor="description" className="text-foreground/80 font-bold uppercase tracking-wider text-[10px]">Detalle del Gasto</Label>
+                  <Label htmlFor="description" className="text-foreground/80 font-bold uppercase tracking-wider text-[10px]">
+                    {formData.transactionType === 'Ingreso' ? 'Motivo' : 'Detalle del Gasto'}
+                  </Label>
                   <Input 
                     id="description"
                     required
-                    placeholder="Ej: Expensas Enero"
+                    placeholder={formData.transactionType === 'Ingreso' ? 'Ej: Sueldo Marzo' : 'Ej: Expensas Enero'}
                     className="bg-background border-input text-foreground h-12 hover:border-primary/50 transition-colors focus:ring-2 focus:ring-primary/20 rounded-xl"
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
@@ -276,10 +278,17 @@ const AddExpense = () => {
                 </div>
               )}
 
-              {/* Hidden fields for Ingreso/Ahorro to ensure data consistency */}
-              {formData.transactionType !== 'Gasto' && (
+              {/* Hidden fields for Ahorro/Ingreso to ensure data consistency if needed */}
+              {formData.transactionType === 'Ahorro' && (
                 <>
-                  <input type="hidden" name="description" value={formData.description || `${formData.transactionType}: ${formData.category}`} />
+                  <input type="hidden" name="description" value={formData.description || `Ahorro: ${formData.category}`} />
+                  <input type="hidden" name="paidBy" value="Tomi" />
+                  <input type="hidden" name="paymentMethod" value="Efectivo" />
+                  <input type="hidden" name="installments" value="1" />
+                </>
+              )}
+              {formData.transactionType === 'Ingreso' && (
+                <>
                   <input type="hidden" name="paidBy" value="Tomi" />
                   <input type="hidden" name="paymentMethod" value="Efectivo" />
                   <input type="hidden" name="installments" value="1" />

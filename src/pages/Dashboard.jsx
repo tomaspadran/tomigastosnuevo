@@ -318,16 +318,28 @@ const Dashboard = () => {
                             <div className="relative bg-card rounded-2xl p-5 border border-border shadow-4k overflow-hidden group hover:scale-[1.03] transition-transform cursor-pointer aspect-square flex flex-col justify-between">
                                 {loading ? <RenderLoading /> : (
                                     <>
-                                        <div className="flex justify-between items-start">
-                                            <div className="w-10 h-10 bg-muted rounded-xl flex items-center justify-center text-muted-foreground">
-                                                <TrendingUp className="w-5 h-5" />
+                                            <div className="flex justify-between items-start">
+                                                <div className="w-10 h-10 bg-muted rounded-xl flex items-center justify-center text-muted-foreground">
+                                                    <TrendingUp className="w-5 h-5" />
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            navigate('/add-expense?type=ingreso');
+                                                        }}
+                                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all shadow-sm"
+                                                        title="Agregar Ingreso"
+                                                    >
+                                                        <PlusCircle className="w-5 h-5" />
+                                                    </button>
+                                                    <MoreVertical className="w-4 h-4 text-muted-foreground opacity-40 hover:opacity-100 transition-opacity mt-2" />
+                                                </div>
                                             </div>
-                                            <MoreVertical className="w-4 h-4 text-muted-foreground opacity-40 hover:opacity-100 transition-opacity" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-semibold text-muted-foreground mb-1">Ingresos</p>
-                                            <h3 className="text-2xl font-black tracking-tight text-foreground">${stats.totalIngresos.toLocaleString('es-AR')}</h3>
-                                        </div>
+                                            <div>
+                                                <p className="text-xs font-semibold text-muted-foreground mb-1">Ingresos</p>
+                                                <h3 className="text-2xl font-black tracking-tight text-foreground">${stats.totalIngresos.toLocaleString('es-AR')}</h3>
+                                            </div>
                                     </>
                                 )}
                             </div>
@@ -336,16 +348,28 @@ const Dashboard = () => {
                             <div className="relative bg-card rounded-2xl p-5 border border-border shadow-4k overflow-hidden group hover:scale-[1.03] transition-transform cursor-pointer aspect-square flex flex-col justify-between">
                                 {loading ? <RenderLoading /> : (
                                     <>
-                                        <div className="flex justify-between items-start">
-                                            <div className="w-10 h-10 bg-muted rounded-xl flex items-center justify-center text-muted-foreground">
-                                                <PiggyBank className="w-5 h-5" />
+                                            <div className="flex justify-between items-start">
+                                                <div className="w-10 h-10 bg-muted rounded-xl flex items-center justify-center text-muted-foreground">
+                                                    <PiggyBank className="w-5 h-5" />
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            navigate('/add-expense?type=ahorro');
+                                                        }}
+                                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all shadow-sm"
+                                                        title="Agregar Ahorro"
+                                                    >
+                                                        <PlusCircle className="w-5 h-5" />
+                                                    </button>
+                                                    <MoreVertical className="w-4 h-4 text-muted-foreground opacity-40 hover:opacity-100 transition-opacity mt-2" />
+                                                </div>
                                             </div>
-                                            <MoreVertical className="w-4 h-4 text-muted-foreground opacity-40 hover:opacity-100 transition-opacity" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-semibold text-muted-foreground mb-1">Ahorros</p>
-                                            <h3 className="text-2xl font-black tracking-tight text-foreground">${stats.totalAhorros.toLocaleString('es-AR')}</h3>
-                                        </div>
+                                            <div>
+                                                <p className="text-xs font-semibold text-muted-foreground mb-1">Ahorros</p>
+                                                <h3 className="text-2xl font-black tracking-tight text-foreground">${stats.totalAhorros.toLocaleString('es-AR')}</h3>
+                                            </div>
                                     </>
                                 )}
                             </div>
@@ -354,16 +378,28 @@ const Dashboard = () => {
                             <div className="relative bg-card rounded-2xl p-5 border border-border shadow-4k overflow-hidden group hover:scale-[1.03] transition-transform cursor-pointer aspect-square flex flex-col justify-between">
                                 {loading ? <RenderLoading /> : (
                                     <>
-                                        <div className="flex justify-between items-start">
-                                            <div className="w-10 h-10 bg-muted rounded-xl flex items-center justify-center text-muted-foreground">
-                                                <Receipt className="w-5 h-5" />
+                                            <div className="flex justify-between items-start">
+                                                <div className="w-10 h-10 bg-muted rounded-xl flex items-center justify-center text-muted-foreground">
+                                                    <Receipt className="w-5 h-5" />
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            navigate('/add-expense?type=gasto');
+                                                        }}
+                                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all shadow-sm"
+                                                        title="Agregar Gasto"
+                                                    >
+                                                        <PlusCircle className="w-5 h-5" />
+                                                    </button>
+                                                    <MoreVertical className="w-4 h-4 text-muted-foreground opacity-40 hover:opacity-100 transition-opacity mt-2" />
+                                                </div>
                                             </div>
-                                            <MoreVertical className="w-4 h-4 text-muted-foreground opacity-40 hover:opacity-100 transition-opacity" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-semibold text-muted-foreground mb-1">Gastos</p>
-                                            <h3 className="text-2xl font-black tracking-tight text-foreground">${stats.totalGastos.toLocaleString('es-AR')}</h3>
-                                        </div>
+                                            <div>
+                                                <p className="text-xs font-semibold text-muted-foreground mb-1">Gastos</p>
+                                                <h3 className="text-2xl font-black tracking-tight text-foreground">${stats.totalGastos.toLocaleString('es-AR')}</h3>
+                                            </div>
                                     </>
                                 )}
                             </div>
