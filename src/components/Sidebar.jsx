@@ -64,7 +64,7 @@ const Sidebar = () => {
                     navigate('/');
                   }}
                   title="Cerrar Sesión"
-                  className="w-12 h-12 flex items-center justify-center rounded-xl text-muted-foreground hover:text-destructive hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-all"
+                  className="w-12 h-12 flex items-center justify-center rounded-xl bg-rose-500/5 text-rose-500/60 hover:text-white hover:bg-rose-500 hover:shadow-lg hover:shadow-rose-500/30 transition-all duration-300 border border-rose-500/10"
                 >
                     <LogOut className="w-5 h-5" />
                 </button>

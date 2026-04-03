@@ -31,11 +31,13 @@ const Reports = () => {
         });
 
         // Agrupar por categoría (top 5)
-        const categoryGroups = expenses.reduce((acc, curr) => {
-            const cat = curr.category || 'Otros';
-            acc[cat] = (acc[cat] || 0) + Number(curr.amount);
-            return acc;
-        }, {});
+        const categoryGroups = expenses
+            .filter(e => e.transaction_type === 'gasto' || !e.transaction_type)
+            .reduce((acc, curr) => {
+                const cat = curr.category || 'Otros';
+                acc[cat] = (acc[cat] || 0) + Number(curr.amount);
+                return acc;
+            }, {});
 
         const pieData = Object.keys(categoryGroups).map(name => ({
             name,

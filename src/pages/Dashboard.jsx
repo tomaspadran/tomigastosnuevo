@@ -133,11 +133,13 @@ const Dashboard = () => {
     
     const balance = totalIngresos - totalGastos - totalAhorros;
 
-    const categoryMap = expenses.reduce((acc, curr) => {
-      const mainCat = curr.category || curr.type?.split(' - ')[0] || 'Otros';
-      acc[mainCat] = (acc[mainCat] || 0) + Number(curr.amount);
-      return acc;
-    }, {});
+    const categoryMap = expenses
+      .filter(e => e.transaction_type === 'gasto' || !e.transaction_type)
+      .reduce((acc, curr) => {
+        const mainCat = curr.category || curr.type?.split(' - ')[0] || 'Otros';
+        acc[mainCat] = (acc[mainCat] || 0) + Number(curr.amount);
+        return acc;
+      }, {});
 
     const categoryData = Object.keys(categoryMap).map(name => ({
       name,
@@ -248,6 +250,20 @@ const Dashboard = () => {
                             <img src={getMemberAvatar('Tomi')} alt="Profile" className="w-10 h-10 rounded-full object-cover border-2 border-primary/20 shadow-md" />
                             <ChevronDown className="w-4 h-4 text-muted-foreground" />
                         </div>
+                        <button 
+                            onClick={async () => {
+                                try {
+                                    await logout();
+                                    navigate('/');
+                                } catch (e) {
+                                    toast.error('Error al cerrar sesión');
+                                }
+                            }}
+                            className="w-10 h-10 flex items-center justify-center rounded-2xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm border border-rose-500/10"
+                            title="Cerrar Sesión"
+                        >
+                            <LogOut className="w-5 h-5" />
+                        </button>
                     </div>
                 </header>
 

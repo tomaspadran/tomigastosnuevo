@@ -31,11 +31,13 @@ const Stats = () => {
         });
 
         // Top 10 categorías acumuladas histórico
-        const cats = expenses.reduce((acc, curr) => {
-            const cat = curr.category || 'Otros';
-            acc[cat] = (acc[cat] || 0) + Number(curr.amount);
-            return acc;
-        }, {});
+        const cats = expenses
+            .filter(e => e.transaction_type === 'gasto' || !e.transaction_type)
+            .reduce((acc, curr) => {
+                const cat = curr.category || 'Otros';
+                acc[cat] = (acc[cat] || 0) + Number(curr.amount);
+                return acc;
+            }, {});
 
         const topCats = Object.keys(cats).map(name => ({
             category: name,
