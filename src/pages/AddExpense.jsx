@@ -20,7 +20,7 @@ const CATEGORIES_STRUCTURE = {
     "Servicios Profesionales": ["General"],
     "Juana": ["Colegio", "Pañales", "Leche", "Otros"],
     "Servicios": ["Cable", "Internet", "Servicio Entretenimiento", "Luz", "Gas"],
-    "Autos": ["Seguro", "Patente", "Mantenimiento"],
+    "Autos": ["Nafta", "Seguro", "Patente", "Mantenimiento"],
     "Perra": ["General"],
     "Shopping/Compras": ["General"],
     "Salidas": ["General"]
@@ -316,7 +316,7 @@ const AddExpense = () => {
                     value={formData.installments}
                     onChange={(e) => setFormData({...formData, installments: e.target.value})}
                   />
-                  <p className="text-[10px] text-muted-foreground mt-2 italic">* Se crearán {formData.installments} gastos automáticos (uno por mes).</p>
+                  <p className="text-[10px] text-muted-foreground mt-2 italic">* Los gastos con tarjeta de crédito se imputan el primer día del mes siguiente. Se crearán {formData.installments} cuotas mensuales (Ej: si hoy es abril, la primera cuota se imputa en mayo).</p>
                 </div>
               )}
 

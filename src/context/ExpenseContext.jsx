@@ -22,42 +22,37 @@ export const ExpenseProvider = ({ children }) => {
       const processedExpenses = [];
 
       data.forEach(expense => {
-        // Obtenemos cuotas (si no existe el campo o es nulo, asumimos 1)
         const installments = parseInt(expense.installments) || 1;
+        const isCredit = expense.payment_method === 'Credito';
         
-        // Si tiene más de 1 cuota, prorrateamos
-        if (installments > 1) {
+        // Si es crédito o tiene más de 1 cuota, aplicamos lógica de prorrateo/delay
+        if (installments > 1 || isCredit) {
           const amountPerInstallment = Number(expense.amount) / installments;
-          
-          // Usamos la fecha original para calcular las siguientes
-          // Agregamos 'T00:00:00' para evitar problemas de zona horaria local
           const originalDate = new Date(expense.date + 'T00:00:00');
 
           for (let i = 0; i < installments; i++) {
             const installmentDate = new Date(originalDate);
-            // Sumamos i meses a la fecha original
-            installmentDate.setMonth(originalDate.getMonth() + i);
+            // Si es crédito, empezamos a contar desde el mes siguiente (+1)
+            const monthOffset = isCredit ? (i + 1) : i;
+            installmentDate.setMonth(originalDate.getMonth() + monthOffset);
 
             processedExpenses.push({
               ...expense,
-              // Creamos un ID virtual para que React no se queje de keys duplicadas
               id: `${expense.id}-virtual-${i}`, 
-              // Guardamos el ID real de la base de datos para poder editar/borrar luego
               originalId: expense.id,
-              // Dividimos el monto
               amount: amountPerInstallment.toFixed(2),
-              // Formateamos la nueva fecha (YYYY-MM-DD)
               date: installmentDate.toISOString().split('T')[0],
-              // Modificamos la descripción para saber qué cuota es
-              description: `${expense.description} (${i + 1}/${installments})`,
+              description: installments > 1 
+                ? `${expense.description} (${i + 1}/${installments})`
+                : expense.description,
               isInstallment: true
             });
           }
         } else {
-          // Si es un gasto normal en 1 cuota, lo pasamos tal cual
+          // Gasto normal (Efectivo/Otros y 1 cuota)
           processedExpenses.push({
             ...expense,
-            originalId: expense.id // Mantenemos consistencia con la propiedad
+            originalId: expense.id
           });
         }
       });

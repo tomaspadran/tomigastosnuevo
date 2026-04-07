@@ -18,7 +18,7 @@ const CATEGORIES_STRUCTURE = {
   "Servicios Profesionales": ["General"],
   "Juana": ["Colegio", "Pañales", "Leche", "Otros"],
   "Servicios": ["Cable", "Internet", "Servicio Entretenimiento", "Luz", "Gas"],
-  "Autos": ["Seguro", "Patente", "Mantenimiento"],
+  "Autos": ["Nafta", "Seguro", "Patente", "Mantenimiento"],
   "Perra": ["General"],
   "Shopping/Compras": ["General"],
   "Salidas": ["General"]
