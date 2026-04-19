@@ -36,6 +36,8 @@ import {
 } from 'recharts';
 import { toast } from 'sonner';
 import AISuggestions from '../components/dashboard/AISuggestions';
+import { ActionSearchBar } from '../components/ui/action-search-bar';
+import { BarChart2, History } from 'lucide-react';
 
 const Dashboard = () => {
   const { expenses, loading, deleteExpense } = useExpenses();
@@ -213,22 +215,21 @@ const Dashboard = () => {
             </div>
 
             <div className="flex-grow max-w-2xl w-full">
-                <form 
-                    className="relative group"
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        navigate(searchTerm.trim() ? `/history?search=${encodeURIComponent(searchTerm.trim())}` : '/history');
+                <ActionSearchBar
+                    searchTerm={searchTerm}
+                    onSearchTermChange={setSearchTerm}
+                    onSearch={(q) => navigate(q.trim() ? `/history?search=${encodeURIComponent(q.trim())}` : '/history')}
+                    onActionSelect={(action) => {
+                        const routes = {
+                            '1': '/add-expense?type=gasto',
+                            '2': '/add-expense?type=ingreso',
+                            '3': '/add-expense?type=ahorro',
+                            '4': '/reports',
+                            '5': '/history',
+                        };
+                        navigate(routes[action.id] || '/dashboard');
                     }}
-                >
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/40 group-focus-within:text-primary transition-all duration-500" />
-                    <input 
-                        type="text"
-                        placeholder="Buscar transacciones, categorías..."
-                        className="w-full bg-slate-100/50 dark:bg-slate-800/40 border-2 border-transparent focus:border-primary/20 rounded-[2rem] py-5 pl-16 pr-6 text-sm font-semibold placeholder:text-muted-foreground/30 focus:shadow-2xl focus:shadow-primary/5 outline-none transition-all duration-500 shadow-4k"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </form>
+                />
             </div>
             
             <div className="flex items-center gap-3 bg-card/30 p-2 rounded-2xl border border-border/50 backdrop-blur-sm self-stretch md:self-auto justify-between md:justify-start shadow-4k">
