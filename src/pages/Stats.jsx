@@ -44,14 +44,14 @@ const Stats = () => {
             .filter(e => e.transaction_type === 'gasto' || !e.transaction_type)
             .reduce((acc, curr) => {
                 const cat = curr.category || 'Otros';
-                const sub = curr.sub_category || 'General';
+                const sub = curr.subcategory || 'General';
                 if (!acc[cat]) acc[cat] = { total: 0, subs: {} };
                 acc[cat].total += Number(curr.amount);
                 acc[cat].subs[sub] = (acc[cat].subs[sub] || 0) + Number(curr.amount);
                 return acc;
             }, {});
 
-        const sortedCats = Object.keys(breakdown).map(name => ({
+        const topCats = Object.keys(breakdown).map(name => ({
             category: name,
             total: breakdown[name].total
         })).sort((a,b) => b.total - a.total).slice(0, 10);
@@ -125,8 +125,8 @@ const Stats = () => {
                                         ))}
                                     </Pie>
                                     <Tooltip 
-                                        contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '16px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}
-                                        itemStyle={{ color: '#fff', fontWeight: '900' }}
+                                        contentStyle={{ backgroundColor: '#ffffff', border: 'none', borderRadius: '12px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
+                                        itemStyle={{ color: '#1e293b', fontWeight: '900' }}
                                         formatter={(value) => `$${Number(value).toLocaleString('es-AR')}`} 
                                     />
                                     <Legend />
@@ -166,7 +166,8 @@ const Stats = () => {
                                     <Tooltip 
                                         cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                                         formatter={(val) => `$${Number(val).toLocaleString('es-AR')}`}
-                                        contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '16px' }}
+                                        contentStyle={{ backgroundColor: '#ffffff', border: 'none', borderRadius: '12px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
+                                        itemStyle={{ color: '#1e293b', fontWeight: '900' }}
                                     />
                                     <Bar dataKey="total" name="Total Gastado" fill="#6366f1" radius={[0, 8, 8, 0]} barSize={20} />
                                 </BarChart>
@@ -306,33 +307,90 @@ const Stats = () => {
                                                             <tr>
                                                                 <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground">Fecha</th>
                                                                 <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground">Descripción</th>
+                                                                <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground">Pagador</th>
                                                                 <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground">Sub-cat</th>
                                                                 <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-widest text-muted-foreground">Monto</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody className="divide-y divide-border/50">
-                                                            {data.categoryHistory.map((exp) => (
-                                                                <tr key={exp.id} className="hover:bg-primary/5 transition-colors group">
-                                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                                        <span className="text-xs font-bold text-muted-foreground">{new Date(exp.date).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })}</span>
-                                                                    </td>
-                                                                    <td className="px-6 py-4">
-                                                                        <span className="text-xs font-black text-foreground group-hover:text-primary transition-colors">{exp.description || 'Sin detalle'}</span>
-                                                                    </td>
-                                                                    <td className="px-6 py-4">
-                                                                        <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/5 text-[9px] font-black uppercase tracking-tighter text-muted-foreground">{exp.subcategory || 'General'}</span>
-                                                                    </td>
-                                                                    <td className="px-6 py-4 text-right">
-                                                                        <span className="text-sm font-black text-foreground tracking-tighter">${Number(exp.amount).toLocaleString('es-AR')}</span>
-                                                                    </td>
-                                                                </tr>
-                                                            ))}
+                                                            {data.categoryHistory.map((exp) => {
+                                                                const member = members.find(m => m.name === exp.paid_by);
+                                                                return (
+                                                                    <tr key={exp.id} className="hover:bg-primary/5 transition-colors group">
+                                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                                            <span className="text-xs font-bold text-muted-foreground">{new Date(exp.date).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })}</span>
+                                                                        </td>
+                                                                        <td className="px-6 py-4">
+                                                                            <span className="text-xs font-black text-foreground group-hover:text-primary transition-colors">{exp.description || 'Sin detalle'}</span>
+                                                                        </td>
+                                                                        <td className="px-6 py-4">
+                                                                            <div className="flex items-center gap-2">
+                                                                                {member?.avatar_url ? (
+                                                                                    <img src={member.avatar_url} alt={exp.paid_by} className="w-6 h-6 rounded-full border border-border/50 object-cover" />
+                                                                                ) : (
+                                                                                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-black text-primary">
+                                                                                        {exp.paid_by?.charAt(0)}
+                                                                                    </div>
+                                                                                )}
+                                                                                <span className="text-[10px] font-bold text-muted-foreground">{exp.paid_by}</span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="px-6 py-4">
+                                                                            <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/5 text-[9px] font-black uppercase tracking-tighter text-muted-foreground">{exp.subcategory || 'General'}</span>
+                                                                        </td>
+                                                                        <td className="px-6 py-4 text-right">
+                                                                            <span className="text-sm font-black text-foreground tracking-tighter">${Number(exp.amount).toLocaleString('es-AR')}</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            })}
                                                         </tbody>
                                                     </table>
                                                 ) : (
                                                     <div className="p-20 text-center text-muted-foreground italic font-medium">No hay registros para esta categoría</div>
                                                 )}
                                             </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+
+                                {/* Gráfico de Sub-categorías */}
+                                <div className="lg:col-span-3 mt-4">
+                                    <Card className="glass-card border-border/50 shadow-4k overflow-hidden">
+                                        <CardHeader>
+                                            <CardTitle className="text-xl font-black uppercase italic tracking-tight">Distribución Técnica</CardTitle>
+                                            <CardDescription className="text-[10px] font-bold uppercase tracking-widest opacity-50">Análisis detallado por sub-categorías de {selectedCategory}</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="h-[300px]">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <BarChart 
+                                                    layout="vertical" 
+                                                    data={Object.entries(data.breakdown[selectedCategory].subs)
+                                                        .map(([name, total]) => ({ name, total }))
+                                                        .sort((a,b) => b.total - a.total)
+                                                    }
+                                                    margin={{ left: 40, right: 40 }}
+                                                >
+                                                    <XAxis type="number" hide />
+                                                    <YAxis 
+                                                        dataKey="name" 
+                                                        type="category" 
+                                                        stroke="#94A3B8" 
+                                                        fontSize={10} 
+                                                        fontWeight={800}
+                                                        tickLine={false}
+                                                        axisLine={false}
+                                                        width={100}
+                                                    />
+                                                    <Tooltip 
+                                                        cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                                                        contentStyle={{ backgroundColor: '#ffffff', border: 'none', borderRadius: '12px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
+                                                        itemStyle={{ color: '#1e293b', fontWeight: '900' }}
+                                                        formatter={(val) => `$${Number(val).toLocaleString('es-AR')}`}
+                                                    />
+                                                    <Bar dataKey="total" fill="#10b981" radius={[0, 4, 4, 0]} barSize={20} />
+                                                </BarChart>
+                                            </ResponsiveContainer>
                                         </CardContent>
                                     </Card>
                                 </div>

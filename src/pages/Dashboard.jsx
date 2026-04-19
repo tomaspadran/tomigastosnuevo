@@ -173,9 +173,9 @@ const Dashboard = () => {
   const EvolutionTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-slate-900/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl border border-slate-700/50">
-          <p className="text-indigo-300 text-[11px] font-medium mb-1">{label}</p>
-          <p className="text-indigo-400 text-xl font-black tracking-tight">${Number(payload[0].value).toLocaleString('es-AR')}</p>
+        <div className="bg-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-200">
+          <p className="text-slate-500 text-[11px] font-bold uppercase tracking-widest mb-1">{label}</p>
+          <p className="text-primary text-xl font-black tracking-tight">${Number(payload[0].value).toLocaleString('es-AR')}</p>
         </div>
       );
     }
@@ -186,9 +186,9 @@ const Dashboard = () => {
     if (active && payload && payload.length) {
       const perc = stats.total > 0 ? ((payload[0].value / stats.total) * 100).toFixed(1) : 0;
       return (
-        <div className="bg-slate-900/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl border border-slate-700/50">
-          <p className="text-white text-[12px] font-bold mb-1">{payload[0].name}</p>
-          <p className="text-indigo-400 text-lg font-black tracking-tight">{perc}%</p>
+        <div className="bg-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-200">
+          <p className="text-slate-900 text-[12px] font-black uppercase tracking-tight mb-1">{payload[0].name}</p>
+          <p className="text-primary text-lg font-black tracking-tight">{perc}%</p>
         </div>
       );
     }
