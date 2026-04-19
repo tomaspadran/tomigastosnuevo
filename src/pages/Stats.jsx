@@ -83,10 +83,10 @@ const Stats = () => {
                             <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:-translate-x-1 transition-transform" />
                         </button>
                         <div>
-                           <h1 className="text-4xl font-black tracking-tightest uppercase italic text-foreground">
+                           <h1 className="text-5xl md:text-6xl font-black tracking-tightest uppercase italic text-foreground leading-tight">
                               Estadísticas <span className="text-primary">Avanzadas</span>
                            </h1>
-                           <p className="text-[10px] font-bold text-muted-foreground tracking-[0.2em] uppercase opacity-50">Análisis Profundo • 4K UHD Suite</p>
+                           <p className="text-sm font-bold text-muted-foreground tracking-[0.2em] uppercase opacity-70">Análisis Profundo • 4K UHD Suite</p>
                         </div>
                     </div>
                 </header>

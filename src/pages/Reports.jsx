@@ -92,7 +92,7 @@ const Reports = () => {
                             <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:-translate-x-1 transition-transform" />
                         </button>
                         <div>
-                           <h1 className="text-4xl font-black tracking-tightest uppercase italic text-foreground">
+                           <h1 className="text-5xl md:text-6xl font-black tracking-tightest uppercase italic text-foreground leading-tight">
                               Reportes <span className="text-primary">Mensuales</span>
                            </h1>
                            <p className="text-[10px] font-bold text-muted-foreground tracking-[0.2em] uppercase opacity-50">Inteligencia Financiera • 4K UHD Suite</p>

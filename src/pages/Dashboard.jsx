@@ -27,7 +27,8 @@ import {
   Baby,
   Dog,
   Receipt,
-  PiggyBank
+  PiggyBank,
+  LogOut
 } from 'lucide-react';
 import { 
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
@@ -205,10 +206,10 @@ const Dashboard = () => {
                         Financial Overview
                     </div>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-black tracking-tightest text-foreground font-heading">
+                <h1 className="text-5xl md:text-6xl font-black tracking-tightest text-foreground font-heading">
                     Hola, <span className="text-primary italic">Tomi & Gabi</span>
                 </h1>
-                <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase opacity-60">Control Financiero Inteligente • Premium Suite</p>
+                <p className="text-muted-foreground text-sm font-bold tracking-[0.2em] uppercase opacity-70">Control Financiero Inteligente • Premium Suite</p>
             </div>
 
             <div className="flex-grow max-w-2xl w-full">
@@ -230,8 +231,23 @@ const Dashboard = () => {
                 </form>
             </div>
             
-            <div className="flex items-center gap-3 bg-card/30 p-2 rounded-2xl border border-border/50 backdrop-blur-sm self-stretch md:self-auto justify-between md:justify-start">
-                <ThemeToggle />
+            <div className="flex items-center gap-3 bg-card/30 p-2 rounded-2xl border border-border/50 backdrop-blur-sm self-stretch md:self-auto justify-between md:justify-start shadow-4k">
+                <div className="flex items-center gap-1">
+                    <ThemeToggle />
+                    <button 
+                        onClick={async () => {
+                            if (window.confirm('¿Deseas cerrar sesión?')) {
+                                await logout();
+                                navigate('/');
+                                toast.success('Sesión cerrada');
+                            }
+                        }}
+                        className="w-10 h-10 flex items-center justify-center rounded-xl text-rose-500 hover:bg-rose-500/10 transition-all group"
+                        title="Cerrar Sesión"
+                    >
+                        <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    </button>
+                </div>
                 <div className="h-8 w-[1px] bg-border mx-1" />
                 <div 
                     onClick={() => navigate('/profiles')} 
@@ -262,19 +278,19 @@ const Dashboard = () => {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                     {/* 1) Balance Total */}
-                    <div className="relative glass-card rounded-3xl p-6 overflow-hidden group hover:scale-[1.02] cursor-pointer aspect-square flex flex-col justify-between border-primary/20">
-                        <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors" />
+                    <div className="relative bg-primary rounded-3xl p-6 overflow-hidden group hover:scale-[1.02] cursor-pointer aspect-square flex flex-col justify-between shadow-4k shadow-primary/30 border border-primary/20 animate-pulse-subtle">
+                        <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-colors" />
                         {loading ? <RenderLoading /> : (
                             <>
                                     <div className="flex justify-between items-start relative z-10">
-                                        <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-inner">
+                                        <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-white shadow-inner backdrop-blur-md">
                                             <Zap className="w-6 h-6 fill-current" />
                                         </div>
-                                        <TrendingUp className="w-5 h-5 text-emerald-500 opacity-20" />
+                                        <TrendingUp className="w-5 h-5 text-white/50" />
                                     </div>
                                     <div className="relative z-10">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Balance Total</p>
-                                        <h3 className="text-3xl font-black tracking-tighter text-foreground">${stats.totalBalance.toLocaleString('es-AR')}</h3>
+                                        <p className="text-[14px] font-black uppercase tracking-widest text-white/70 mb-2">Balance Total</p>
+                                        <h3 className="text-5xl font-black tracking-tighter text-white drop-shadow-md">${stats.totalBalance.toLocaleString('es-AR')}</h3>
                                     </div>
                             </>
                         )}
@@ -296,8 +312,8 @@ const Dashboard = () => {
                                     </button>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Ingresos</p>
-                                    <h3 className="text-3xl font-black tracking-tighter text-foreground">${stats.totalIngresos.toLocaleString('es-AR')}</h3>
+                                    <p className="text-[13px] font-black uppercase tracking-widest text-muted-foreground mb-2">Ingresos</p>
+                                    <h3 className="text-4xl font-black tracking-tighter text-foreground">${stats.totalIngresos.toLocaleString('es-AR')}</h3>
                                 </div>
                             </>
                         )}
@@ -319,8 +335,8 @@ const Dashboard = () => {
                                     </button>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Ahorros</p>
-                                    <h3 className="text-3xl font-black tracking-tighter text-foreground">${stats.totalAhorros.toLocaleString('es-AR')}</h3>
+                                    <p className="text-[13px] font-black uppercase tracking-widest text-muted-foreground mb-2">Ahorros</p>
+                                    <h3 className="text-4xl font-black tracking-tighter text-foreground">${stats.totalAhorros.toLocaleString('es-AR')}</h3>
                                 </div>
                             </>
                         )}
@@ -342,8 +358,8 @@ const Dashboard = () => {
                                     </button>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Gastos</p>
-                                    <h3 className="text-3xl font-black tracking-tighter text-foreground">${stats.totalGastos.toLocaleString('es-AR')}</h3>
+                                    <p className="text-[13px] font-black uppercase tracking-widest text-muted-foreground mb-2">Gastos</p>
+                                    <h3 className="text-4xl font-black tracking-tighter text-foreground">${stats.totalGastos.toLocaleString('es-AR')}</h3>
                                 </div>
                             </>
                         )}
@@ -406,7 +422,7 @@ const Dashboard = () => {
                             .slice(0, 5).map((expense) => {
                                 const catName = expense.category || 'Otros';
                                 return (
-                                    <div key={expense.id} className="group flex items-center justify-between p-4 rounded-2xl border border-transparent hover:border-border hover:bg-slate-50 dark:hover:bg-white/5 transition-all">
+                                    <div key={expense.id} className="group flex items-center justify-between p-6 rounded-3xl border border-transparent hover:border-border hover:bg-slate-50 dark:hover:bg-white/5 transition-all">
                                         <div className="flex items-center gap-4">
                                             <div className="relative">
                                                 <img src={getMemberAvatar(expense.paid_by)} className="w-12 h-12 rounded-full border-2 border-background shadow-xl object-cover" alt={expense.paid_by} />
@@ -490,15 +506,6 @@ const Dashboard = () => {
 
                     <button onClick={() => navigate('/stats')} className="w-full py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:bg-primary hover:text-white transition-all duration-500">Más Estadísticas</button>
                     
-                    <button 
-                        onClick={async () => {
-                            await logout();
-                            navigate('/');
-                        }}
-                        className="w-full py-4 rounded-2xl bg-rose-500/5 text-rose-500 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-rose-500 hover:text-white transition-all"
-                    >
-                        Cerrar Sesión
-                    </button>
                 </div>
             </div>
         </div>
