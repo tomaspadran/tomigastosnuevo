@@ -9,11 +9,20 @@ import {
 import { ArrowLeft, User, BarChart3, TrendingUp, TrendingDown, Target } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
+import { 
+    Select, 
+    SelectContent, 
+    SelectItem, 
+    SelectTrigger, 
+    SelectValue 
+} from '../components/ui/select';
+import { Search, ChevronRight } from 'lucide-react';
 
 const Stats = () => {
     const { expenses, loading } = useExpenses();
     const navigate = useNavigate();
     const [members, setMembers] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState('all');
 
     useEffect(() => {
         const fetchMembers = async () => {
@@ -42,13 +51,22 @@ const Stats = () => {
                 return acc;
             }, {});
 
-        const topCats = Object.keys(breakdown).map(name => ({
+        const sortedCats = Object.keys(breakdown).map(name => ({
             category: name,
             total: breakdown[name].total
         })).sort((a,b) => b.total - a.total).slice(0, 10);
 
-        return { membersData, topCats, breakdown };
-    }, [expenses, members]);
+        const categories = Object.keys(breakdown).sort();
+
+        // Gastos filtrados por la categoría seleccionada para el historial
+        const categoryHistory = selectedCategory !== 'all' 
+            ? expenses
+                .filter(e => (e.transaction_type === 'gasto' || !e.transaction_type) && (e.category === selectedCategory))
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+            : [];
+
+        return { membersData, topCats, breakdown, categories, categoryHistory };
+    }, [expenses, members, selectedCategory]);
 
     const COLORS = ['#6366f1', '#10981b', '#f43f5e', '#facc15', '#8b5cf6'];
 
@@ -175,43 +193,151 @@ const Stats = () => {
                         ))}
                     </div>
 
-                    {/* NUEVO: Desglose Detallado de Categorías */}
-                    <div className="xl:col-span-2 space-y-6">
-                        <div className="flex items-center gap-3 ml-2">
-                            <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-500">
-                                <Target className="w-5 h-5" />
+                    {/* SECCIÓN: Análisis por Categoría (Drill-down) */}
+                    <div className="xl:col-span-2 space-y-8 mt-10">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-lg shadow-primary/5">
+                                    <BarChart3 className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h3 className="text-3xl font-black tracking-tightest uppercase italic">Explorador de <span className="text-primary">Gastos</span></h3>
+                                    <p className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase opacity-50">Análisis detallado por categoría</p>
+                                </div>
                             </div>
-                            <h3 className="text-2xl font-black tracking-tightest uppercase italic">Desglose <span className="text-primary">Detallado</span></h3>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {Object.entries(data.breakdown)
-                                .sort((a, b) => b[1].total - a[1].total)
-                                .map(([catName, catData], i) => (
-                                    <Card key={i} className="glass-card border-border/50 shadow-2xl overflow-hidden hover:border-primary/30 transition-all duration-500">
-                                        <div className="p-6 bg-slate-50/50 dark:bg-white/2 border-b border-border/50 flex justify-between items-center">
-                                            <h4 className="font-black text-sm uppercase tracking-widest text-foreground">{catName}</h4>
-                                            <span className="text-lg font-black text-primary">$ {catData.total.toLocaleString('es-AR')}</span>
+                            
+                            <div className="w-full md:w-72">
+                                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                                    <SelectTrigger className="h-14 bg-card/50 backdrop-blur-xl border-border/50 rounded-2xl text-sm font-black uppercase tracking-tight shadow-xl">
+                                        <div className="flex items-center gap-3">
+                                            <Search className="w-4 h-4 text-primary" />
+                                            <SelectValue placeholder="Seleccionar Categoría" />
                                         </div>
-                                        <CardContent className="p-6 space-y-4">
-                                            {Object.entries(catData.subs).map(([subName, subAmount], j) => (
-                                                <div key={j} className="flex justify-between items-center group/sub">
-                                                    <span className="text-xs font-bold text-muted-foreground group-hover/sub:text-foreground transition-colors">{subName}</span>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="h-1.5 w-24 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden hidden sm:block">
-                                                            <div 
-                                                                className="h-full bg-primary/40 rounded-full transition-all duration-1000" 
-                                                                style={{ width: `${(subAmount / catData.total) * 100}%` }}
-                                                            />
-                                                        </div>
-                                                        <span className="text-xs font-black text-foreground/80">$ {subAmount.toLocaleString('es-AR')}</span>
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card/95 backdrop-blur-2xl border-border shadow-2xl rounded-2xl">
+                                        <SelectItem value="all" className="font-bold py-3">Resumen General</SelectItem>
+                                        {data.categories.map(cat => (
+                                            <SelectItem key={cat} value={cat} className="font-bold py-3">{cat}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        {selectedCategory === 'all' ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                {Object.entries(data.breakdown)
+                                    .sort((a, b) => b[1].total - a[1].total)
+                                    .slice(0, 6)
+                                    .map(([catName, catData], i) => (
+                                        <div 
+                                            key={i} 
+                                            onClick={() => setSelectedCategory(catName)}
+                                            className="group glass-card p-6 rounded-3xl border-border/40 hover:border-primary/50 hover:bg-primary/5 transition-all duration-500 cursor-pointer relative overflow-hidden"
+                                        >
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                                    <ChevronRight className="w-5 h-5" />
+                                                </div>
+                                                <span className="text-xl font-black tracking-tighter text-foreground">${catData.total.toLocaleString('es-AR')}</span>
+                                            </div>
+                                            <h4 className="font-black text-xs uppercase tracking-[0.2em] text-muted-foreground group-hover:text-primary transition-colors">{catName}</h4>
+                                            <div className="mt-4 h-1 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+                                                <div className="h-full bg-primary rounded-full" style={{ width: '40%' }} />
+                                            </div>
+                                        </div>
+                                    ))}
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 animate-in fade-in zoom-in-95 duration-500">
+                                {/* Detalle de la Categoría Seleccionada */}
+                                <div className="lg:col-span-1 space-y-6">
+                                    <Card className="glass-card border-primary/20 shadow-4k overflow-hidden">
+                                        <div className="p-8 bg-primary/5 border-b border-primary/10">
+                                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-2">Categoría</p>
+                                            <h4 className="text-4xl font-black tracking-tighter text-foreground italic uppercase mb-4">{selectedCategory}</h4>
+                                            <div className="flex items-baseline gap-2">
+                                                <span className="text-4xl font-black text-foreground">${data.breakdown[selectedCategory].total.toLocaleString('es-AR')}</span>
+                                                <span className="text-xs font-bold text-muted-foreground uppercase">Total gastado</span>
+                                            </div>
+                                        </div>
+                                        <CardContent className="p-8 space-y-6">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4">Sub-categorías</p>
+                                            {Object.entries(data.breakdown[selectedCategory].subs)
+                                                .sort((a,b) => b[1] - a[1])
+                                                .map(([subName, subAmount], j) => (
+                                                <div key={j} className="space-y-2 group/sub">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-xs font-black uppercase tracking-tight text-foreground/70 group-hover/sub:text-primary transition-colors">{subName}</span>
+                                                        <span className="text-xs font-black text-foreground">${subAmount.toLocaleString('es-AR')}</span>
+                                                    </div>
+                                                    <div className="h-2 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+                                                        <div 
+                                                            className="h-full bg-primary rounded-full transition-all duration-1000 shadow-lg shadow-primary/20" 
+                                                            style={{ width: `${(subAmount / data.breakdown[selectedCategory].total) * 100}%` }}
+                                                        />
                                                     </div>
                                                 </div>
                                             ))}
+                                            
+                                            <Button 
+                                                variant="outline" 
+                                                className="w-full mt-6 rounded-xl border-dashed border-primary/30 hover:bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest"
+                                                onClick={() => setSelectedCategory('all')}
+                                            >
+                                                Cerrar Detalle
+                                            </Button>
                                         </CardContent>
                                     </Card>
-                                ))}
-                        </div>
+                                </div>
+
+                                {/* Historial de la Categoría */}
+                                <div className="lg:col-span-2">
+                                    <Card className="glass-card border-border/50 shadow-4k h-full overflow-hidden">
+                                        <CardHeader className="p-8 border-b border-border/50">
+                                            <CardTitle className="text-xl font-black uppercase italic tracking-tight">Historial de <span className="text-primary">{selectedCategory}</span></CardTitle>
+                                            <CardDescription className="text-[10px] font-bold uppercase tracking-widest opacity-50">Movimientos ordenados por fecha</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="p-0">
+                                            <div className="max-h-[600px] overflow-y-auto">
+                                                {data.categoryHistory.length > 0 ? (
+                                                    <table className="w-full">
+                                                        <thead className="sticky top-0 bg-card/80 backdrop-blur-md z-10 border-b border-border">
+                                                            <tr>
+                                                                <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground">Fecha</th>
+                                                                <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground">Descripción</th>
+                                                                <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground">Sub-cat</th>
+                                                                <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-widest text-muted-foreground">Monto</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-border/50">
+                                                            {data.categoryHistory.map((exp) => (
+                                                                <tr key={exp.id} className="hover:bg-primary/5 transition-colors group">
+                                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                                        <span className="text-xs font-bold text-muted-foreground">{new Date(exp.date).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })}</span>
+                                                                    </td>
+                                                                    <td className="px-6 py-4">
+                                                                        <span className="text-xs font-black text-foreground group-hover:text-primary transition-colors">{exp.description || 'Sin detalle'}</span>
+                                                                    </td>
+                                                                    <td className="px-6 py-4">
+                                                                        <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/5 text-[9px] font-black uppercase tracking-tighter text-muted-foreground">{exp.subcategory || 'General'}</span>
+                                                                    </td>
+                                                                    <td className="px-6 py-4 text-right">
+                                                                        <span className="text-sm font-black text-foreground tracking-tighter">${Number(exp.amount).toLocaleString('es-AR')}</span>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                ) : (
+                                                    <div className="p-20 text-center text-muted-foreground italic font-medium">No hay registros para esta categoría</div>
+                                                )}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                 </div>

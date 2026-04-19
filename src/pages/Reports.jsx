@@ -8,10 +8,19 @@ import {
 import { ArrowLeft, TrendingUp, TrendingDown, Target, Wallet } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
+import { 
+    Select, 
+    SelectContent, 
+    SelectItem, 
+    SelectTrigger, 
+    SelectValue 
+} from '../components/ui/select';
+import { Search, ChevronRight } from 'lucide-react';
 
 const Reports = () => {
     const { expenses, loading } = useExpenses();
     const navigate = useNavigate();
+    const [selectedCategory, setSelectedCategory] = React.useState('all');
 
     const data = useMemo(() => {
         // Agrupar por mes
@@ -47,8 +56,17 @@ const Reports = () => {
             value: breakdown[name].total
         })).sort((a,b) => b.value - a.value).slice(0, 5);
 
-        return { monthlyData, pieData, breakdown };
-    }, [expenses]);
+        const categories = Object.keys(breakdown).sort();
+
+        // Gastos filtrados para el historial de la categoría
+        const categoryHistory = selectedCategory !== 'all' 
+            ? expenses
+                .filter(e => (e.transaction_type === 'gasto' || !e.transaction_type) && (e.category === selectedCategory))
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+            : [];
+
+        return { monthlyData, pieData, breakdown, categories, categoryHistory };
+    }, [expenses, selectedCategory]);
 
     const COLORS = ['#6366f1', '#10b981', '#f43f5e', '#f59e0b', '#8b5cf6'];
 
@@ -185,43 +203,150 @@ const Reports = () => {
                         </CardContent>
                     </Card>
 
-                    {/* DESGLOSE DETALLADO */}
-                    <div className="xl:col-span-2 space-y-6">
-                        <div className="flex items-center gap-3 ml-2">
-                            <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-500">
-                                <Wallet className="w-5 h-5" />
+                    {/* SECCIÓN: Explorador por Categoría (Drill-down) */}
+                    <div className="xl:col-span-2 space-y-8 mt-10">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                                    <Wallet className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h3 className="text-3xl font-black tracking-tightest uppercase italic">Explorador de <span className="text-primary">Categorías</span></h3>
+                                    <p className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase opacity-50">Auditoría detallada de gastos</p>
+                                </div>
                             </div>
-                            <h3 className="text-2xl font-black tracking-tightest uppercase italic">Desglose <span className="text-primary">Detallado</span></h3>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {Object.entries(data.breakdown)
-                                .sort((a, b) => b[1].total - a[1].total)
-                                .map(([catName, catData], i) => (
-                                    <Card key={i} className="glass-card border-border/50 shadow-2xl overflow-hidden group hover:border-primary/30 transition-all duration-500">
-                                        <div className="p-6 bg-slate-50/50 dark:bg-white/2 border-b border-border/50 flex justify-between items-center group-hover:bg-primary/5 transition-colors">
-                                            <h4 className="font-black text-sm uppercase tracking-widest text-foreground">{catName}</h4>
-                                            <span className="text-lg font-black text-primary">$ {catData.total.toLocaleString('es-AR')}</span>
+                            
+                            <div className="w-full md:w-72">
+                                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                                    <SelectTrigger className="h-14 bg-card/50 backdrop-blur-xl border-border/50 rounded-2xl text-sm font-black uppercase tracking-tight shadow-xl">
+                                        <div className="flex items-center gap-3">
+                                            <Search className="w-4 h-4 text-primary" />
+                                            <SelectValue placeholder="Seleccionar Categoría" />
                                         </div>
-                                        <CardContent className="p-6 space-y-4">
-                                            {Object.entries(catData.subs).map(([subName, subAmount], j) => (
-                                                <div key={j} className="flex justify-between items-center group/sub">
-                                                    <span className="text-xs font-bold text-muted-foreground group-hover/sub:text-foreground transition-colors">{subName}</span>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="h-1.5 w-24 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden hidden sm:block">
-                                                            <div 
-                                                                className="h-full bg-primary/40 rounded-full transition-all duration-1000" 
-                                                                style={{ width: `${(subAmount / catData.total) * 100}%` }}
-                                                            />
-                                                        </div>
-                                                        <span className="text-xs font-black text-foreground/80">$ {subAmount.toLocaleString('es-AR')}</span>
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card/95 backdrop-blur-2xl border-border shadow-2xl rounded-2xl">
+                                        <SelectItem value="all" className="font-bold py-3">Mostrar Todas</SelectItem>
+                                        {data.categories.map(cat => (
+                                            <SelectItem key={cat} value={cat} className="font-bold py-3">{cat}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        {selectedCategory === 'all' ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                {Object.entries(data.breakdown)
+                                    .sort((a, b) => b[1].total - a[1].total)
+                                    .slice(0, 6)
+                                    .map(([catName, catData], i) => (
+                                        <div 
+                                            key={i} 
+                                            onClick={() => setSelectedCategory(catName)}
+                                            className="group glass-card p-6 rounded-3xl border-border/40 hover:border-primary/50 hover:bg-primary/5 transition-all duration-500 cursor-pointer relative overflow-hidden"
+                                        >
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                                    <ChevronRight className="w-5 h-5" />
+                                                </div>
+                                                <span className="text-xl font-black tracking-tighter text-foreground">${catData.total.toLocaleString('es-AR')}</span>
+                                            </div>
+                                            <h4 className="font-black text-xs uppercase tracking-[0.2em] text-muted-foreground group-hover:text-primary transition-colors">{catName}</h4>
+                                            <p className="text-[9px] font-bold text-muted-foreground/50 mt-1 uppercase">Click para auditar historial</p>
+                                        </div>
+                                    ))}
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 animate-in fade-in zoom-in-95 duration-500">
+                                {/* Dashboard de la Categoría */}
+                                <div className="lg:col-span-1 space-y-6">
+                                    <Card className="glass-card border-primary/20 shadow-4k overflow-hidden">
+                                        <div className="p-8 bg-primary/5 border-b border-primary/10 text-center">
+                                            <h4 className="text-3xl font-black tracking-tighter text-foreground italic uppercase mb-2">{selectedCategory}</h4>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-4xl font-black text-primary">${data.breakdown[selectedCategory].total.toLocaleString('es-AR')}</span>
+                                                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1 opacity-50">Total acumulado</span>
+                                            </div>
+                                        </div>
+                                        <CardContent className="p-8 space-y-6">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4">Breakdown por Sub-categoría</p>
+                                            {Object.entries(data.breakdown[selectedCategory].subs)
+                                                .sort((a,b) => b[1] - a[1])
+                                                .map(([subName, subAmount], j) => (
+                                                <div key={j} className="space-y-2">
+                                                    <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-tight">
+                                                        <span className="text-muted-foreground">{subName}</span>
+                                                        <span className="text-foreground">${subAmount.toLocaleString('es-AR')}</span>
+                                                    </div>
+                                                    <div className="h-2 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+                                                        <div 
+                                                            className="h-full bg-primary rounded-full transition-all duration-1000" 
+                                                            style={{ width: `${(subAmount / data.breakdown[selectedCategory].total) * 100}%` }}
+                                                        />
                                                     </div>
                                                 </div>
                                             ))}
+                                            
+                                            <Button 
+                                                variant="outline" 
+                                                className="w-full mt-6 rounded-xl border-dashed border-primary/30 hover:bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest"
+                                                onClick={() => setSelectedCategory('all')}
+                                            >
+                                                Volver a Vista General
+                                            </Button>
                                         </CardContent>
                                     </Card>
-                                ))}
-                        </div>
+                                </div>
+
+                                {/* Tabla de Auditoría */}
+                                <div className="lg:col-span-2">
+                                    <Card className="glass-card border-border/50 shadow-4k h-full overflow-hidden">
+                                        <CardHeader className="p-8 border-b border-border/50 bg-slate-50/30 dark:bg-white/1">
+                                            <CardTitle className="text-xl font-black uppercase italic tracking-tight">Auditoría de Movimientos</CardTitle>
+                                            <CardDescription className="text-[10px] font-bold uppercase tracking-widest opacity-50">Listado íntegro de registros en {selectedCategory}</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="p-0">
+                                            <div className="max-h-[600px] overflow-y-auto">
+                                                {data.categoryHistory.length > 0 ? (
+                                                    <table className="w-full">
+                                                        <thead className="sticky top-0 bg-card/90 backdrop-blur-xl z-20 border-b border-border">
+                                                            <tr>
+                                                                <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground">Fecha</th>
+                                                                <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground">Detalle</th>
+                                                                <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-widest text-muted-foreground">Valor</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-border/50">
+                                                            {data.categoryHistory.map((exp) => (
+                                                                <tr key={exp.id} className="hover:bg-primary/5 transition-colors group">
+                                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                                        <span className="text-xs font-bold text-muted-foreground">{new Date(exp.date).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: '2-digit' })}</span>
+                                                                    </td>
+                                                                    <td className="px-6 py-4">
+                                                                        <div className="flex flex-col">
+                                                                            <span className="text-xs font-black text-foreground group-hover:text-primary transition-colors">{exp.description || 'Sin detalle'}</span>
+                                                                            <span className="text-[9px] text-muted-foreground uppercase italic opacity-50">{exp.subcategory || 'General'}</span>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-6 py-4 text-right">
+                                                                        <span className="text-sm font-black text-foreground tracking-tighter">${Number(exp.amount).toLocaleString('es-AR')}</span>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                ) : (
+                                                    <div className="p-20 text-center flex flex-col items-center gap-4">
+                                                        <Wallet className="w-10 h-10 text-muted-foreground/20" />
+                                                        <p className="text-muted-foreground italic font-medium">No se registraron movimientos en esta categoría.</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                 </div>
