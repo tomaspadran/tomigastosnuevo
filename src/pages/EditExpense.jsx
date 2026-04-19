@@ -21,7 +21,8 @@ const CATEGORIES_STRUCTURE = {
   "Autos": ["Nafta", "Seguro", "Patente", "Mantenimiento"],
   "Perra": ["General"],
   "Shopping/Compras": ["General"],
-  "Salidas": ["General"]
+  "Salidas": ["General"],
+  "Gastos Tarjetas": ["Gastos Visa", "Gastos Mastercard"]
 };
 
 const EditExpense = () => {

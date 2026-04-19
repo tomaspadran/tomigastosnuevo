@@ -52,6 +52,7 @@ export default {
                     kids: "hsl(var(--cat-kids))",
                     pets: "hsl(var(--cat-pets))",
                     car: "hsl(var(--cat-car))",
+                    cards: "hsl(var(--cat-cards))",
                 }
             },
             borderRadius: {

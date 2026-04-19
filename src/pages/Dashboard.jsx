@@ -95,6 +95,7 @@ const Dashboard = () => {
         case "Perra": return <Dog />;
         case "Shopping/Compras": return <ShoppingBag />;
         case "Salidas": return <Utensils />;
+        case "Gastos Tarjetas": return <CreditCard />;
         case "Ingreso": return <TrendingUp />;
         default: return <Wallet />;
     }
@@ -113,6 +114,7 @@ const Dashboard = () => {
         case "Perra": return "bg-cat-pets";
         case "Shopping/Compras": return "bg-cat-shopping";
         case "Salidas": return "bg-cat-food";
+        case "Gastos Tarjetas": return "bg-cat-cards";
         case "Ingreso": return "bg-cat-income";
         default: return "bg-primary";
     }
