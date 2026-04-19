@@ -123,13 +123,13 @@ const AISuggestions = ({ expenses = [] }) => {
           </div>
         ) : suggestions.length > 0 ? (
           suggestions.map((s, i) => (
-            <div key={i} className="flex gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-transparent hover:border-primary/20 transition-all group/item">
-              <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-900 border border-border flex items-center justify-center shrink-0 shadow-sm group-hover/item:scale-110 transition-transform">
+            <div key={i} className="flex gap-5 p-5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-transparent hover:border-primary/20 transition-all group/item">
+              <div className="w-12 h-12 rounded-full bg-white dark:bg-slate-900 border border-border flex items-center justify-center shrink-0 shadow-sm group-hover/item:scale-110 transition-transform">
                 {s.icon}
               </div>
               <div className="flex flex-col justify-center">
                 <h4 className="font-bold text-sm text-foreground">{s.title}</h4>
-                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{s.description}</p>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{s.description}</p>
               </div>
             </div>
           ))

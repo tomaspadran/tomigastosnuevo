@@ -289,8 +289,10 @@ const Dashboard = () => {
                                         <TrendingUp className="w-5 h-5 text-white/50" />
                                     </div>
                                     <div className="relative z-10">
-                                        <p className="text-[14px] font-black uppercase tracking-widest text-white/70 mb-2">Balance Total</p>
-                                        <h3 className="text-5xl font-black tracking-tighter text-white drop-shadow-md">${stats.totalBalance.toLocaleString('es-AR')}</h3>
+                                        <p className="text-[13px] font-black uppercase tracking-widest text-white/70 mb-1">Balance Total</p>
+                                        <h3 className="text-3xl xl:text-4xl font-black tracking-tighter text-white drop-shadow-md truncate" title={`$${stats.totalBalance.toLocaleString('es-AR')}`}>
+                                            ${stats.totalBalance.toLocaleString('es-AR')}
+                                        </h3>
                                     </div>
                             </>
                         )}
@@ -311,9 +313,11 @@ const Dashboard = () => {
                                         <PlusCircle className="w-5 h-5" />
                                     </button>
                                 </div>
-                                <div>
-                                    <p className="text-[13px] font-black uppercase tracking-widest text-muted-foreground mb-2">Ingresos</p>
-                                    <h3 className="text-4xl font-black tracking-tighter text-foreground">${stats.totalIngresos.toLocaleString('es-AR')}</h3>
+                                <div className="flex flex-col gap-1">
+                                    <p className="text-[12px] font-black uppercase tracking-widest text-muted-foreground">Ingresos</p>
+                                    <h3 className="text-2xl xl:text-3xl font-black tracking-tighter text-foreground truncate" title={`$${stats.totalIngresos.toLocaleString('es-AR')}`}>
+                                        ${stats.totalIngresos.toLocaleString('es-AR')}
+                                    </h3>
                                 </div>
                             </>
                         )}
@@ -334,9 +338,11 @@ const Dashboard = () => {
                                         <PlusCircle className="w-5 h-5" />
                                     </button>
                                 </div>
-                                <div>
-                                    <p className="text-[13px] font-black uppercase tracking-widest text-muted-foreground mb-2">Ahorros</p>
-                                    <h3 className="text-4xl font-black tracking-tighter text-foreground">${stats.totalAhorros.toLocaleString('es-AR')}</h3>
+                                <div className="flex flex-col gap-1">
+                                    <p className="text-[12px] font-black uppercase tracking-widest text-muted-foreground">Ahorros</p>
+                                    <h3 className="text-2xl xl:text-3xl font-black tracking-tighter text-foreground truncate" title={`$${stats.totalAhorros.toLocaleString('es-AR')}`}>
+                                        ${stats.totalAhorros.toLocaleString('es-AR')}
+                                    </h3>
                                 </div>
                             </>
                         )}
@@ -357,9 +363,11 @@ const Dashboard = () => {
                                         <PlusCircle className="w-5 h-5" />
                                     </button>
                                 </div>
-                                <div>
-                                    <p className="text-[13px] font-black uppercase tracking-widest text-muted-foreground mb-2">Gastos</p>
-                                    <h3 className="text-4xl font-black tracking-tighter text-foreground">${stats.totalGastos.toLocaleString('es-AR')}</h3>
+                                <div className="flex flex-col gap-1">
+                                    <p className="text-[12px] font-black uppercase tracking-widest text-muted-foreground">Gastos</p>
+                                    <h3 className="text-2xl xl:text-3xl font-black tracking-tighter text-foreground truncate" title={`$${stats.totalGastos.toLocaleString('es-AR')}`}>
+                                        ${stats.totalGastos.toLocaleString('es-AR')}
+                                    </h3>
                                 </div>
                             </>
                         )}

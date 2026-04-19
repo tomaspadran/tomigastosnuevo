@@ -95,7 +95,7 @@ const Reports = () => {
                            <h1 className="text-5xl md:text-6xl font-black tracking-tightest uppercase italic text-foreground leading-tight">
                               Reportes <span className="text-primary">Mensuales</span>
                            </h1>
-                           <p className="text-[10px] font-bold text-muted-foreground tracking-[0.2em] uppercase opacity-50">Inteligencia Financiera • 4K UHD Suite</p>
+                           <p className="text-sm font-bold text-muted-foreground tracking-[0.2em] uppercase opacity-70">Inteligencia Financiera • 4K UHD Suite</p>
                         </div>
                     </div>
                 </header>
@@ -269,7 +269,7 @@ const Reports = () => {
 
                                             <div className="flex items-center gap-6">
                                                 <div className="text-right">
-                                                    <span className="text-xl font-black tracking-tightest text-foreground">${catData.total.toLocaleString('es-AR')}</span>
+                                                    <span className="text-xl font-black tabular-nums tracking-tightest text-foreground">${catData.total.toLocaleString('es-AR')}</span>
                                                     <div className="h-1 w-full bg-slate-100 dark:bg-white/5 rounded-full mt-1 overflow-hidden">
                                                         <div 
                                                             className="h-full bg-primary rounded-full opacity-60 group-hover:opacity-100 transition-all duration-500" 
@@ -292,8 +292,8 @@ const Reports = () => {
                                         <div className="p-8 bg-primary/5 border-b border-primary/10 text-center">
                                             <h4 className="text-3xl font-black tracking-tighter text-foreground italic uppercase mb-2">{selectedCategory}</h4>
                                             <div className="flex flex-col items-center">
-                                                <span className="text-4xl font-black text-primary">${data.breakdown[selectedCategory].total.toLocaleString('es-AR')}</span>
-                                                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1 opacity-50">Total acumulado</span>
+                                                <span className="text-3xl xl:text-4xl font-black tabular-nums text-primary">${data.breakdown[selectedCategory].total.toLocaleString('es-AR')}</span>
+                                                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1 opacity-70">Total acumulado</span>
                                             </div>
                                         </div>
                                         <CardContent className="p-8 space-y-6">
@@ -304,7 +304,7 @@ const Reports = () => {
                                                 <div key={j} className="space-y-2">
                                                     <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-tight">
                                                         <span className="text-muted-foreground">{subName}</span>
-                                                        <span className="text-foreground">${subAmount.toLocaleString('es-AR')}</span>
+                                                        <span className="text-foreground tabular-nums">${subAmount.toLocaleString('es-AR')}</span>
                                                     </div>
                                                     <div className="h-2 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
                                                         <div 
@@ -372,7 +372,7 @@ const Reports = () => {
                                                                             </div>
                                                                         </td>
                                                                         <td className="px-6 py-4 text-right">
-                                                                            <span className="text-sm font-black text-foreground tracking-tighter">${Number(exp.amount).toLocaleString('es-AR')}</span>
+                                                                            <span className="text-sm font-black tabular-nums text-foreground tracking-tighter">${Number(exp.amount).toLocaleString('es-AR')}</span>
                                                                         </td>
                                                                     </tr>
                                                                 );
