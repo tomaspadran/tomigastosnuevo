@@ -37,6 +37,7 @@ import {
 import { toast } from 'sonner';
 import AISuggestions from '../components/dashboard/AISuggestions';
 import { ActionSearchBar } from '../components/ui/action-search-bar';
+import { GradientCard } from '../components/ui/gradient-card';
 import { BarChart2, History } from 'lucide-react';
 
 const Dashboard = () => {
@@ -279,17 +280,17 @@ const Dashboard = () => {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
                     {/* 1) Balance Total */}
-                    <div className="relative bg-primary rounded-3xl p-5 overflow-hidden group hover:scale-[1.02] cursor-pointer flex flex-col justify-between gap-6 shadow-4k shadow-primary/30 border border-primary/20" style={{ minHeight: '160px' }}>
-                        <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-colors" />
+                    <GradientCard glowColor="primary" className="bg-primary/90 cursor-pointer" style={{ minHeight: '160px' }}>
+                        <div className="p-5 flex flex-col justify-between gap-6" style={{ minHeight: '160px' }}>
                         {loading ? <RenderLoading /> : (
                             <>
-                                <div className="flex justify-between items-start relative z-10">
+                                <div className="flex justify-between items-start">
                                     <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white backdrop-blur-md">
                                         <Zap className="w-5 h-5 fill-current" />
                                     </div>
                                     <TrendingUp className="w-4 h-4 text-white/50" />
                                 </div>
-                                <div className="relative z-10 min-w-0">
+                                <div className="min-w-0">
                                     <p className="text-[11px] font-bold uppercase tracking-widest text-white/70 mb-1">Balance Total</p>
                                     <h3 className="font-black tracking-tight text-white drop-shadow-md tabular-nums leading-none" style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.75rem)' }}>
                                         ${stats.totalBalance.toLocaleString('es-AR')}
@@ -297,10 +298,12 @@ const Dashboard = () => {
                                 </div>
                             </>
                         )}
-                    </div>
+                        </div>
+                    </GradientCard>
 
                     {/* 2) Ingresos */}
-                    <div className="relative glass-card rounded-3xl p-5 overflow-hidden group hover:scale-[1.02] cursor-pointer flex flex-col justify-between gap-6" style={{ minHeight: '160px' }}>
+                    <GradientCard glowColor="emerald" className="bg-card/80 backdrop-blur-xl cursor-pointer">
+                        <div className="p-5 flex flex-col justify-between gap-6" style={{ minHeight: '160px' }}>
                         {loading ? <RenderLoading /> : (
                             <>
                                 <div className="flex justify-between items-start">
@@ -323,10 +326,12 @@ const Dashboard = () => {
                                 </div>
                             </>
                         )}
-                    </div>
+                        </div>
+                    </GradientCard>
 
                     {/* 3) Ahorros */}
-                    <div className="relative glass-card rounded-3xl p-5 overflow-hidden group hover:scale-[1.02] cursor-pointer flex flex-col justify-between gap-6" style={{ minHeight: '160px' }}>
+                    <GradientCard glowColor="blue" className="bg-card/80 backdrop-blur-xl cursor-pointer">
+                        <div className="p-5 flex flex-col justify-between gap-6" style={{ minHeight: '160px' }}>
                         {loading ? <RenderLoading /> : (
                             <>
                                 <div className="flex justify-between items-start">
@@ -349,10 +354,12 @@ const Dashboard = () => {
                                 </div>
                             </>
                         )}
-                    </div>
+                        </div>
+                    </GradientCard>
 
                     {/* 4) Gastos */}
-                    <div className="relative glass-card rounded-3xl p-5 overflow-hidden group hover:scale-[1.02] cursor-pointer flex flex-col justify-between gap-6" style={{ minHeight: '160px' }}>
+                    <GradientCard glowColor="rose" className="bg-card/80 backdrop-blur-xl cursor-pointer">
+                        <div className="p-5 flex flex-col justify-between gap-6" style={{ minHeight: '160px' }}>
                         {loading ? <RenderLoading /> : (
                             <>
                                 <div className="flex justify-between items-start">
@@ -375,11 +382,13 @@ const Dashboard = () => {
                                 </div>
                             </>
                         )}
-                    </div>
+                        </div>
+                    </GradientCard>
                 </div>
 
                 {/* Evolution Chart */}
-                <div className="bg-card rounded-3xl p-8 border border-border shadow-4k overflow-hidden relative group">
+                <GradientCard glowColor="purple" className="bg-card/80 backdrop-blur-xl">
+                <div className="p-8 overflow-hidden relative group">
                     <div className="flex justify-between items-center mb-8">
                         <div>
                             <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
@@ -413,9 +422,11 @@ const Dashboard = () => {
                         )}
                     </div>
                 </div>
+                </GradientCard>
 
                 {/* Recent Transactions */}
-                <div className="bg-card rounded-3xl p-8 border border-border shadow-4k">
+                <GradientCard glowColor="purple" className="bg-card/80 backdrop-blur-xl">
+                <div className="p-8">
                     <div className="flex justify-between items-center mb-8">
                         <h3 className="text-lg font-semibold tracking-tight flex items-center gap-3 text-foreground">
                             <ArrowRightLeft className="w-5 h-5 text-primary" />
@@ -470,6 +481,7 @@ const Dashboard = () => {
                             })}
                     </div>
                 </div>
+                </GradientCard>
             </div>
 
             {/* Right Column (Sidebar Extras) */}
@@ -477,7 +489,8 @@ const Dashboard = () => {
                 <AISuggestions expenses={expenses} />
                 
                 {/* Distribution Card */}
-                <div className="bg-card rounded-3xl p-8 border border-border shadow-4k flex flex-col gap-8 sticky top-8">
+                <GradientCard glowColor="purple" className="bg-card/80 backdrop-blur-xl sticky top-8">
+                <div className="p-8 flex flex-col gap-8">
                     <div>
                         <h3 className="text-lg font-semibold tracking-tight text-foreground">Distribución</h3>
                         <p className="text-[11px] font-normal text-muted-foreground tracking-wide uppercase mt-0.5">Top 5 Categorías</p>
