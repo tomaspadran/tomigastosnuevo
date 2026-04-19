@@ -415,15 +415,17 @@ const Dashboard = () => {
 
                 {/* Recent Transactions */}
                 <div className="bg-card rounded-3xl p-8 border border-border shadow-4k">
-                    <div className="flex justify-between items-center mb-10">
-                        <h3 className="text-2xl font-black uppercase italic tracking-tighter flex items-center gap-3">
-                            <ArrowRightLeft className="w-8 h-8 text-primary" />
+                    <div className="flex justify-between items-center mb-8">
+                        <h3 className="text-lg font-semibold tracking-tight flex items-center gap-3 text-foreground">
+                            <ArrowRightLeft className="w-5 h-5 text-primary" />
                             Movimientos
                         </h3>
-                        <button onClick={() => navigate('/history')} className="text-[10px] font-black uppercase text-primary hover:tracking-widest transition-all px-4 py-2 bg-primary/5 rounded-xl border border-primary/10">Ver Historial Completo</button>
+                        <button onClick={() => navigate('/history')} className="text-[11px] font-semibold uppercase text-primary px-5 py-2.5 bg-primary/5 rounded-xl border border-primary/10 hover:bg-primary/10 transition-colors tracking-wide">
+                            Ver Historial Completo
+                        </button>
                     </div>
                     
-                    <div className="space-y-4">
+                    <div className="space-y-1">
                         {stats.filtered
                             .filter(exp => 
                                 (exp.description?.toLowerCase() || "").includes(searchTerm.toLowerCase()) || 
@@ -433,32 +435,33 @@ const Dashboard = () => {
                             .slice(0, 5).map((expense) => {
                                 const catName = expense.category || 'Otros';
                                 return (
-                                    <div key={expense.id} className="group flex items-center justify-between p-6 rounded-3xl border border-transparent hover:border-border hover:bg-slate-50 dark:hover:bg-white/5 transition-all">
-                                        <div className="flex items-center gap-4">
-                                            <div className="relative">
-                                                <img src={getMemberAvatar(expense.paid_by)} className="w-12 h-12 rounded-full border-2 border-background shadow-xl object-cover" alt={expense.paid_by} />
-                                                <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-background flex items-center justify-center text-white shadow-lg ${getCategoryColor(catName)}`}>
+                                    <div key={expense.id} className="group flex items-center justify-between p-4 rounded-2xl border border-transparent hover:border-border/50 hover:bg-muted/50 transition-colors">
+                                        <div className="flex items-center gap-4 min-w-0">
+                                            <div className="relative shrink-0">
+                                                <img src={getMemberAvatar(expense.paid_by)} className="w-10 h-10 rounded-full border-2 border-background shadow-md object-cover" alt={expense.paid_by} />
+                                                <div className={`absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full border-2 border-background flex items-center justify-center text-white shadow-sm ${getCategoryColor(catName)}`}>
                                                     {getCategoryIcon(catName)}
                                                 </div>
                                             </div>
-                                            <div>
-                                                <p className="font-bold text-sm text-foreground">{expense.description || 'Sin descripción'}</p>
-                                                <p className="text-[10px] font-black uppercase text-muted-foreground opacity-50">{expense.category}</p>
+                                            <div className="min-w-0">
+                                                <p className="font-medium text-[14px] text-foreground leading-snug truncate">{expense.description || 'Sin descripción'}</p>
+                                                <p className="text-[11px] font-normal uppercase tracking-[0.15em] text-muted-foreground/60 mt-0.5">{expense.category}</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-6">
+                                        <div className="flex items-center gap-5 shrink-0">
                                             <div className="text-right hidden sm:block">
-                                                <p className="text-[10px] font-bold text-muted-foreground">{new Date(expense.date).toLocaleDateString('es-AR')}</p>
-                                                <p className="text-[10px] font-black uppercase text-primary/40 tracking-widest">{expense.paid_by}</p>
+                                                <p className="text-[11px] font-normal text-muted-foreground tabular-nums">{new Date(expense.date).toLocaleDateString('es-AR')}</p>
+                                                <p className="text-[10px] font-medium uppercase text-muted-foreground/40 tracking-wider mt-0.5">{expense.paid_by}</p>
                                             </div>
-                                            <span className={`text-xl font-black tracking-tighter ${expense.transaction_type === 'ingreso' ? 'text-emerald-500' : 'text-foreground'}`}>
+                                            <span className={`text-base font-semibold tabular-nums tracking-tight ${expense.transaction_type === 'ingreso' ? 'text-emerald-500' : 'text-foreground'}`}>
                                                 {expense.transaction_type === 'ingreso' ? '+' : '-'}${Number(expense.amount).toLocaleString('es-AR')}
                                             </span>
                                             <button 
                                                 onClick={() => handleDelete(expense.id)}
-                                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-rose-500/5 text-rose-500 hover:bg-rose-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                                                className="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-500/5 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+                                                aria-label="Eliminar movimiento"
                                             >
-                                                <Trash2 className="w-4 h-4" />
+                                                <Trash2 className="w-3.5 h-3.5" />
                                             </button>
                                         </div>
                                     </div>
@@ -475,28 +478,28 @@ const Dashboard = () => {
                 {/* Distribution Card */}
                 <div className="bg-card rounded-3xl p-8 border border-border shadow-4k flex flex-col gap-8 sticky top-8">
                     <div>
-                        <h3 className="text-xl font-black uppercase tracking-tighter italic">Distribución</h3>
-                        <p className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase opacity-50">Top 5 Categorías</p>
+                        <h3 className="text-lg font-semibold tracking-tight text-foreground">Distribución</h3>
+                        <p className="text-[11px] font-normal text-muted-foreground tracking-wide uppercase mt-0.5">Top 5 Categorías</p>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="space-y-5">
                         {stats.categoryData.slice(0, 5).map((cat, i) => {
                             const perc = stats.total > 0 ? (cat.monto / stats.total) * 100 : 0;
                             return (
-                                <div key={i} className="space-y-2">
-                                    <div className="flex justify-between items-end">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-foreground opacity-70">{cat.name}</span>
-                                        <span className="text-xs font-black text-primary">{perc.toFixed(0)}%</span>
+                                <div key={i} className="space-y-2.5">
+                                    <div className="flex justify-between items-baseline">
+                                        <span className="text-[12px] font-medium uppercase tracking-[0.12em] text-foreground/80">{cat.name}</span>
+                                        <span className="text-[12px] font-semibold tabular-nums text-primary">{perc.toFixed(0)}%</span>
                                     </div>
-                                    <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                        <div className={`h-full transition-all duration-1000 ${getCategoryColor(cat.name)}`} style={{ width: `${perc}%` }}></div>
+                                    <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                                        <div className={`h-full rounded-full transition-all duration-1000 ${getCategoryColor(cat.name)}`} style={{ width: `${perc}%` }}></div>
                                     </div>
                                 </div>
                             );
                         })}
                     </div>
 
-                    <div className="flex-grow flex items-center justify-center py-6">
+                    <div className="flex-grow flex items-center justify-center py-4">
                         <ResponsiveContainer width="100%" height={200}>
                             <PieChart>
                                 <Pie
@@ -515,7 +518,9 @@ const Dashboard = () => {
                         </ResponsiveContainer>
                     </div>
 
-                    <button onClick={() => navigate('/stats')} className="w-full py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:bg-primary hover:text-white transition-all duration-500">Más Estadísticas</button>
+                    <button onClick={() => navigate('/stats')} className="w-full py-3.5 rounded-xl bg-muted text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground hover:bg-primary hover:text-white transition-colors duration-300">
+                        Más Estadísticas
+                    </button>
                     
                 </div>
             </div>

@@ -3,7 +3,7 @@ import Sidebar from './Sidebar';
 
 const Layout = ({ children }) => {
     return (
-        <div className="flex w-full min-h-screen bg-background text-foreground transition-colors duration-500 font-sans selection:bg-primary/30">
+        <div className="flex w-full min-h-screen text-foreground transition-colors duration-500 font-sans selection:bg-primary/30">
             {/* Sidebar */}
             <Sidebar />
 

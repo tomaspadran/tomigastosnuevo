@@ -14,6 +14,8 @@ import { Toaster } from 'sonner';
 import { ThemeProvider } from './components/theme-provider';
 import Layout from './components/Layout';
 
+import ShaderBackground from './components/ui/shader-background';
+
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
@@ -34,7 +36,8 @@ function App() {
       <AuthProvider>
         <ExpenseProvider>
           <Router>
-            <div className="min-h-screen bg-background text-foreground transition-colors duration-300 relative">
+            <div className="min-h-screen text-foreground transition-colors duration-300 relative">
+              <ShaderBackground />
               <div className="grain" />
               <Routes>
                 <Route path="/" element={<Login />} />

@@ -47,7 +47,7 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 text-foreground transition-colors duration-300">
+        <div className="min-h-screen flex flex-col items-center justify-center p-4 text-foreground transition-colors duration-300 relative">
             <div className="absolute top-4 right-4">
                 <ThemeToggle />
             </div>
@@ -58,7 +58,7 @@ const Login = () => {
                     </div>
                 </div>
                 
-                <Card className="bg-card border-border shadow-2xl overflow-hidden">
+                <Card className="bg-card/80 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden">
                     {registrationSuccess ? (
                         <div className="animate-in fade-in zoom-in duration-500">
                             <CardHeader className="space-y-4 text-center pb-2">
@@ -115,7 +115,7 @@ const Login = () => {
                                             value={identifier} 
                                             onChange={(e) => setIdentifier(e.target.value)} 
                                             required 
-                                            className="bg-background border-border text-foreground h-12"
+                                            className="bg-background/50 border-border/50 text-foreground h-12 backdrop-blur-sm"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -127,7 +127,7 @@ const Login = () => {
                                             value={password} 
                                             onChange={(e) => setPassword(e.target.value)} 
                                             required 
-                                            className="bg-background border-border text-foreground h-12"
+                                            className="bg-background/50 border-border/50 text-foreground h-12 backdrop-blur-sm"
                                         />
                                     </div>
                                 </CardContent>
