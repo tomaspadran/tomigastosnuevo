@@ -1,189 +1,216 @@
-import React, { useRef, useEffect } from 'react';
-
-const vsSource = `
-  attribute vec4 aPosition;
-  void main() {
-    gl_Position = aPosition;
-  }
-`;
-
-const fsSource = `
-  precision mediump float;
-  uniform float uTime;
-  uniform vec2 uResolution;
-
-  // Smooth noise function
-  float hash(vec2 p) {
-    float h = dot(p, vec2(127.1, 311.7));
-    return fract(sin(h) * 43758.5453123);
-  }
-
-  float noise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    f = f * f * (3.0 - 2.0 * f);
-    float a = hash(i);
-    float b = hash(i + vec2(1.0, 0.0));
-    float c = hash(i + vec2(0.0, 1.0));
-    float d = hash(i + vec2(1.0, 1.0));
-    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-  }
-
-  float fbm(vec2 p) {
-    float value = 0.0;
-    float amplitude = 0.5;
-    for (int i = 0; i < 5; i++) {
-      value += amplitude * noise(p);
-      p *= 2.0;
-      amplitude *= 0.5;
-    }
-    return value;
-  }
-
-  void main() {
-    vec2 uv = gl_FragCoord.xy / uResolution;
-    float t = uTime * 0.08;
-
-    // Layered flowing noise
-    float n1 = fbm(uv * 3.0 + vec2(t * 0.3, t * 0.1));
-    float n2 = fbm(uv * 2.0 - vec2(t * 0.2, t * 0.15) + n1 * 0.5);
-    float n3 = fbm(uv * 4.0 + vec2(t * 0.1, -t * 0.2) + n2 * 0.3);
-
-    // Deep dark blue-indigo palette (matches the dashboard theme)
-    vec3 color1 = vec3(0.02, 0.02, 0.06);   // Near-black base
-    vec3 color2 = vec3(0.04, 0.03, 0.12);   // Deep indigo
-    vec3 color3 = vec3(0.08, 0.05, 0.18);   // Subtle purple hint
-    vec3 color4 = vec3(0.03, 0.06, 0.14);   // Dark blue accent
-
-    // Blend colors with noise
-    vec3 col = mix(color1, color2, n1);
-    col = mix(col, color3, n2 * 0.4);
-    col = mix(col, color4, n3 * 0.3);
-
-    // Subtle vignette for depth
-    float vignette = 1.0 - length((uv - 0.5) * 1.2);
-    vignette = smoothstep(0.0, 1.0, vignette);
-    col *= 0.8 + 0.2 * vignette;
-
-    // Very subtle shimmer highlights
-    float shimmer = noise(uv * 8.0 + t * 0.5) * 0.015;
-    col += shimmer;
-
-    gl_FragColor = vec4(col, 1.0);
-  }
-`;
-
-function createShader(gl, type, source) {
-  const shader = gl.createShader(type);
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.error('Shader compile error:', gl.getShaderInfoLog(shader));
-    gl.deleteShader(shader);
-    return null;
-  }
-  return shader;
-}
-
-function createProgram(gl, vs, fs) {
-  const program = gl.createProgram();
-  gl.attachShader(program, vs);
-  gl.attachShader(program, fs);
-  gl.linkProgram(program);
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    console.error('Program link error:', gl.getProgramInfoLog(program));
-    gl.deleteProgram(program);
-    return null;
-  }
-  return program;
-}
+import React, { useEffect, useRef } from 'react';
 
 const ShaderBackground = () => {
   const canvasRef = useRef(null);
-  const animFrameRef = useRef(null);
+
+  const vsSource = `
+    attribute vec4 aVertexPosition;
+    void main() {
+      gl_Position = aVertexPosition;
+    }
+  `;
+
+  const fsSource = `
+    precision highp float;
+    uniform vec2 iResolution;
+    uniform float iTime;
+
+    const float overallSpeed = 0.2;
+    const float gridSmoothWidth = 0.015;
+    const float axisWidth = 0.05;
+    const float majorLineWidth = 0.025;
+    const float minorLineWidth = 0.0125;
+    const float majorLineFrequency = 5.0;
+    const float minorLineFrequency = 1.0;
+    const vec4 gridColor = vec4(0.5);
+    const float scale = 5.0;
+    const vec4 lineColor = vec4(0.4, 0.2, 0.8, 1.0);
+    const float minLineWidth = 0.01;
+    const float maxLineWidth = 0.2;
+    const float lineSpeed = 1.0 * overallSpeed;
+    const float lineAmplitude = 1.0;
+    const float lineFrequency = 0.2;
+    const float warpSpeed = 0.2 * overallSpeed;
+    const float warpFrequency = 0.5;
+    const float warpAmplitude = 1.0;
+    const float offsetFrequency = 0.5;
+    const float offsetSpeed = 1.33 * overallSpeed;
+    const float minOffsetSpread = 0.6;
+    const float maxOffsetSpread = 2.0;
+    const int linesPerGroup = 16;
+
+    #define drawCircle(pos, radius, coord) smoothstep(radius + gridSmoothWidth, radius, length(coord - (pos)))
+    #define drawSmoothLine(pos, halfWidth, t) smoothstep(halfWidth, 0.0, abs(pos - (t)))
+    #define drawCrispLine(pos, halfWidth, t) smoothstep(halfWidth + gridSmoothWidth, halfWidth, abs(pos - (t)))
+    #define drawPeriodicLine(freq, width, t) drawCrispLine(freq / 2.0, width, abs(mod(t, freq) - (freq) / 2.0))
+
+    float drawGridLines(float axis) {
+      return drawCrispLine(0.0, axisWidth, axis)
+            + drawPeriodicLine(majorLineFrequency, majorLineWidth, axis)
+            + drawPeriodicLine(minorLineFrequency, minorLineWidth, axis);
+    }
+
+    float drawGrid(vec2 space) {
+      return min(1.0, drawGridLines(space.x) + drawGridLines(space.y));
+    }
+
+    float random(float t) {
+      return (cos(t) + cos(t * 1.3 + 1.3) + cos(t * 1.4 + 1.4)) / 3.0;
+    }
+
+    float getPlasmaY(float x, float horizontalFade, float offset) {
+      return random(x * lineFrequency + iTime * lineSpeed) * horizontalFade * lineAmplitude + offset;
+    }
+
+    void main() {
+      vec2 fragCoord = gl_FragCoord.xy;
+      vec4 fragColor;
+      vec2 uv = fragCoord.xy / iResolution.xy;
+      vec2 space = (fragCoord - iResolution.xy / 2.0) / iResolution.x * 2.0 * scale;
+
+      float horizontalFade = 1.0 - (cos(uv.x * 6.28) * 0.5 + 0.5);
+      float verticalFade = 1.0 - (cos(uv.y * 6.28) * 0.5 + 0.5);
+
+      space.y += random(space.x * warpFrequency + iTime * warpSpeed) * warpAmplitude * (0.5 + horizontalFade);
+      space.x += random(space.y * warpFrequency + iTime * warpSpeed + 2.0) * warpAmplitude * horizontalFade;
+
+      vec4 lines = vec4(0.0);
+      vec4 bgColor1 = vec4(0.1, 0.1, 0.3, 1.0);
+      vec4 bgColor2 = vec4(0.3, 0.1, 0.5, 1.0);
+
+      for(int l = 0; l < linesPerGroup; l++) {
+        float normalizedLineIndex = float(l) / float(linesPerGroup);
+        float offsetTime = iTime * offsetSpeed;
+        float offsetPosition = float(l) + space.x * offsetFrequency;
+        float rand = random(offsetPosition + offsetTime) * 0.5 + 0.5;
+        float halfWidth = mix(minLineWidth, maxLineWidth, rand * horizontalFade) / 2.0;
+        float offset = random(offsetPosition + offsetTime * (1.0 + normalizedLineIndex)) * mix(minOffsetSpread, maxOffsetSpread, horizontalFade);
+        float linePosition = getPlasmaY(space.x, horizontalFade, offset);
+        float line = drawSmoothLine(linePosition, halfWidth, space.y) / 2.0 + drawCrispLine(linePosition, halfWidth * 0.15, space.y);
+
+        float circleX = mod(float(l) + iTime * lineSpeed, 25.0) - 12.0;
+        vec2 circlePosition = vec2(circleX, getPlasmaY(circleX, horizontalFade, offset));
+        float circle = drawCircle(circlePosition, 0.01, space) * 4.0;
+
+        line = line + circle;
+        lines += line * lineColor * rand;
+      }
+
+      fragColor = mix(bgColor1, bgColor2, uv.x);
+      fragColor *= verticalFade;
+      fragColor.a = 1.0;
+      fragColor += lines;
+
+      gl_FragColor = fragColor;
+    }
+  `;
+
+  const loadShader = (gl, type, source) => {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      console.error('Shader compile error: ', gl.getShaderInfoLog(shader));
+      gl.deleteShader(shader);
+      return null;
+    }
+
+    return shader;
+  };
+
+  const initShaderProgram = (gl, vsSource, fsSource) => {
+    const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
+    const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+
+    const shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+
+    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+      console.error('Shader program link error: ', gl.getProgramInfoLog(shaderProgram));
+      return null;
+    }
+
+    return shaderProgram;
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl', {
-      alpha: false,
-      antialias: false,
-      depth: false,
-      stencil: false,
-      preserveDrawingBuffer: false,
-      powerPreference: 'low-power',
-    });
-
+    const gl = canvas.getContext('webgl');
     if (!gl) {
-      console.warn('WebGL not supported');
+      console.warn('WebGL not supported.');
       return;
     }
 
-    // Compile shaders
-    const vs = createShader(gl, gl.VERTEX_SHADER, vsSource);
-    const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
-    if (!vs || !fs) return;
+    const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    const positions = [
+      -1.0, -1.0,
+       1.0, -1.0,
+      -1.0,  1.0,
+       1.0,  1.0,
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-    const program = createProgram(gl, vs, fs);
-    if (!program) return;
+    const programInfo = {
+      program: shaderProgram,
+      attribLocations: {
+        vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+      },
+      uniformLocations: {
+        resolution: gl.getUniformLocation(shaderProgram, 'iResolution'),
+        time: gl.getUniformLocation(shaderProgram, 'iTime'),
+      },
+    };
 
-    // Full-screen quad
-    const positions = new Float32Array([
-      -1, -1,
-       1, -1,
-      -1,  1,
-       1,  1,
-    ]);
-
-    const buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-
-    const aPosition = gl.getAttribLocation(program, 'aPosition');
-    const uTime = gl.getUniformLocation(program, 'uTime');
-    const uResolution = gl.getUniformLocation(program, 'uResolution');
-
-    // Resize handler
-    const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5); // Cap DPR for performance
-      canvas.width = canvas.clientWidth * dpr;
-      canvas.height = canvas.clientHeight * dpr;
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
       gl.viewport(0, 0, canvas.width, canvas.height);
     };
 
-    resize();
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-    // Render loop
-    const startTime = performance.now();
+    let animationId;
+    const startTime = Date.now();
+
     const render = () => {
-      const elapsed = (performance.now() - startTime) / 1000;
+      const currentTime = (Date.now() - startTime) / 1000;
 
-      gl.useProgram(program);
-      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-      gl.enableVertexAttribArray(aPosition);
-      gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
+      gl.clearColor(0.0, 0.0, 0.0, 1.0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
 
-      gl.uniform1f(uTime, elapsed);
-      gl.uniform2f(uResolution, canvas.width, canvas.height);
+      gl.useProgram(programInfo.program);
+
+      gl.uniform2f(programInfo.uniformLocations.resolution, canvas.width, canvas.height);
+      gl.uniform1f(programInfo.uniformLocations.time, currentTime);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.vertexAttribPointer(
+        programInfo.attribLocations.vertexPosition,
+        2,
+        gl.FLOAT,
+        false,
+        0,
+        0
+      );
+      gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-      animFrameRef.current = requestAnimationFrame(render);
+      animationId = requestAnimationFrame(render);
     };
 
-    render();
+    animationId = requestAnimationFrame(render);
 
     return () => {
-      window.removeEventListener('resize', resize);
-      if (animFrameRef.current) {
-        cancelAnimationFrame(animFrameRef.current);
-      }
-      gl.deleteBuffer(buffer);
-      gl.deleteShader(vs);
-      gl.deleteShader(fs);
-      gl.deleteProgram(program);
+      window.removeEventListener('resize', resizeCanvas);
+      cancelAnimationFrame(animationId);
     };
   }, []);
 
