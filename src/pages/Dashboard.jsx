@@ -276,46 +276,47 @@ const Dashboard = () => {
             <div className="xl:col-span-2 flex flex-col gap-10">
                 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
                     {/* 1) Balance Total */}
-                    <div className="relative bg-primary rounded-3xl p-6 overflow-hidden group hover:scale-[1.02] cursor-pointer aspect-square flex flex-col justify-between shadow-4k shadow-primary/30 border border-primary/20 animate-pulse-subtle">
+                    <div className="relative bg-primary rounded-3xl p-5 overflow-hidden group hover:scale-[1.02] cursor-pointer flex flex-col justify-between gap-6 shadow-4k shadow-primary/30 border border-primary/20" style={{ minHeight: '160px' }}>
                         <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-colors" />
                         {loading ? <RenderLoading /> : (
                             <>
-                                    <div className="flex justify-between items-start relative z-10">
-                                        <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-white shadow-inner backdrop-blur-md">
-                                            <Zap className="w-6 h-6 fill-current" />
-                                        </div>
-                                        <TrendingUp className="w-5 h-5 text-white/50" />
+                                <div className="flex justify-between items-start relative z-10">
+                                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white backdrop-blur-md">
+                                        <Zap className="w-5 h-5 fill-current" />
                                     </div>
-                                    <div className="relative z-10">
-                                        <p className="text-[13px] font-black uppercase tracking-widest text-white/70 mb-1">Balance Total</p>
-                                        <h3 className="text-3xl xl:text-4xl font-black tracking-tighter text-white drop-shadow-md truncate" title={`$${stats.totalBalance.toLocaleString('es-AR')}`}>
-                                            ${stats.totalBalance.toLocaleString('es-AR')}
-                                        </h3>
-                                    </div>
+                                    <TrendingUp className="w-4 h-4 text-white/50" />
+                                </div>
+                                <div className="relative z-10 min-w-0">
+                                    <p className="text-[11px] font-bold uppercase tracking-widest text-white/70 mb-1">Balance Total</p>
+                                    <h3 className="font-black tracking-tight text-white drop-shadow-md tabular-nums leading-none" style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.75rem)' }}>
+                                        ${stats.totalBalance.toLocaleString('es-AR')}
+                                    </h3>
+                                </div>
                             </>
                         )}
                     </div>
 
                     {/* 2) Ingresos */}
-                    <div className="relative glass-card rounded-3xl p-6 overflow-hidden group hover:scale-[1.02] cursor-pointer aspect-square flex flex-col justify-between">
+                    <div className="relative glass-card rounded-3xl p-5 overflow-hidden group hover:scale-[1.02] cursor-pointer flex flex-col justify-between gap-6" style={{ minHeight: '160px' }}>
                         {loading ? <RenderLoading /> : (
                             <>
                                 <div className="flex justify-between items-start">
-                                    <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 shadow-inner">
-                                        <TrendingUp className="w-6 h-6" />
+                                    <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500">
+                                        <TrendingUp className="w-5 h-5" />
                                     </div>
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); navigate('/add-expense?type=ingreso'); }}
-                                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 hover:scale-110 active:scale-95 transition-all"
+                                        className="w-9 h-9 flex items-center justify-center rounded-lg bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 hover:scale-110 active:scale-95 transition-transform"
+                                        aria-label="Agregar ingreso"
                                     >
-                                        <PlusCircle className="w-5 h-5" />
+                                        <PlusCircle className="w-4 h-4" />
                                     </button>
                                 </div>
-                                <div className="flex flex-col gap-1">
-                                    <p className="text-[12px] font-black uppercase tracking-widest text-muted-foreground">Ingresos</p>
-                                    <h3 className="text-2xl xl:text-3xl font-black tracking-tighter text-foreground truncate" title={`$${stats.totalIngresos.toLocaleString('es-AR')}`}>
+                                <div className="min-w-0">
+                                    <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Ingresos</p>
+                                    <h3 className="font-black tracking-tight text-foreground tabular-nums leading-none" style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.75rem)' }}>
                                         ${stats.totalIngresos.toLocaleString('es-AR')}
                                     </h3>
                                 </div>
@@ -324,23 +325,24 @@ const Dashboard = () => {
                     </div>
 
                     {/* 3) Ahorros */}
-                    <div className="relative glass-card rounded-3xl p-6 overflow-hidden group hover:scale-[1.02] cursor-pointer aspect-square flex flex-col justify-between">
+                    <div className="relative glass-card rounded-3xl p-5 overflow-hidden group hover:scale-[1.02] cursor-pointer flex flex-col justify-between gap-6" style={{ minHeight: '160px' }}>
                         {loading ? <RenderLoading /> : (
                             <>
                                 <div className="flex justify-between items-start">
-                                    <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 shadow-inner">
-                                        <PiggyBank className="w-6 h-6" />
+                                    <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500">
+                                        <PiggyBank className="w-5 h-5" />
                                     </div>
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); navigate('/add-expense?type=ahorro'); }}
-                                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-500 text-white shadow-lg shadow-blue-500/30 hover:scale-110 active:scale-95 transition-all"
+                                        className="w-9 h-9 flex items-center justify-center rounded-lg bg-blue-500 text-white shadow-lg shadow-blue-500/30 hover:scale-110 active:scale-95 transition-transform"
+                                        aria-label="Agregar ahorro"
                                     >
-                                        <PlusCircle className="w-5 h-5" />
+                                        <PlusCircle className="w-4 h-4" />
                                     </button>
                                 </div>
-                                <div className="flex flex-col gap-1">
-                                    <p className="text-[12px] font-black uppercase tracking-widest text-muted-foreground">Ahorros</p>
-                                    <h3 className="text-2xl xl:text-3xl font-black tracking-tighter text-foreground truncate" title={`$${stats.totalAhorros.toLocaleString('es-AR')}`}>
+                                <div className="min-w-0">
+                                    <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Ahorros</p>
+                                    <h3 className="font-black tracking-tight text-foreground tabular-nums leading-none" style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.75rem)' }}>
                                         ${stats.totalAhorros.toLocaleString('es-AR')}
                                     </h3>
                                 </div>
@@ -349,23 +351,24 @@ const Dashboard = () => {
                     </div>
 
                     {/* 4) Gastos */}
-                    <div className="relative glass-card rounded-3xl p-6 overflow-hidden group hover:scale-[1.02] cursor-pointer aspect-square flex flex-col justify-between">
+                    <div className="relative glass-card rounded-3xl p-5 overflow-hidden group hover:scale-[1.02] cursor-pointer flex flex-col justify-between gap-6" style={{ minHeight: '160px' }}>
                         {loading ? <RenderLoading /> : (
                             <>
                                 <div className="flex justify-between items-start">
-                                    <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500 shadow-inner">
-                                        <Receipt className="w-6 h-6" />
+                                    <div className="w-10 h-10 bg-rose-500/10 rounded-xl flex items-center justify-center text-rose-500">
+                                        <Receipt className="w-5 h-5" />
                                     </div>
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); navigate('/add-expense?type=gasto'); }}
-                                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/30 hover:scale-110 active:scale-95 transition-all"
+                                        className="w-9 h-9 flex items-center justify-center rounded-lg bg-primary text-white shadow-lg shadow-primary/30 hover:scale-110 active:scale-95 transition-transform"
+                                        aria-label="Agregar gasto"
                                     >
-                                        <PlusCircle className="w-5 h-5" />
+                                        <PlusCircle className="w-4 h-4" />
                                     </button>
                                 </div>
-                                <div className="flex flex-col gap-1">
-                                    <p className="text-[12px] font-black uppercase tracking-widest text-muted-foreground">Gastos</p>
-                                    <h3 className="text-2xl xl:text-3xl font-black tracking-tighter text-foreground truncate" title={`$${stats.totalGastos.toLocaleString('es-AR')}`}>
+                                <div className="min-w-0">
+                                    <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Gastos</p>
+                                    <h3 className="font-black tracking-tight text-foreground tabular-nums leading-none" style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.75rem)' }}>
                                         ${stats.totalGastos.toLocaleString('es-AR')}
                                     </h3>
                                 </div>
