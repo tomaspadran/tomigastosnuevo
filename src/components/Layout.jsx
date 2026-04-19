@@ -8,8 +8,8 @@ const Layout = ({ children }) => {
             <Sidebar />
 
             {/* Main Area */}
-            <main className="flex-grow flex flex-col p-4 md:p-6 items-center overflow-y-auto">
-                <div className="w-full max-w-7xl flex flex-col gap-8">
+            <main className="flex-grow flex flex-col p-4 md:p-8 items-center overflow-y-auto overflow-x-hidden">
+                <div className="w-full max-w-7xl flex flex-col gap-10 animate-reveal">
                     {children}
                 </div>
             </main>
