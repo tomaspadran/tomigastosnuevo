@@ -443,7 +443,7 @@ const Dashboard = () => {
 
             {/* Right Column (Sidebar Extras) */}
             <div className="flex flex-col gap-10">
-                <AISuggestions />
+                <AISuggestions expenses={expenses} />
                 
                 {/* Distribution Card */}
                 <div className="bg-card rounded-3xl p-8 border border-border shadow-4k flex flex-col gap-8 sticky top-8">

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Sparkles, Brain, Loader2, ArrowRight, TrendingDown, Target, Zap } from 'lucide-react';
 import { Button } from '../ui/button';
 
-const AISuggestions = ({ expenses }) => {
+const AISuggestions = ({ expenses = [] }) => {
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [lastAnalyzedCount, setLastAnalyzedCount] = useState(0);
