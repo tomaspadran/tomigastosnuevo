@@ -98,7 +98,7 @@ const Login = () => {
                         <>
                             <CardHeader className="space-y-1 text-center">
                                 <CardTitle className="text-3xl font-black tracking-tighter text-foreground uppercase">
-                                    GASTOS TOMI-GABI
+                                    GASTOS FAMILIA VIERA
                                 </CardTitle>
                                 <CardDescription className="text-muted-foreground">
                                     {isRegistering ? 'Crea tu nuevo usuario' : 'Ingresa para gestionar tus finanzas'}
@@ -158,7 +158,7 @@ const Login = () => {
                 </Card>
                 
                 <p className="text-center mt-8 text-slate-500 text-xs uppercase tracking-widest font-bold">
-                    Tomi & Gabi • 2026
+                    FAMILIA VIERA • 2026
                 </p>
             </div>
         </div>
