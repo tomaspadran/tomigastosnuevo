@@ -537,6 +537,7 @@ const Dashboard = () => {
                     </button>
                     
                 </div>
+                </GradientCard>
             </div>
         </div>
     </div>
