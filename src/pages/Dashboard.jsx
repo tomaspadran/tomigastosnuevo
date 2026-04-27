@@ -63,12 +63,11 @@ const AutoFitValue = ({ value, prefix = '$', className = '', colorClass = 'text-
     const textElement = textRef.current;
     if (!container || !textElement) return;
 
-    // Use a conservative available width
-    // 16px margin (8px each side) provides a safe buffer
-    const availableWidth = container.clientWidth - 16;
+    // 24px total margin (12px each side) for better breathing room
+    const availableWidth = container.clientWidth - 24;
     if (availableWidth <= 0) return;
 
-    const MAX_FONT = 34;
+    const MAX_FONT = 28; // Reduced from 34 for better fit
     const MIN_FONT = 12;
 
     let lo = MIN_FONT;
@@ -92,10 +91,9 @@ const AutoFitValue = ({ value, prefix = '$', className = '', colorClass = 'text-
       }
     }
 
-    // Apply a tiny safety factor (98%) to handle rendering differences
-    // across browsers or high-DPI screens
+    // Apply a conservative safety factor (95%)
     textElement.style.fontSize = `${bestSize}px`;
-    if (textElement.getBoundingClientRect().width > availableWidth && bestSize > MIN_FONT) {
+    if (textElement.getBoundingClientRect().width > (availableWidth * 0.95) && bestSize > MIN_FONT) {
       bestSize -= 1;
     }
 
@@ -473,7 +471,7 @@ const Dashboard = () => {
                                         <PlusCircle className="w-4 h-4" />
                                     </button>
                                 </div>
-                                <div className="min-w-0">
+                                <div className="min-w-0 w-full overflow-hidden">
                                     <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Gastos</p>
                                     <AutoFitValue value={stats.totalGastos} />
                                 </div>
