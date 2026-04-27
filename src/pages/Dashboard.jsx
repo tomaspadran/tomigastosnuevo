@@ -63,12 +63,12 @@ const AutoFitValue = ({ value, prefix = '$', className = '', colorClass = 'text-
     const textElement = textRef.current;
     if (!container || !textElement) return;
 
-    // 24px total margin (12px each side) for better breathing room
-    const availableWidth = container.clientWidth - 24;
+    // 32px total margin (16px each side) for premium breathing room
+    const availableWidth = container.clientWidth - 32;
     if (availableWidth <= 0) return;
 
-    const MAX_FONT = 28; // Reduced from 34 for better fit
-    const MIN_FONT = 12;
+    const MAX_FONT = 24; // Further reduced from 28 for a cleaner, safer look
+    const MIN_FONT = 11;
 
     let lo = MIN_FONT;
     let hi = MAX_FONT;
@@ -91,9 +91,9 @@ const AutoFitValue = ({ value, prefix = '$', className = '', colorClass = 'text-
       }
     }
 
-    // Apply a conservative safety factor (95%)
+    // Apply a very conservative safety factor (90%)
     textElement.style.fontSize = `${bestSize}px`;
-    if (textElement.getBoundingClientRect().width > (availableWidth * 0.95) && bestSize > MIN_FONT) {
+    if (textElement.getBoundingClientRect().width > (availableWidth * 0.90) && bestSize > MIN_FONT) {
       bestSize -= 1;
     }
 
@@ -393,7 +393,7 @@ const Dashboard = () => {
                                     </div>
                                     <TrendingUp className="w-4 h-4 text-white/50" />
                                 </div>
-                                <div className="min-w-0">
+                                <div className="min-w-0 w-full overflow-hidden">
                                     <p className="text-[11px] font-bold uppercase tracking-widest text-white/70 mb-1">Balance Total</p>
                                     <AutoFitValue value={stats.totalBalance} colorClass="text-white drop-shadow-md" />
                                 </div>
@@ -419,7 +419,7 @@ const Dashboard = () => {
                                         <PlusCircle className="w-4 h-4" />
                                     </button>
                                 </div>
-                                <div className="min-w-0">
+                                <div className="min-w-0 w-full overflow-hidden">
                                     <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Ingresos</p>
                                     <AutoFitValue value={stats.totalIngresos} />
                                 </div>
@@ -445,7 +445,7 @@ const Dashboard = () => {
                                         <PlusCircle className="w-4 h-4" />
                                     </button>
                                 </div>
-                                <div className="min-w-0">
+                                <div className="min-w-0 w-full overflow-hidden">
                                     <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Ahorros</p>
                                     <AutoFitValue value={stats.totalAhorros} />
                                 </div>
