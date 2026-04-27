@@ -7,9 +7,7 @@ import {
   Linkedin,
   Sun,
   Moon,
-  Wallet,
-  Loader2,
-  AlertCircle
+  Loader2
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -17,60 +15,84 @@ import { toast } from "sonner";
 import "../../index.css";
 
 const LoginPage = () => {
-  const [identifier, setIdentifier] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isRegistering, setIsRegistering] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isEmailFocused, setIsEmailFocused] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const [isEmailValid, setIsEmailValid] = useState(true);
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
-  
+  const [loading, setLoading] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
+
   const { login, signup } = useAuth();
   const navigate = useNavigate();
+
+  // Email validation
+  const validateEmail = (email) => {
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+  };
+
+  // Handle email change
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    if (e.target.value) {
+      setIsEmailValid(validateEmail(e.target.value));
+    } else {
+      setIsEmailValid(true);
+    }
+  };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsFormSubmitted(true);
-    setLoading(true);
 
-    // Creamos un formato de email ficticio para Supabase si es solo un usuario
-    const emailFormat = identifier.includes('@') ? identifier : `${identifier}@familia.com`;
+    if (email && password && (isRegistering ? validateEmail(email) : true)) {
+      setLoading(true);
+      
+      // Creamos un formato de email ficticio si el usuario no pone @
+      const emailFormat = email.includes('@') ? email : `${email}@familia.com`;
 
-    try {
-      if (isRegistering) {
-        await signup(emailFormat, password);
-        toast.success('¡Registro casi completo! Revisa tu email.');
-      } else {
-        await login(emailFormat, password);
-        toast.success('¡Bienvenido!');
-        navigate('/dashboard');
+      try {
+        if (isRegistering) {
+          await signup(emailFormat, password);
+          toast.success('¡Registro casi completo! Revisa tu email.');
+        } else {
+          await login(emailFormat, password);
+          toast.success('¡Bienvenido!');
+          navigate('/dashboard');
+        }
+      } catch (error) {
+        console.error("Detalle del error:", error);
+        toast.error(error.message || 'Ocurrió un error inesperado');
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Detalle del error:", error);
-      toast.error(error.message || 'Ocurrió un error inesperado');
-    } finally {
-      setLoading(false);
     }
   };
 
   // Toggle dark mode
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
-    if (!isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    document.documentElement.classList.toggle("dark-mode");
+    document.documentElement.classList.toggle("dark");
   };
 
   // Initialize theme
   useEffect(() => {
-    const isDark = document.documentElement.classList.contains("dark");
-    setIsDarkMode(isDark);
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setIsDarkMode(prefersDark);
+    if (prefersDark) {
+      document.documentElement.classList.add("dark-mode");
+      document.documentElement.classList.add("dark");
+    }
   }, []);
 
-  // Create particles background
+  // Create particles
   useEffect(() => {
     const canvas = document.getElementById("particles");
     if (!canvas) return;
@@ -88,25 +110,25 @@ const LoginPage = () => {
 
     class Particle {
       constructor() {
-        this.reset();
-      }
-      reset() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 2 + 1;
-        this.speedX = (Math.random() - 0.5) * 0.3;
-        this.speedY = (Math.random() - 0.5) * 0.3;
+        this.size = Math.random() * 3 + 1;
+        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.speedY = (Math.random() - 0.5) * 0.5;
         this.color = isDarkMode
-          ? `rgba(255, 255, 255, ${Math.random() * 0.15})`
-          : `rgba(44, 75, 218, ${Math.random() * 0.15})`;
+          ? `rgba(255, 255, 255, ${Math.random() * 0.2})`
+          : `rgba(0, 0, 100, ${Math.random() * 0.1})`;
       }
+
       update() {
         this.x += this.speedX;
         this.y += this.speedY;
-        if (this.x > canvas.width || this.x < 0 || this.y > canvas.height || this.y < 0) {
-          this.reset();
-        }
+        if (this.x > canvas.width) this.x = 0;
+        if (this.x < 0) this.x = canvas.width;
+        if (this.y > canvas.height) this.y = 0;
+        if (this.y < 0) this.y = canvas.height;
       }
+
       draw() {
         ctx.fillStyle = this.color;
         ctx.beginPath();
@@ -116,16 +138,19 @@ const LoginPage = () => {
     }
 
     const particles = [];
-    const particleCount = 80;
-    for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+    const particleCount = Math.min(100, Math.floor((canvas.width * canvas.height) / 15000));
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
 
     let animationId;
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
-        p.update();
-        p.draw();
-      });
+      for (const particle of particles) {
+        particle.update();
+        particle.draw();
+      }
       animationId = requestAnimationFrame(animate);
     };
 
@@ -137,99 +162,113 @@ const LoginPage = () => {
   }, [isDarkMode]);
 
   return (
-    <div className={`login-container-new ${isDarkMode ? "dark" : ""}`}>
+    <div className={`login-container ${isDarkMode ? "dark" : "light"}`}>
       <canvas id="particles" className="particles-canvas"></canvas>
 
-      <div className="theme-toggle-new" onClick={toggleDarkMode}>
+      <div className="theme-toggle" onClick={toggleDarkMode}>
         {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
       </div>
 
-      <div className="login-card-new animate-reveal">
-        <div className="login-card-inner-new">
-          <div className="login-header-new">
-            <div className="login-logo-new">
-                <Wallet size={32} className="text-white" />
-            </div>
-            <h1>{isRegistering ? "Crear Cuenta" : "Bienvenido"}</h1>
-            <p>{isRegistering ? "Únete a la Familia Viera" : "Ingresa para continuar"}</p>
+      <div className="login-card">
+        <div className="login-card-inner">
+          <div className="login-header">
+            <h1>{isRegistering ? "Crear Cuenta" : "Welcome"}</h1>
+            <p>{isRegistering ? "Únete a nosotros" : "Please sign in to continue"}</p>
           </div>
 
-          <form className="login-form-new" onSubmit={handleSubmit}>
-            <div className="form-field-new">
+          <form className="login-form" onSubmit={handleSubmit}>
+            <div
+              className={`form-field ${
+                isEmailFocused || email ? "active" : ""
+              } ${!isEmailValid && email ? "invalid" : ""}`}
+            >
               <input
                 type="text"
-                id="identifier"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                placeholder=" "
+                id="email"
+                value={email}
+                onChange={handleEmailChange}
+                onFocus={() => setIsEmailFocused(true)}
+                onBlur={() => setIsEmailFocused(false)}
+                placeholder="Email Address"
                 required
               />
-              <label htmlFor="identifier">Usuario o Email</label>
+              {!isEmailValid && email && (
+                <span className="error-message">
+                  Please enter a valid email
+                </span>
+              )}
             </div>
 
-            <div className="form-field-new">
+            <div
+              className={`form-field ${
+                isPasswordFocused || password ? "active" : ""
+              }`}
+            >
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder=" "
+                onFocus={() => setIsPasswordFocused(true)}
+                onBlur={() => setIsPasswordFocused(false)}
+                placeholder="Password"
                 required
               />
-              <label htmlFor="password">Contraseña</label>
               <button
                 type="button"
-                className="toggle-password-new"
+                className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
 
-            <div className="form-options-new">
-              <label className="remember-me-new">
-                <input type="checkbox" />
-                <span className="checkmark-new"></span>
-                Recordarme
+            <div className="form-options">
+              <label className="remember-me">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={() => setRememberMe(!rememberMe)}
+                />
+                <span className="checkmark"></span>
+                Remember me
               </label>
-              <a href="#" className="forgot-password-new">
-                ¿Olvidaste tu contraseña?
+
+              <a href="#" className="forgot-password">
+                Forgot Password?
               </a>
             </div>
 
             <button
               type="submit"
-              className="login-button-new"
-              disabled={loading}
+              className="login-button"
+              disabled={loading || (isFormSubmitted && (!email || !password || !isEmailValid))}
             >
-              {loading ? (
-                <Loader2 className="animate-spin mx-auto" size={24} />
-              ) : (
-                isRegistering ? "Registrarse" : "Entrar"
-              )}
+              {loading ? <Loader2 className="animate-spin mx-auto" /> : (isRegistering ? "Sign Up" : "Sign In")}
             </button>
           </form>
 
-          <div className="separator-new">
-            <span>o continuar con</span>
+          <div className="separator">
+            <span>or continue with</span>
           </div>
 
-          <div className="social-login-new">
-            <button className="social-button-new github">
+          <div className="social-login">
+            <button className="social-button github">
               <Github size={18} />
             </button>
-            <button className="social-button-new twitter">
+            <button className="social-button twitter">
               <Twitter size={18} />
             </button>
-            <button className="social-button-new linkedin">
+            <button className="social-button linkedin">
               <Linkedin size={18} />
             </button>
           </div>
 
-          <p className="signup-prompt-new">
-            {isRegistering ? "¿Ya tienes cuenta?" : "¿No tienes cuenta?"}{" "}
+          <p className="signup-prompt">
+            {isRegistering ? "¿Ya tienes cuenta?" : "Don't have an account?"}{" "}
             <a href="#" onClick={(e) => { e.preventDefault(); setIsRegistering(!isRegistering); }}>
-              {isRegistering ? "Inicia sesión" : "Regístrate aquí"}
+              {isRegistering ? "Sign in" : "Sign up"}
             </a>
           </p>
         </div>

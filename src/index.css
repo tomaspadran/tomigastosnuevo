@@ -153,111 +153,120 @@
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-reveal { animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+/* Animated Login Styles (Matching Screenshot) */
+.login-container {
+  @apply fixed inset-0 flex items-center justify-center overflow-hidden transition-colors duration-500 z-[9999];
+  background: linear-gradient(135deg, #f0f4ff 0%, #fdf2ff 100%);
+}
 
-/* Animated Login Styles */
-.login-container-new {
-  @apply fixed inset-0 flex items-center justify-center overflow-hidden transition-colors duration-500;
-  background: radial-gradient(circle at center, hsl(var(--background)) 0%, hsl(var(--background) / 0.8) 100%);
+.login-container.dark {
+  background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
 }
 
 .particles-canvas {
   @apply absolute inset-0 pointer-events-none;
 }
 
-.theme-toggle-new {
+.theme-toggle {
   @apply absolute top-8 right-8 w-10 h-10 flex items-center justify-center rounded-full 
-         bg-white/10 backdrop-blur-md border border-white/20 cursor-pointer 
-         hover:scale-110 active:scale-95 transition-all z-50 text-foreground;
+         bg-white/50 backdrop-blur-md border border-white/20 cursor-pointer 
+         hover:scale-110 active:scale-95 transition-all z-[10000] text-foreground shadow-sm;
 }
 
-.login-card-new {
-  @apply relative w-full max-w-[420px] p-[1px] rounded-[32px] overflow-hidden z-10 mx-4;
-  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+.login-card {
+  @apply relative w-full max-w-[480px] p-[2px] rounded-[48px] z-10 mx-4 overflow-hidden;
+  background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 100%);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+}
+
+.dark .login-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
-.login-card-inner-new {
-  @apply w-full h-full p-10 rounded-[31px] bg-card/90 backdrop-blur-3xl flex flex-col;
+.login-card-inner {
+  @apply w-full h-full p-12 rounded-[46px] bg-white/90 dark:bg-slate-900/90 backdrop-blur-3xl flex flex-col;
 }
 
-.login-header-new {
-  @apply text-center mb-8;
+.login-header {
+  @apply text-center mb-10;
 }
 
-.login-logo-new {
-  @apply w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 
-         shadow-lg shadow-primary/20 animate-pulse-subtle;
+.login-header h1 {
+  @apply text-4xl font-extrabold tracking-tight mb-2 text-indigo-600 dark:text-indigo-400;
 }
 
-.login-header-new h1 {
-  @apply text-3xl font-black tracking-tighter uppercase mb-1 text-foreground;
+.login-header p {
+  @apply text-slate-500 dark:text-slate-400 font-medium text-lg;
 }
 
-.login-header-new p {
-  @apply text-muted-foreground font-medium;
+.login-form {
+  @apply flex flex-col gap-6;
 }
 
-.login-form-new {
-  @apply flex flex-col gap-5;
-}
-
-.form-field-new {
+.form-field {
   @apply relative w-full;
 }
 
-.form-field-new input {
-  @apply w-full h-14 px-4 pt-4 bg-background/50 border border-border/50 rounded-xl outline-none 
-         transition-all text-foreground focus:border-primary focus:ring-4 focus:ring-primary/10;
+.form-field input {
+  @apply w-full h-16 px-6 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 
+         rounded-2xl outline-none transition-all text-slate-900 dark:text-slate-100 placeholder:text-slate-400
+         focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10;
 }
 
-.form-field-new label {
-  @apply absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none transition-all;
+.toggle-password {
+  @apply absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors;
 }
 
-.form-field-new input:focus ~ label,
-.form-field-new input:not(:placeholder-shown) ~ label {
-  @apply top-3 text-[10px] font-bold uppercase tracking-widest text-primary;
+.form-options {
+  @apply flex items-center justify-between text-sm font-semibold;
 }
 
-.toggle-password-new {
-  @apply absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors;
+.remember-me {
+  @apply flex items-center gap-3 cursor-pointer text-slate-500 hover:text-slate-700 transition-colors;
 }
 
-.form-options-new {
-  @apply flex items-center justify-between text-xs font-semibold;
+.remember-me input {
+  @apply w-5 h-5 rounded-md border-slate-200 text-indigo-600 focus:ring-indigo-500;
 }
 
-.remember-me-new {
-  @apply flex items-center gap-2 cursor-pointer text-muted-foreground hover:text-foreground transition-colors;
+.forgot-password {
+  @apply text-indigo-500 hover:text-indigo-600 transition-colors;
 }
 
-.login-button-new {
-  @apply w-full h-14 bg-primary text-primary-foreground font-black uppercase tracking-widest rounded-xl
-         shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all
-         disabled:opacity-50 disabled:pointer-events-none mt-2;
+.login-button {
+  @apply w-full h-16 bg-indigo-600 text-white font-bold text-lg rounded-2xl
+         shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 hover:scale-[1.01] 
+         active:scale-[0.99] transition-all disabled:opacity-50 mt-4;
 }
 
-.separator-new {
-  @apply flex items-center gap-4 my-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50;
+.separator {
+  @apply flex items-center gap-4 my-8 text-xs font-bold uppercase tracking-widest text-slate-400;
 }
 
-.separator-new::before, .separator-new::after {
-  content: ""; @apply flex-1 h-[1px] bg-border/50;
+.separator::before, .separator::after {
+  content: ""; @apply flex-1 h-[1px] bg-slate-100 dark:bg-slate-800;
 }
 
-.social-login-new {
-  @apply flex justify-center gap-4;
+.social-login {
+  @apply flex justify-center gap-5;
 }
 
-.social-button-new {
-  @apply w-12 h-12 flex items-center justify-center rounded-xl bg-background/50 border border-border/50
-         hover:bg-primary/10 hover:border-primary/30 transition-all text-foreground;
+.social-button {
+  @apply w-14 h-14 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-800 
+         border border-slate-100 dark:border-slate-700 shadow-sm
+         hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-indigo-200 transition-all text-slate-600 dark:text-slate-300;
 }
 
-.signup-prompt-new {
-  @apply text-center mt-8 text-sm font-medium text-muted-foreground;
+.signup-prompt {
+  @apply text-center mt-10 text-slate-500 font-medium;
 }
 
-.signup-prompt-new a {
-  @apply text-primary font-bold hover:underline underline-offset-4;
+.signup-prompt a {
+  @apply text-indigo-500 font-bold hover:underline underline-offset-4;
+}
+
+.error-message {
+  @apply absolute -bottom-5 left-1 text-[10px] font-bold text-rose-500 uppercase tracking-wider;
+}
 }
