@@ -45,29 +45,28 @@ import { BarChart2, History } from 'lucide-react';
 // direct DOM measurement for 100% accuracy with OpenType features.
 const AutoFitValue = ({ value, prefix = '$', className = '', colorClass = 'text-foreground' }) => {
   const formattedValue = useMemo(() => {
-    const num = Number(value);
+    const num = Math.round(Number(value));
     return `${prefix}${num.toLocaleString('es-AR', {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 1
+      maximumFractionDigits: 0
     })}`;
   }, [value, prefix]);
 
-  // Dynamic font size based on character count (Requested logic)
+  // Dynamic font size based on character count (Drastically reduced for cleaner fit)
   const fontSize = useMemo(() => {
     const len = formattedValue.length;
-    if (len <= 8) return '24px';    // Short: e.g. $1.000
-    if (len <= 10) return '20px';   // Medium: e.g. $100.000
-    if (len <= 12) return '17px';   // Long: e.g. $1.000.000
-    return '15px';                  // Very Long: e.g. $10.000.000+
+    if (len <= 8) return '20px';    // Short: e.g. $1.000
+    if (len <= 10) return '17px';   // Medium: e.g. $100.000
+    if (len <= 12) return '14px';   // Long: e.g. $1.000.000
+    return '12px';                  // Very Long: e.g. $10.000.000+
   }, [formattedValue]);
 
   return (
-    <div className="w-full overflow-hidden flex items-end min-h-[32px]">
+    <div className="w-full overflow-hidden flex items-end min-h-[28px]">
       <span 
-        className={`font-black tabular-nums leading-none block truncate ${colorClass} ${className}`}
+        className={`font-bold tabular-nums tracking-tight leading-none block truncate ${colorClass} ${className}`}
         style={{ 
           fontSize,
-          letterSpacing: '-0.02em',
           fontFeatureSettings: '"tnum", "lnum"'
         }}
         title={formattedValue}
