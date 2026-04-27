@@ -40,54 +40,51 @@ import { ActionSearchBar } from '../components/ui/action-search-bar';
 import { GradientCard } from '../components/ui/gradient-card';
 import { BarChart2, History } from 'lucide-react';
 
-// ─── Cached canvas context for fast text measurement ───
-let _measureCtx = null;
-const getMeasureCtx = () => {
-  if (!_measureCtx) {
-    const canvas = document.createElement('canvas');
-    _measureCtx = canvas.getContext('2d');
-  }
-  return _measureCtx;
-};
-
 // Auto-fit component: dynamically scales font-size so the number fits cleanly
-// inside the card container. Uses a cached canvas for instant text measurement
-// with a binary-search algorithm.
+// inside the card container. Uses a hybrid approach: binary search with 
+// direct DOM measurement for 100% accuracy with OpenType features.
 const AutoFitValue = ({ value, prefix = '$', className = '', colorClass = 'text-foreground' }) => {
   const containerRef = useRef(null);
   const textRef = useRef(null);
-  const [fontSize, setFontSize] = useState(28);
+  const [fontSize, setFontSize] = useState(24);
   const rafRef = useRef(null);
 
-  const formattedValue = `${prefix}${Number(value).toLocaleString('es-AR')}`;
-
-  // Measure text width using a cached off-screen canvas (zero DOM reflow)
-  const measureText = useCallback((text, size) => {
-    const ctx = getMeasureCtx();
-    ctx.font = `900 ${size}px Inter, system-ui, sans-serif`;
-    return ctx.measureText(text).width;
-  }, []);
+  // Format with decimal part if it exists (for small numbers or specific cases)
+  const formattedValue = useMemo(() => {
+    const num = Number(value);
+    return `${prefix}${num.toLocaleString('es-AR', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    })}`;
+  }, [value, prefix]);
 
   const calculateFit = useCallback(() => {
     const container = containerRef.current;
-    if (!container) return;
+    const textElement = textRef.current;
+    if (!container || !textElement) return;
 
-    const MAX_FONT = 36;
-    const MIN_FONT = 14;
-    // Safety margin: 8px so the text never touches the card edges
-    const availableWidth = container.clientWidth - 8;
-
+    // Use a conservative available width
+    // 16px margin (8px each side) provides a safe buffer
+    const availableWidth = container.clientWidth - 16;
     if (availableWidth <= 0) return;
 
-    // Binary search for the largest font size that fits
+    const MAX_FONT = 34;
+    const MIN_FONT = 12;
+
     let lo = MIN_FONT;
     let hi = MAX_FONT;
     let bestSize = MIN_FONT;
 
+    // We do a small number of iterations (max ~6 for 12-34 range)
+    // Direct DOM measurement is very fast for 4 components
     while (lo <= hi) {
       const mid = Math.floor((lo + hi) / 2);
-      const textWidth = measureText(formattedValue, mid);
-      if (textWidth <= availableWidth) {
+      textElement.style.fontSize = `${mid}px`;
+      
+      // getBoundingClientRect().width gives sub-pixel accuracy
+      const width = textElement.getBoundingClientRect().width;
+      
+      if (width <= availableWidth) {
         bestSize = mid;
         lo = mid + 1;
       } else {
@@ -95,50 +92,43 @@ const AutoFitValue = ({ value, prefix = '$', className = '', colorClass = 'text-
       }
     }
 
-    // Double-check with DOM measurement as a fallback (handles font quirks)
-    if (textRef.current) {
-      textRef.current.style.fontSize = `${bestSize}px`;
-      const actualWidth = textRef.current.scrollWidth;
-      if (actualWidth > availableWidth && bestSize > MIN_FONT) {
-        // Shrink by 1px steps until it really fits
-        let adjusted = bestSize;
-        while (adjusted > MIN_FONT) {
-          adjusted--;
-          textRef.current.style.fontSize = `${adjusted}px`;
-          if (textRef.current.scrollWidth <= availableWidth) break;
-        }
-        bestSize = adjusted;
-      }
+    // Apply a tiny safety factor (98%) to handle rendering differences
+    // across browsers or high-DPI screens
+    textElement.style.fontSize = `${bestSize}px`;
+    if (textElement.getBoundingClientRect().width > availableWidth && bestSize > MIN_FONT) {
+      bestSize -= 1;
     }
 
     setFontSize(bestSize);
-  }, [formattedValue, measureText]);
+  }, [formattedValue]);
 
   useEffect(() => {
+    // Immediate calculation
     calculateFit();
 
-    const container = containerRef.current;
-    if (!container) return;
+    // Use a small delay to ensure styles and fonts are applied
+    const timer = setTimeout(calculateFit, 50);
 
     const ro = new ResizeObserver(() => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = requestAnimationFrame(calculateFit);
     });
-    ro.observe(container);
 
-    // Recalculate once fonts are loaded (handles FOUT / late Google Fonts)
+    if (containerRef.current) ro.observe(containerRef.current);
+
     document.fonts?.ready?.then(() => {
       requestAnimationFrame(calculateFit);
     });
 
     return () => {
+      clearTimeout(timer);
       ro.disconnect();
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [calculateFit]);
 
   return (
-    <div ref={containerRef} className="w-full overflow-hidden">
+    <div ref={containerRef} className="w-full overflow-hidden flex items-end min-h-[40px]">
       <span
         ref={textRef}
         className={`font-black tabular-nums leading-none block whitespace-nowrap ${colorClass} ${className}`}
@@ -146,7 +136,7 @@ const AutoFitValue = ({ value, prefix = '$', className = '', colorClass = 'text-
           fontSize: `${fontSize}px`,
           letterSpacing: '-0.03em',
           fontFeatureSettings: '"tnum", "lnum"',
-          transition: 'font-size 0.2s ease-out',
+          transition: 'font-size 0.15s ease-out',
         }}
       >
         {formattedValue}
