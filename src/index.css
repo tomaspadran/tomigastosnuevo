@@ -153,3 +153,111 @@
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-reveal { animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+/* Animated Login Styles */
+.login-container-new {
+  @apply fixed inset-0 flex items-center justify-center overflow-hidden transition-colors duration-500;
+  background: radial-gradient(circle at center, hsl(var(--background)) 0%, hsl(var(--background) / 0.8) 100%);
+}
+
+.particles-canvas {
+  @apply absolute inset-0 pointer-events-none;
+}
+
+.theme-toggle-new {
+  @apply absolute top-8 right-8 w-10 h-10 flex items-center justify-center rounded-full 
+         bg-white/10 backdrop-blur-md border border-white/20 cursor-pointer 
+         hover:scale-110 active:scale-95 transition-all z-50 text-foreground;
+}
+
+.login-card-new {
+  @apply relative w-full max-w-[420px] p-[1px] rounded-[32px] overflow-hidden z-10 mx-4;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.login-card-inner-new {
+  @apply w-full h-full p-10 rounded-[31px] bg-card/90 backdrop-blur-3xl flex flex-col;
+}
+
+.login-header-new {
+  @apply text-center mb-8;
+}
+
+.login-logo-new {
+  @apply w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 
+         shadow-lg shadow-primary/20 animate-pulse-subtle;
+}
+
+.login-header-new h1 {
+  @apply text-3xl font-black tracking-tighter uppercase mb-1 text-foreground;
+}
+
+.login-header-new p {
+  @apply text-muted-foreground font-medium;
+}
+
+.login-form-new {
+  @apply flex flex-col gap-5;
+}
+
+.form-field-new {
+  @apply relative w-full;
+}
+
+.form-field-new input {
+  @apply w-full h-14 px-4 pt-4 bg-background/50 border border-border/50 rounded-xl outline-none 
+         transition-all text-foreground focus:border-primary focus:ring-4 focus:ring-primary/10;
+}
+
+.form-field-new label {
+  @apply absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none transition-all;
+}
+
+.form-field-new input:focus ~ label,
+.form-field-new input:not(:placeholder-shown) ~ label {
+  @apply top-3 text-[10px] font-bold uppercase tracking-widest text-primary;
+}
+
+.toggle-password-new {
+  @apply absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors;
+}
+
+.form-options-new {
+  @apply flex items-center justify-between text-xs font-semibold;
+}
+
+.remember-me-new {
+  @apply flex items-center gap-2 cursor-pointer text-muted-foreground hover:text-foreground transition-colors;
+}
+
+.login-button-new {
+  @apply w-full h-14 bg-primary text-primary-foreground font-black uppercase tracking-widest rounded-xl
+         shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all
+         disabled:opacity-50 disabled:pointer-events-none mt-2;
+}
+
+.separator-new {
+  @apply flex items-center gap-4 my-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50;
+}
+
+.separator-new::before, .separator-new::after {
+  content: ""; @apply flex-1 h-[1px] bg-border/50;
+}
+
+.social-login-new {
+  @apply flex justify-center gap-4;
+}
+
+.social-button-new {
+  @apply w-12 h-12 flex items-center justify-center rounded-xl bg-background/50 border border-border/50
+         hover:bg-primary/10 hover:border-primary/30 transition-all text-foreground;
+}
+
+.signup-prompt-new {
+  @apply text-center mt-8 text-sm font-medium text-muted-foreground;
+}
+
+.signup-prompt-new a {
+  @apply text-primary font-bold hover:underline underline-offset-4;
+}
