@@ -44,98 +44,33 @@ import { BarChart2, History } from 'lucide-react';
 // inside the card container. Uses a hybrid approach: binary search with 
 // direct DOM measurement for 100% accuracy with OpenType features.
 const AutoFitValue = ({ value, prefix = '$', className = '', colorClass = 'text-foreground' }) => {
-  const containerRef = useRef(null);
-  const textRef = useRef(null);
-  const [fontSize, setFontSize] = useState(24);
-  const rafRef = useRef(null);
-
-  // Format with decimal part if it exists (for small numbers or specific cases)
   const formattedValue = useMemo(() => {
     const num = Number(value);
     return `${prefix}${num.toLocaleString('es-AR', {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 1
     })}`;
   }, [value, prefix]);
 
-  const calculateFit = useCallback(() => {
-    const container = containerRef.current;
-    const textElement = textRef.current;
-    if (!container || !textElement) return;
-
-    // 32px total margin (16px each side) for premium breathing room
-    const availableWidth = container.clientWidth - 32;
-    if (availableWidth <= 0) return;
-
-    const MAX_FONT = 24; // Further reduced from 28 for a cleaner, safer look
-    const MIN_FONT = 11;
-
-    let lo = MIN_FONT;
-    let hi = MAX_FONT;
-    let bestSize = MIN_FONT;
-
-    // We do a small number of iterations (max ~6 for 12-34 range)
-    // Direct DOM measurement is very fast for 4 components
-    while (lo <= hi) {
-      const mid = Math.floor((lo + hi) / 2);
-      textElement.style.fontSize = `${mid}px`;
-      
-      // getBoundingClientRect().width gives sub-pixel accuracy
-      const width = textElement.getBoundingClientRect().width;
-      
-      if (width <= availableWidth) {
-        bestSize = mid;
-        lo = mid + 1;
-      } else {
-        hi = mid - 1;
-      }
-    }
-
-    // Apply a very conservative safety factor (90%)
-    textElement.style.fontSize = `${bestSize}px`;
-    if (textElement.getBoundingClientRect().width > (availableWidth * 0.90) && bestSize > MIN_FONT) {
-      bestSize -= 1;
-    }
-
-    setFontSize(bestSize);
+  // Dynamic font size based on character count (Requested logic)
+  const fontSize = useMemo(() => {
+    const len = formattedValue.length;
+    if (len <= 8) return '24px';    // Short: e.g. $1.000
+    if (len <= 10) return '20px';   // Medium: e.g. $100.000
+    if (len <= 12) return '17px';   // Long: e.g. $1.000.000
+    return '15px';                  // Very Long: e.g. $10.000.000+
   }, [formattedValue]);
 
-  useEffect(() => {
-    // Immediate calculation
-    calculateFit();
-
-    // Use a small delay to ensure styles and fonts are applied
-    const timer = setTimeout(calculateFit, 50);
-
-    const ro = new ResizeObserver(() => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(calculateFit);
-    });
-
-    if (containerRef.current) ro.observe(containerRef.current);
-
-    document.fonts?.ready?.then(() => {
-      requestAnimationFrame(calculateFit);
-    });
-
-    return () => {
-      clearTimeout(timer);
-      ro.disconnect();
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [calculateFit]);
-
   return (
-    <div ref={containerRef} className="w-full overflow-hidden flex items-end min-h-[40px]">
-      <span
-        ref={textRef}
-        className={`font-black tabular-nums leading-none block whitespace-nowrap ${colorClass} ${className}`}
-        style={{
-          fontSize: `${fontSize}px`,
-          letterSpacing: '-0.03em',
-          fontFeatureSettings: '"tnum", "lnum"',
-          transition: 'font-size 0.15s ease-out',
+    <div className="w-full overflow-hidden flex items-end min-h-[32px]">
+      <span 
+        className={`font-black tabular-nums leading-none block truncate ${colorClass} ${className}`}
+        style={{ 
+          fontSize,
+          letterSpacing: '-0.02em',
+          fontFeatureSettings: '"tnum", "lnum"'
         }}
+        title={formattedValue}
       >
         {formattedValue}
       </span>
