@@ -69,16 +69,24 @@ const History = () => {
         <>
                 
                 {/* Header Superior */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')} className="rounded-full">
-                            <ArrowLeft className="w-5 h-5" />
-                        </Button>
-                        <div>
-                           <h1 className="text-3xl font-black tracking-tight uppercase italic text-foreground">
-                              Historial completo
-                           </h1>
-                           <p className="text-muted-foreground text-sm font-medium">Gestiona todos tus movimientos registrados</p>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-4">
+                    <div className="flex items-start md:items-center gap-6">
+                        <button 
+                            onClick={() => navigate('/dashboard')} 
+                            className="w-12 h-12 flex shrink-0 items-center justify-center rounded-2xl bg-card border border-border/50 hover:bg-slate-50 dark:hover:bg-white/5 transition-all shadow-sm group mt-1 md:mt-0"
+                        >
+                            <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:-translate-x-1 transition-transform" />
+                        </button>
+                        <div className="flex flex-col space-y-1">
+                            <div className="flex items-center gap-3">
+                                <div className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">
+                                    Record Manager
+                                </div>
+                            </div>
+                            <h1 className="text-5xl md:text-6xl font-black tracking-tightest text-foreground font-heading">
+                                Historial <span className="text-primary italic">Completo</span>
+                            </h1>
+                            <p className="text-muted-foreground text-sm font-bold tracking-[0.2em] uppercase opacity-70">Gestiona todos tus movimientos</p>
                         </div>
                     </div>
                 </div>
@@ -231,18 +239,33 @@ const History = () => {
                 </div>
                 
                 {/* Resumen Final en el Footer */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 flex items-center justify-between">
-                         <div><p className="text-[10px] font-black uppercase text-emerald-600">Total Ingresos</p><p className="text-lg font-black text-emerald-700">$ {filteredExpenses.filter(e => e.transaction_type === 'ingreso').reduce((a,c) => a + Number(c.amount), 0).toLocaleString('es-AR')}</p></div>
-                         <ArrowUpCircle className="w-8 h-8 text-emerald-500 opacity-50" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+                    <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-[2rem] p-6 flex items-center justify-between">
+                         <div className="min-w-0">
+                             <p className="text-[11px] font-bold uppercase tracking-widest text-emerald-600/80 mb-1">Total Ingresos</p>
+                             <h3 className="font-black tracking-tight text-emerald-700 dark:text-emerald-500 tabular-nums leading-none" style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.75rem)' }}>
+                                 $ {filteredExpenses.filter(e => e.transaction_type === 'ingreso').reduce((a,c) => a + Number(c.amount), 0).toLocaleString('es-AR')}
+                             </h3>
+                         </div>
+                         <ArrowUpCircle className="w-10 h-10 text-emerald-500 opacity-50 shrink-0" />
                     </div>
-                    <div className="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-4 flex items-center justify-between">
-                         <div><p className="text-[10px] font-black uppercase text-rose-600">Total Gastos</p><p className="text-lg font-black text-rose-700">$ {filteredExpenses.filter(e => e.transaction_type === 'gasto' || !e.transaction_type).reduce((a,c) => a + Number(c.amount), 0).toLocaleString('es-AR')}</p></div>
-                         <ArrowDownCircle className="w-8 h-8 text-rose-500 opacity-50" />
+                    <div className="bg-rose-500/10 border border-rose-500/20 rounded-[2rem] p-6 flex items-center justify-between">
+                         <div className="min-w-0">
+                             <p className="text-[11px] font-bold uppercase tracking-widest text-rose-600/80 mb-1">Total Gastos</p>
+                             <h3 className="font-black tracking-tight text-rose-700 dark:text-rose-500 tabular-nums leading-none" style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.75rem)' }}>
+                                 $ {filteredExpenses.filter(e => e.transaction_type === 'gasto' || !e.transaction_type).reduce((a,c) => a + Number(c.amount), 0).toLocaleString('es-AR')}
+                             </h3>
+                         </div>
+                         <ArrowDownCircle className="w-10 h-10 text-rose-500 opacity-50 shrink-0" />
                     </div>
-                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 flex items-center justify-between">
-                         <div><p className="text-[10px] font-black uppercase text-blue-600">Total Ahorros</p><p className="text-lg font-black text-blue-700">$ {filteredExpenses.filter(e => e.transaction_type === 'ahorro').reduce((a,c) => a + Number(c.amount), 0).toLocaleString('es-AR')}</p></div>
-                         <PiggyBank className="w-8 h-8 text-blue-500 opacity-50" />
+                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-[2rem] p-6 flex items-center justify-between">
+                         <div className="min-w-0">
+                             <p className="text-[11px] font-bold uppercase tracking-widest text-blue-600/80 mb-1">Total Ahorros</p>
+                             <h3 className="font-black tracking-tight text-blue-700 dark:text-blue-500 tabular-nums leading-none" style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.75rem)' }}>
+                                 $ {filteredExpenses.filter(e => e.transaction_type === 'ahorro').reduce((a,c) => a + Number(c.amount), 0).toLocaleString('es-AR')}
+                             </h3>
+                         </div>
+                         <PiggyBank className="w-10 h-10 text-blue-500 opacity-50 shrink-0" />
                     </div>
                 </div>
 

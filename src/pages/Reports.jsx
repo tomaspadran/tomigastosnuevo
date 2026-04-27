@@ -83,19 +83,24 @@ const Reports = () => {
         <div className="flex flex-col gap-10 animate-reveal pb-20">
                 
                 {/* Header */}
-                <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="flex items-center gap-6">
+                <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-4">
+                    <div className="flex items-start md:items-center gap-6">
                         <button 
                             onClick={() => navigate('/dashboard')} 
-                            className="w-12 h-12 flex items-center justify-center rounded-2xl bg-card border border-border/50 hover:bg-slate-50 dark:hover:bg-white/5 transition-all shadow-sm group"
+                            className="w-12 h-12 flex shrink-0 items-center justify-center rounded-2xl bg-card border border-border/50 hover:bg-slate-50 dark:hover:bg-white/5 transition-all shadow-sm group mt-2 md:mt-0"
                         >
                             <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:-translate-x-1 transition-transform" />
                         </button>
-                        <div>
-                           <h1 className="text-5xl md:text-6xl font-black tracking-tightest uppercase italic text-foreground leading-tight">
-                              Reportes <span className="text-primary">Mensuales</span>
-                           </h1>
-                           <p className="text-sm font-bold text-muted-foreground tracking-[0.2em] uppercase opacity-70">Inteligencia Financiera • 4K UHD Suite</p>
+                        <div className="flex flex-col space-y-1">
+                            <div className="flex items-center gap-3">
+                                <div className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">
+                                    Analytics Center
+                                </div>
+                            </div>
+                            <h1 className="text-5xl md:text-6xl font-black tracking-tightest text-foreground font-heading">
+                                Reportes <span className="text-primary italic">Mensuales</span>
+                            </h1>
+                            <p className="text-muted-foreground text-sm font-bold tracking-[0.2em] uppercase opacity-70">Inteligencia Financiera • 4K UHD Suite</p>
                         </div>
                     </div>
                 </header>

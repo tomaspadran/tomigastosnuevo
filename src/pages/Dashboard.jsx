@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useExpenses } from '../context/ExpenseContext';
 import { useTheme } from '../components/theme-provider';
 import ThemeToggle from '../components/ThemeToggle';
@@ -39,6 +39,121 @@ import AISuggestions from '../components/dashboard/AISuggestions';
 import { ActionSearchBar } from '../components/ui/action-search-bar';
 import { GradientCard } from '../components/ui/gradient-card';
 import { BarChart2, History } from 'lucide-react';
+
+// ─── Cached canvas context for fast text measurement ───
+let _measureCtx = null;
+const getMeasureCtx = () => {
+  if (!_measureCtx) {
+    const canvas = document.createElement('canvas');
+    _measureCtx = canvas.getContext('2d');
+  }
+  return _measureCtx;
+};
+
+// Auto-fit component: dynamically scales font-size so the number fits cleanly
+// inside the card container. Uses a cached canvas for instant text measurement
+// with a binary-search algorithm.
+const AutoFitValue = ({ value, prefix = '$', className = '', colorClass = 'text-foreground' }) => {
+  const containerRef = useRef(null);
+  const textRef = useRef(null);
+  const [fontSize, setFontSize] = useState(28);
+  const rafRef = useRef(null);
+
+  const formattedValue = `${prefix}${Number(value).toLocaleString('es-AR')}`;
+
+  // Measure text width using a cached off-screen canvas (zero DOM reflow)
+  const measureText = useCallback((text, size) => {
+    const ctx = getMeasureCtx();
+    ctx.font = `900 ${size}px Inter, system-ui, sans-serif`;
+    return ctx.measureText(text).width;
+  }, []);
+
+  const calculateFit = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const MAX_FONT = 36;
+    const MIN_FONT = 14;
+    // Safety margin: 8px so the text never touches the card edges
+    const availableWidth = container.clientWidth - 8;
+
+    if (availableWidth <= 0) return;
+
+    // Binary search for the largest font size that fits
+    let lo = MIN_FONT;
+    let hi = MAX_FONT;
+    let bestSize = MIN_FONT;
+
+    while (lo <= hi) {
+      const mid = Math.floor((lo + hi) / 2);
+      const textWidth = measureText(formattedValue, mid);
+      if (textWidth <= availableWidth) {
+        bestSize = mid;
+        lo = mid + 1;
+      } else {
+        hi = mid - 1;
+      }
+    }
+
+    // Double-check with DOM measurement as a fallback (handles font quirks)
+    if (textRef.current) {
+      textRef.current.style.fontSize = `${bestSize}px`;
+      const actualWidth = textRef.current.scrollWidth;
+      if (actualWidth > availableWidth && bestSize > MIN_FONT) {
+        // Shrink by 1px steps until it really fits
+        let adjusted = bestSize;
+        while (adjusted > MIN_FONT) {
+          adjusted--;
+          textRef.current.style.fontSize = `${adjusted}px`;
+          if (textRef.current.scrollWidth <= availableWidth) break;
+        }
+        bestSize = adjusted;
+      }
+    }
+
+    setFontSize(bestSize);
+  }, [formattedValue, measureText]);
+
+  useEffect(() => {
+    calculateFit();
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const ro = new ResizeObserver(() => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(calculateFit);
+    });
+    ro.observe(container);
+
+    // Recalculate once fonts are loaded (handles FOUT / late Google Fonts)
+    document.fonts?.ready?.then(() => {
+      requestAnimationFrame(calculateFit);
+    });
+
+    return () => {
+      ro.disconnect();
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [calculateFit]);
+
+  return (
+    <div ref={containerRef} className="w-full overflow-hidden">
+      <span
+        ref={textRef}
+        className={`font-black tabular-nums leading-none block whitespace-nowrap ${colorClass} ${className}`}
+        style={{
+          fontSize: `${fontSize}px`,
+          letterSpacing: '-0.03em',
+          fontFeatureSettings: '"tnum", "lnum"',
+          transition: 'font-size 0.2s ease-out',
+        }}
+      >
+        {formattedValue}
+      </span>
+    </div>
+  );
+};
 
 const Dashboard = () => {
   const { expenses, loading, deleteExpense } = useExpenses();
@@ -281,7 +396,7 @@ const Dashboard = () => {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
                     {/* 1) Balance Total */}
                     <GradientCard glowColor="primary" className="bg-primary/90 cursor-pointer" style={{ minHeight: '160px' }}>
-                        <div className="p-5 flex flex-col justify-between gap-6" style={{ minHeight: '160px' }}>
+                        <div className="px-4 py-5 flex flex-col justify-between gap-4" style={{ minHeight: '150px' }}>
                         {loading ? <RenderLoading /> : (
                             <>
                                 <div className="flex justify-between items-start">
@@ -292,9 +407,7 @@ const Dashboard = () => {
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-[11px] font-bold uppercase tracking-widest text-white/70 mb-1">Balance Total</p>
-                                    <h3 className="font-black tracking-tight text-white drop-shadow-md tabular-nums leading-none" style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.75rem)' }}>
-                                        ${stats.totalBalance.toLocaleString('es-AR')}
-                                    </h3>
+                                    <AutoFitValue value={stats.totalBalance} colorClass="text-white drop-shadow-md" />
                                 </div>
                             </>
                         )}
@@ -303,7 +416,7 @@ const Dashboard = () => {
 
                     {/* 2) Ingresos */}
                     <GradientCard glowColor="emerald" className="bg-card/80 backdrop-blur-xl cursor-pointer">
-                        <div className="p-5 flex flex-col justify-between gap-6" style={{ minHeight: '160px' }}>
+                        <div className="px-4 py-5 flex flex-col justify-between gap-4" style={{ minHeight: '150px' }}>
                         {loading ? <RenderLoading /> : (
                             <>
                                 <div className="flex justify-between items-start">
@@ -320,9 +433,7 @@ const Dashboard = () => {
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Ingresos</p>
-                                    <h3 className="font-black tracking-tight text-foreground tabular-nums leading-none" style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.75rem)' }}>
-                                        ${stats.totalIngresos.toLocaleString('es-AR')}
-                                    </h3>
+                                    <AutoFitValue value={stats.totalIngresos} />
                                 </div>
                             </>
                         )}
@@ -331,7 +442,7 @@ const Dashboard = () => {
 
                     {/* 3) Ahorros */}
                     <GradientCard glowColor="blue" className="bg-card/80 backdrop-blur-xl cursor-pointer">
-                        <div className="p-5 flex flex-col justify-between gap-6" style={{ minHeight: '160px' }}>
+                        <div className="px-4 py-5 flex flex-col justify-between gap-4" style={{ minHeight: '150px' }}>
                         {loading ? <RenderLoading /> : (
                             <>
                                 <div className="flex justify-between items-start">
@@ -348,9 +459,7 @@ const Dashboard = () => {
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Ahorros</p>
-                                    <h3 className="font-black tracking-tight text-foreground tabular-nums leading-none" style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.75rem)' }}>
-                                        ${stats.totalAhorros.toLocaleString('es-AR')}
-                                    </h3>
+                                    <AutoFitValue value={stats.totalAhorros} />
                                 </div>
                             </>
                         )}
@@ -359,7 +468,7 @@ const Dashboard = () => {
 
                     {/* 4) Gastos */}
                     <GradientCard glowColor="rose" className="bg-card/80 backdrop-blur-xl cursor-pointer">
-                        <div className="p-5 flex flex-col justify-between gap-6" style={{ minHeight: '160px' }}>
+                        <div className="px-4 py-5 flex flex-col justify-between gap-4" style={{ minHeight: '150px' }}>
                         {loading ? <RenderLoading /> : (
                             <>
                                 <div className="flex justify-between items-start">
@@ -376,9 +485,7 @@ const Dashboard = () => {
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Gastos</p>
-                                    <h3 className="font-black tracking-tight text-foreground tabular-nums leading-none" style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.75rem)' }}>
-                                        ${stats.totalGastos.toLocaleString('es-AR')}
-                                    </h3>
+                                    <AutoFitValue value={stats.totalGastos} />
                                 </div>
                             </>
                         )}
@@ -537,6 +644,7 @@ const Dashboard = () => {
                     </button>
                     
                 </div>
+                </GradientCard>
             </div>
         </div>
     </div>
