@@ -269,4 +269,3 @@
 .error-message {
   @apply absolute -bottom-5 left-1 text-[10px] font-bold text-rose-500 uppercase tracking-wider;
 }
-}
