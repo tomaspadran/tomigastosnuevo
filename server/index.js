@@ -140,7 +140,9 @@ app.post('/api/recover', async (req, res) => {
 // --------------------------------------------------------------------------
 // SERVE FRONTEND (STATIC FILES)
 // --------------------------------------------------------------------------
-const distPath = path.join(__dirname, '../dist');
+const distPath = path.resolve(process.cwd(), 'dist');
+
+// Serve static files from the dist directory
 app.use(express.static(distPath));
 
 // Handle SPA routing: All non-API requests serve index.html
@@ -149,7 +151,9 @@ app.get('*', (req, res) => {
     if (req.path.startsWith('/api/')) {
         return res.status(404).json({ error: 'Not Found' });
     }
-    res.sendFile(path.join(distPath, 'index.html'));
+    
+    const indexPath = path.join(distPath, 'index.html');
+    res.sendFile(indexPath);
 });
 
 app.listen(port, '0.0.0.0', () => {
