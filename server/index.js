@@ -141,8 +141,25 @@ app.post('/api/recover', async (req, res) => {
 // SERVE FRONTEND (STATIC FILES)
 // --------------------------------------------------------------------------
 const distPath = path.resolve(process.cwd(), 'dist');
+console.log('--- SERVER DEBUG INFO ---');
+console.log('Current Working Directory (cwd):', process.cwd());
+console.log('__dirname:', __dirname);
+console.log('Attempting to serve static files from:', distPath);
 
-// Serve static files from the dist directory
+import fs from 'fs';
+if (fs.existsSync(distPath)) {
+    console.log('✅ Folder "dist" found.');
+    if (fs.existsSync(path.join(distPath, 'index.html'))) {
+        console.log('✅ "dist/index.html" exists.');
+    } else {
+        console.error('❌ "dist/index.html" NOT FOUND inside dist folder.');
+    }
+} else {
+    console.error('❌ Folder "dist" NOT FOUND in', distPath);
+}
+console.log('-------------------------');
+
+// Serve static files
 app.use(express.static(distPath));
 
 // Handle SPA routing: All non-API requests serve index.html
@@ -153,7 +170,17 @@ app.get('*', (req, res) => {
     }
     
     const indexPath = path.join(distPath, 'index.html');
-    res.sendFile(indexPath);
+    
+    // Safety check: if for some reason dist/index.html is missing, don't serve the root one
+    if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+    } else {
+        res.status(500).send(`
+            <h1>Error de Configuración en el Servidor</h1>
+            <p>El servidor no pudo encontrar el archivo compilado en: <code>${indexPath}</code></p>
+            <p>Por favor, revisa los logs de Easypanel para más detalles.</p>
+        `);
+    }
 });
 
 app.listen(port, '0.0.0.0', () => {
